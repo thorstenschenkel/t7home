@@ -2,7 +2,13 @@
 <resources>
 
     <string name="app_name">t7home</string>
-    <string name="action_settings">Settings</string>
+    <string name="app_version">0.7</string>
+    <string name="dummy">Dummy</string>
+    <string name="empty"> </string>
+    
+    <!-- main/login -->
+    <string name="main_about_menu_item">Info</string>
+    <string name="main_info_msg"><![CDATA[<table border="0"><tr><td>Version:</td><td>{0}</tr><tr><td>Date:</td><td>{1}</td></tr><tr><td>Author:</td><td>Thorsten Schenkel</td></tr><tr><td>Homepage:</td><td><a href="http://www.t7soft.de/html/joomla_t7soft/index.php">www.t7soft.de</td></tr></table>]]></string>
     <string name="hello_world">Hello world!</string>
 
 </resources>
