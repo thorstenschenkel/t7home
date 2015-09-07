@@ -12,10 +12,12 @@ import android.content.DialogInterface;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
+import android.widget.EditText;
 
 public class MainActivity extends Activity {
 
@@ -23,8 +25,16 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		// http://www.easyinfogeek.com/2015/02/android-example-ip-address-input-control.html
+		EditText ipAddress = (EditText) findViewById(R.id.editTextIpAddress);
+		InputFilter[] filters = new InputFilter[1];
+		filters[0] = new IpAddressInputFilter();
+		ipAddress.setFilters(filters);
+
 	}
 
 	@Override
