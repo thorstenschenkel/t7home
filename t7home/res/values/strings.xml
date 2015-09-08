@@ -14,7 +14,7 @@
     <string name="username_hint">Benutername</string>
     <string name="password_hint">Passwort</string>
     <string name="ip_address">IP-Adresse</string>
-    <string name="ip_address_explanation">Durch Drücken der rechten Taste auf der SmartHome Zentrale erfährst Du die IP-Adresse</string>
+    <string name="ip_address_explanation">Durch Drücken der rechten Taste auf der SmartHome Zentrale erfährst du die IP-Adresse.</string>
     <string name="keep_in_mind">Anmeldedaten merken</string>
     <string name="logon">Anmelden</string>
     <string name="preference_file_key_logon">de.t7soft.android.t7home.PREFERENCE_LOGON</string>
