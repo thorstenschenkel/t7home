@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">t7home</string>
-    <string name="app_version">0.7</string>
+    <string name="app_name">t7 Home</string>
+    <string name="app_version">0.1</string>
     <string name="dummy">Dummy</string>
     <string name="empty"></string>
 
     <!-- main/login -->
     <string name="main_about_menu_item">Info</string>
     <string name="main_info_msg"><![CDATA[<table border="0"><tr><td>Version:</td><td>{0}</tr><tr><td>Datum:</td><td>{1}</td></tr><tr><td>Autor:</td><td>Thorsten Schenkel</td></tr><tr><td>Homepage:</td><td><a href="http://www.t7soft.de/html/joomla_t7soft/index.php">www.t7soft.de</td></tr></table>]]></string>
+    <string name="logon_subtitle">Anmeldung</string>
     <string name="user_data">Benuterdaten</string>
     <string name="username_hint">Benutername</string>
     <string name="password_hint">Passwort</string>
@@ -16,5 +17,10 @@
     <string name="ip_address_explanation">Durch Drücken der rechten Taste auf der SmartHome Zentrale erfährst Du die IP-Adresse</string>
     <string name="keep_in_mind">Anmeldedaten merken</string>
     <string name="logon">Anmelden</string>
-    
+    <string name="preference_file_key_logon">de.t7soft.android.t7home.PREFERENCE_LOGON</string>
+    <string name="preference_key_logon_keep_in_mind">de.t7soft.android.t7home.PREFERENCE_LOGON_KEEP_IN_MIND</string>
+    <string name="preference_key_logon_username">de.t7soft.android.t7home.PREFERENCE_LOGON_USERNAME</string>
+    <string name="preference_key_logon_password">de.t7soft.android.t7home.PREFERENCE_LOGON_PASSWORD</string>
+    <string name="preference_key_logon_ip_address">de.t7soft.android.t7home.PREFERENCE_LOGON_IP_ADDRESS</string>
+
 </resources>
