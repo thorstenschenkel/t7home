@@ -10,8 +10,8 @@
     <string name="main_about_menu_item">Info</string>
     <string name="main_info_msg"><![CDATA[<table border="0"><tr><td>Version:</td><td>{0}</tr><tr><td>Datum:</td><td>{1}</td></tr><tr><td>Autor:</td><td>Thorsten Schenkel</td></tr><tr><td>Homepage:</td><td><a href="http://www.t7soft.de/html/joomla_t7soft/index.php">www.t7soft.de</td></tr></table>]]></string>
     <string name="logon_subtitle">Anmeldung</string>
-    <string name="user_data">Benuterdaten</string>
-    <string name="username_hint">Benutername</string>
+    <string name="user_data">Benutzerdaten</string>
+    <string name="username_hint">Benutzername</string>
     <string name="password_hint">Passwort</string>
     <string name="ip_address">IP-Adresse</string>
     <string name="ip_address_explanation">Durch Drücken der rechten Taste auf der SmartHome Zentrale erfährst du die IP-Adresse.</string>
