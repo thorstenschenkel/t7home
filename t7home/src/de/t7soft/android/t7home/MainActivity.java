@@ -11,6 +11,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -34,8 +35,14 @@ import de.t7soft.android.t7home.smarthome.api.exceptions.SmartHomeSessionExpired
  * Logon
  * 
  * https://code.google.com/p/smarthome-java-library/
+ * 
+ * (VPN) http://www.tecchannel.de/kommunikation/handy_pda/2033962/
+ * smartphone_android_praxis_vpn_einrichten_und_nutzen/
+ * 
  */
 public class MainActivity extends Activity {
+
+	static final String SESSION_ID_KEY = "sessionId";
 
 	private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
@@ -45,7 +52,6 @@ public class MainActivity extends Activity {
 	private static final int LOGON_TECHNICAL_EXCEPTION = 3;
 
 	private LogonData logonData;
-
 	private LogonTask logonTask;
 
 	@Override
@@ -193,9 +199,9 @@ public class MainActivity extends Activity {
 		if (logonTask != null) {
 			logonTask.cancel(true);
 		}
-		logonTask = new LogonTask();
-		logonTask.execute(logonData);
-
+		// logonTask = new LogonTask();
+		// logonTask.execute(logonData);
+		goRoomsList(null);
 	}
 
 	private void storeLogonPreferences() {
@@ -235,7 +241,7 @@ public class MainActivity extends Activity {
 		editor.commit();
 	}
 
-	private class LogonTask extends AsyncTask<LogonData, Void, Integer> {
+	private class LogonTask extends AsyncTask<LogonData, Void, LogonResult> {
 
 		private ProgressDialog progressDialog;
 		private AlertDialog.Builder alertDialogBuilder;
@@ -253,33 +259,31 @@ public class MainActivity extends Activity {
 		}
 
 		@Override
-		protected Integer doInBackground(LogonData... params) {
+		protected LogonResult doInBackground(LogonData... params) {
 
 			SmartHomeSession session = new SmartHomeSession();
+			int resultCode = LOGON_OK;
 			try {
 				session.logon(logonData.getUsername(), logonData.getPassword(),
 						logonData.getIpAddress());
 			} catch (LoginFailedException e) {
-				return LOGON_LOGIN_FAILED;
+				resultCode = LOGON_LOGIN_FAILED;
 			} catch (SmartHomeSessionExpiredException e) {
-				return LOGON_SESSION_EXPIRED;
+				resultCode = LOGON_SESSION_EXPIRED;
 			} catch (SHTechnicalException e) {
-				return LOGON_TECHNICAL_EXCEPTION;
+				resultCode = LOGON_TECHNICAL_EXCEPTION;
 			}
-			return LOGON_OK;
+
+			return new LogonResult(resultCode, session);
 		}
 
 		@Override
-		protected void onPostExecute(Integer result) {
+		protected void onPostExecute(LogonResult result) {
 
 			progressDialog.dismiss();
 
-			if (result == LOGON_OK) {
-				// TODO: message ?
-				// String actionName =
-				// "br.com.anototudo.intent.action.MainMenuView";
-				// Intent intent = new Intent(actionName);
-				// LoginActivity.this.startActivity(intent);
+			if (result.resultCode == LOGON_OK) {
+				goRoomsList(result.session);
 			} else {
 				alertDialogBuilder.setTitle("Anmeldung"); // TODO
 				alertDialogBuilder.setCancelable(true);
@@ -292,7 +296,7 @@ public class MainActivity extends Activity {
 							}
 						});
 				String msg;
-				switch (result) {
+				switch (result.resultCode) {
 				case LOGON_LOGIN_FAILED:
 					msg = "Anmeldung ist mit den Anmeldedaten nicht möglich!"; // TODO
 					break;
@@ -311,6 +315,42 @@ public class MainActivity extends Activity {
 			}
 
 		}
+
+	}
+
+	private void goRoomsList(SmartHomeSession session) {
+		Intent intent = new Intent(this, RoomsListActivity.class);
+		intent.putExtra(SESSION_ID_KEY, session.getSessionId());
+		MainActivity.this.startActivity(intent);
+	}
+
+	private class LogonResult {
+
+		private int resultCode;
+		private SmartHomeSession session;
+
+		public LogonResult(int resultCode, SmartHomeSession session) {
+			super();
+			this.resultCode = resultCode;
+			this.session = session;
+		}
+
+		public int getResultCode() {
+			return resultCode;
+		}
+
+		public void setResultCode(int resultCode) {
+			this.resultCode = resultCode;
+		}
+
+		public SmartHomeSession getSession() {
+			return session;
+		}
+
+		public void setSession(SmartHomeSession session) {
+			this.session = session;
+		}
+
 	}
 
 	private class LogonData {

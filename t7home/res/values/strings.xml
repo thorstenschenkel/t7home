@@ -22,5 +22,8 @@
     <string name="preference_key_logon_username">de.t7soft.android.t7home.PREFERENCE_LOGON_USERNAME</string>
     <string name="preference_key_logon_password">de.t7soft.android.t7home.PREFERENCE_LOGON_PASSWORD</string>
     <string name="preference_key_logon_ip_address">de.t7soft.android.t7home.PREFERENCE_LOGON_IP_ADDRESS</string>
+    
+    <!-- rooms list -->
+    <string name="rooms_subtitle">Räume</string>
 
 </resources>
