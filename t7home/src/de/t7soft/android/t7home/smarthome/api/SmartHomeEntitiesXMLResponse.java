@@ -23,14 +23,8 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 		return locations;
 	}
 
-	// private String currentConfigurationVersion = "";
-	// private String correspondingRequestId = "";
-	private final String responseStatus = "";
 	private ConcurrentHashMap<String, SmartHomeLocation> locations = null;
 	private ConcurrentHashMap<String, WindowDoorSensor> windowDoorSensors = null;
-	private ConcurrentHashMap<String, String> mapRoomsToTemperatureActuators = null;
-	private ConcurrentHashMap<String, String> mapRoomsToTemperatureSensors = null;
-	private ConcurrentHashMap<String, String> mapRoomsToHumiditySensors = null;
 
 	public SmartHomeEntitiesXMLResponse(InputStream is) {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -57,18 +51,13 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 			// LogicalDevices
 			NodeList nlLogicalDevices = docEle.getElementsByTagName("LD");
 			windowDoorSensors = new ConcurrentHashMap<String, WindowDoorSensor>();
-			mapRoomsToTemperatureActuators = new ConcurrentHashMap<String, String>();
-			mapRoomsToHumiditySensors = new ConcurrentHashMap<String, String>();
-			mapRoomsToTemperatureSensors = new ConcurrentHashMap<String, String>();
 			if (nlLogicalDevices != null && nlLogicalDevices.getLength() > 0) {
 				for (int i = 0; i < nlLogicalDevices.getLength(); i++) {
 					Element logDevEl = (Element) nlLogicalDevices.item(i);
 					LogicalDevice logDev = getLogicalDevice(logDevEl);
 					if (logDev != null) {
 						if (!logDev.getDeviceName().equals("")) {
-							Logger.getLogger(
-									SmartHomeEntitiesXMLResponse.class
-											.getName()).log(Level.FINEST,
+							Logger.getLogger(SmartHomeEntitiesXMLResponse.class.getName()).log(Level.FINEST,
 									logDev.getDeviceName());
 						}
 						logDev.setLocation(locations.get(logDev.getLocationId()));
@@ -77,14 +66,11 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 			}
 
 		} catch (SAXException ex) {
-			Logger.getLogger(LogicalDeviceXMLResponse.class.getName()).log(
-					Level.SEVERE, null, ex);
+			Logger.getLogger(LogicalDeviceXMLResponse.class.getName()).log(Level.SEVERE, null, ex);
 		} catch (IOException ex) {
-			Logger.getLogger(LogicalDeviceXMLResponse.class.getName()).log(
-					Level.SEVERE, null, ex);
+			Logger.getLogger(LogicalDeviceXMLResponse.class.getName()).log(Level.SEVERE, null, ex);
 		} catch (ParserConfigurationException ex) {
-			Logger.getLogger(LogicalDeviceXMLResponse.class.getName()).log(
-					Level.SEVERE, null, ex);
+			Logger.getLogger(LogicalDeviceXMLResponse.class.getName()).log(Level.SEVERE, null, ex);
 		}
 	}
 
@@ -96,6 +82,35 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 		location.setName(getTextValueFromElements(devEl, "Name"));
 		location.setPosition(getTextValueFromElements(devEl, "Position"));
 		return location;
+	}
+
+	private LogicalDevice getLogicalDevice(Element devEl) {
+		LogicalDevice logicalDevice = null;
+		String sType = getTextValueFromAttribute(devEl, "xsi:type");
+		if (LogicalDevice.Type_WindowDoorSensor.equals(sType)) {
+			WindowDoorSensor windowDoorSensor = new WindowDoorSensor();
+			windowDoorSensor.setLogicalDeviceId(getTextValueFromElements(devEl, "Id"));
+			windowDoorSensor.setDeviceName(getTextValueFromAttribute(devEl, "Name"));
+			windowDoorSensor.setLocationId(getTextValueFromAttribute(devEl, "LCID"));
+			windowDoorSensors.put(windowDoorSensor.getDeviceId(), windowDoorSensor);
+			logicalDevice = windowDoorSensor;
+		} else {
+			logicalDevice = new LogicalDevice();
+			logicalDevice.setLogicalDeviceType(LogicalDevice.Type_Generic);
+
+			if ((!sType.contains("Sensor")) && (!sType.contains("Actuator"))) {
+				Logger.getLogger(SmartHomeEntitiesXMLResponse.class.getName()).log(Level.INFO,
+						"-2-----------new/unknown logical device: " + sType);
+			}
+			logicalDevice.setLogicalDeviceId(getTextValueFromElements(devEl, "Id"));
+		}
+
+		return logicalDevice;
+
+	}
+
+	public ConcurrentHashMap<String, ? extends LogicalDevice> getWindowDoorSensors() {
+		return windowDoorSensors;
 	}
 
 }

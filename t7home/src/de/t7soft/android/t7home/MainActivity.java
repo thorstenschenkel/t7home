@@ -36,8 +36,7 @@ import de.t7soft.android.t7home.smarthome.api.exceptions.SmartHomeSessionExpired
  * 
  * https://code.google.com/p/smarthome-java-library/
  * 
- * (VPN) http://www.tecchannel.de/kommunikation/handy_pda/2033962/
- * smartphone_android_praxis_vpn_einrichten_und_nutzen/
+ * (VPN) http://www.tecchannel.de/kommunikation/handy_pda/2033962/ smartphone_android_praxis_vpn_einrichten_und_nutzen/
  * 
  */
 public class MainActivity extends Activity {
@@ -63,8 +62,7 @@ public class MainActivity extends Activity {
 
 		super.onCreate(savedInstanceState);
 
-		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-				.permitAll().build();
+		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 		StrictMode.setThreadPolicy(policy);
 
 		setContentView(R.layout.activity_main);
@@ -96,11 +94,11 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.about_item:
-			showAboutDlg();
-			return true;
-		default:
-			return super.onOptionsItemSelected(item);
+			case R.id.about_item:
+				showAboutDlg();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
 		}
 	}
 
@@ -128,14 +126,11 @@ public class MainActivity extends Activity {
 
 	private String createInfoText() {
 		try {
-			String versionName = getPackageManager().getPackageInfo(
-					getPackageName(), 0).versionName;
+			String versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
 			Date buildTime = getBuildTime();
-			String dateString = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
-					.format(buildTime);
+			String dateString = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(buildTime);
 			String msgString = getString(R.string.main_info_msg);
-			msgString = MessageFormat
-					.format(msgString, versionName, dateString);
+			msgString = MessageFormat.format(msgString, versionName, dateString);
 			return msgString;
 		} catch (NameNotFoundException e) {
 			Log.e(LOG_TAG, "No infos found!", e);
@@ -145,8 +140,7 @@ public class MainActivity extends Activity {
 
 	private Date getBuildTime() {
 		try {
-			ApplicationInfo ai = getPackageManager().getApplicationInfo(
-					getPackageName(), 0);
+			ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), 0);
 			ZipFile zf = new ZipFile(ai.sourceDir);
 			ZipEntry ze = zf.getEntry("classes.dex");
 			long time = ze.getTime();
@@ -160,21 +154,16 @@ public class MainActivity extends Activity {
 
 	private void initView() {
 
-		SharedPreferences sharedPref = getSharedPreferences(
-				getString(R.string.preference_file_key_logon),
+		SharedPreferences sharedPref = getSharedPreferences(getString(R.string.preference_file_key_logon),
 				Context.MODE_PRIVATE);
-		boolean keepInMind = sharedPref.getBoolean(
-				getString(R.string.preference_key_logon_keep_in_mind), false);
+		boolean keepInMind = sharedPref.getBoolean(getString(R.string.preference_key_logon_keep_in_mind), false);
 		final CheckBox checkBoxKeepInMind = (CheckBox) findViewById(R.id.checkBoxKeepInMind);
 		checkBoxKeepInMind.setChecked(keepInMind);
 
 		if (keepInMind) {
-			String username = sharedPref.getString(
-					getString(R.string.preference_key_logon_username), "");
-			String password = sharedPref.getString(
-					getString(R.string.preference_key_logon_password), "");
-			String ipAddress = sharedPref.getString(
-					getString(R.string.preference_key_logon_ip_address), "");
+			String username = sharedPref.getString(getString(R.string.preference_key_logon_username), "");
+			String password = sharedPref.getString(getString(R.string.preference_key_logon_password), "");
+			String ipAddress = sharedPref.getString(getString(R.string.preference_key_logon_ip_address), "");
 			logonData = new LogonData(username, password, ipAddress);
 			final EditText editTextUsername = (EditText) findViewById(R.id.editTextUsername);
 			editTextUsername.setText(logonData.getUsername());
@@ -199,9 +188,8 @@ public class MainActivity extends Activity {
 		if (logonTask != null) {
 			logonTask.cancel(true);
 		}
-		// logonTask = new LogonTask();
-		// logonTask.execute(logonData);
-		goRoomsList(null);
+		logonTask = new LogonTask();
+		logonTask.execute(logonData);
 	}
 
 	private void storeLogonPreferences() {
@@ -214,24 +202,17 @@ public class MainActivity extends Activity {
 		String ipAddress = editTextIpAddress.getText().toString();
 		logonData = new LogonData(username, password, ipAddress);
 
-		SharedPreferences sharedPref = getSharedPreferences(
-				getString(R.string.preference_file_key_logon),
+		SharedPreferences sharedPref = getSharedPreferences(getString(R.string.preference_file_key_logon),
 				Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 
 		final CheckBox checkBoxKeepInMind = (CheckBox) findViewById(R.id.checkBoxKeepInMind);
 		boolean keepInMind = checkBoxKeepInMind.isChecked();
-		editor.putBoolean(
-				getString(R.string.preference_key_logon_keep_in_mind),
-				keepInMind);
+		editor.putBoolean(getString(R.string.preference_key_logon_keep_in_mind), keepInMind);
 		if (keepInMind) {
-			editor.putString(getString(R.string.preference_key_logon_username),
-					logonData.getUsername());
-			editor.putString(getString(R.string.preference_key_logon_password),
-					logonData.getPassword());
-			editor.putString(
-					getString(R.string.preference_key_logon_ip_address),
-					logonData.getIpAddress());
+			editor.putString(getString(R.string.preference_key_logon_username), logonData.getUsername());
+			editor.putString(getString(R.string.preference_key_logon_password), logonData.getPassword());
+			editor.putString(getString(R.string.preference_key_logon_ip_address), logonData.getIpAddress());
 		} else {
 			editor.remove(getString(R.string.preference_key_logon_username));
 			editor.remove(getString(R.string.preference_key_logon_password));
@@ -264,8 +245,7 @@ public class MainActivity extends Activity {
 			SmartHomeSession session = new SmartHomeSession();
 			int resultCode = LOGON_OK;
 			try {
-				session.logon(logonData.getUsername(), logonData.getPassword(),
-						logonData.getIpAddress());
+				session.logon(logonData.getUsername(), logonData.getPassword(), logonData.getIpAddress());
 			} catch (LoginFailedException e) {
 				resultCode = LOGON_LOGIN_FAILED;
 			} catch (SmartHomeSessionExpiredException e) {
@@ -288,27 +268,26 @@ public class MainActivity extends Activity {
 				alertDialogBuilder.setTitle("Anmeldung"); // TODO
 				alertDialogBuilder.setCancelable(true);
 				// TODO
-				alertDialogBuilder.setPositiveButton("OK",
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int id) {
-								dialog.cancel();
-							}
-						});
+				alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.cancel();
+					}
+				});
 				String msg;
 				switch (result.resultCode) {
-				case LOGON_LOGIN_FAILED:
-					msg = "Anmeldung ist mit den Anmeldedaten nicht möglich!"; // TODO
-					break;
-				case LOGON_SESSION_EXPIRED:
-					msg = "Anmeldung ist fehlgeschlagen. Die Session ist abgelaufen."; // TODO
-					break;
-				case LOGON_TECHNICAL_EXCEPTION:
-					msg = "Anmeldung ist fehlgeschlagen. Es ist eine technischer Fehler aufgetreten."; // TODO
-					break;
-				default:
-					msg = "Anmeldung ist fehlgeschlagen. Es ist eine unbekannter Fehler aufgetreten."; // TODO
-					break;
+					case LOGON_LOGIN_FAILED:
+						msg = "Anmeldung ist mit den Anmeldedaten nicht möglich!"; // TODO
+						break;
+					case LOGON_SESSION_EXPIRED:
+						msg = "Anmeldung ist fehlgeschlagen. Die Session ist abgelaufen."; // TODO
+						break;
+					case LOGON_TECHNICAL_EXCEPTION:
+						msg = "Anmeldung ist fehlgeschlagen. Es ist ein technischer Fehler aufgetreten."; // TODO
+						break;
+					default:
+						msg = "Anmeldung ist fehlgeschlagen. Es ist ein unbekannter Fehler aufgetreten."; // TODO
+						break;
 				}
 				alertDialogBuilder.setMessage(msg);
 				alertDialogBuilder.create().show();
