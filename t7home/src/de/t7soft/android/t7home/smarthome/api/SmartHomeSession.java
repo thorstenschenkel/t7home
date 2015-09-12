@@ -53,9 +53,10 @@ public class SmartHomeSession {
 	private String hostName;
 
 	// IDs
-	private String sessionId = "";
 	private String clientId;
+	private String sessionId = "";
 	private String requestId = "";
+	private String version = "";
 
 	private String currentConfigurationVersion = "";
 
@@ -73,6 +74,7 @@ public class SmartHomeSession {
 		if (SESSION_DATA.containsKey(sessionId)) {
 			SessionData sessionData = SESSION_DATA.get(sessionId);
 			requestId = sessionData.getRequestId();
+			version = sessionData.getVersion();
 			setHostName(sessionData.getHostName());
 		}
 	}
@@ -274,7 +276,7 @@ public class SmartHomeSession {
 	}
 
 	private String buildRequest(String type, String attributes, String content) {
-		String request = MessageFormat.format(BASEREQUEST_STARTTAG, type, FIRMWARE_VERSION, requestId, attributes);
+		String request = MessageFormat.format(BASEREQUEST_STARTTAG, type, version, requestId, attributes);
 		if (content != null) {
 			request += content;
 		}
