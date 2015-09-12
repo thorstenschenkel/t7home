@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -38,9 +39,13 @@ import de.t7soft.android.t7home.smarthome.util.XMLUtil;
  */
 public class SmartHomeSession {
 
+	private static final boolean FAKE = false;
+
 	private static final String FIRMWARE_VERSION = "1.70";
 	private static final String BASEREQUEST_STARTTAG = "<BaseRequest xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"{0}\" Version=\"{1}\" RequestId=\"{2}\" {3}>";
 	private static final String BASEREQUEST_ENDTAG = "</BaseRequest>";
+
+	private static final HashMap<String, SessionData> SESSION_DATA = new HashMap<String, SessionData>();
 
 	// logon data
 	private String userName;
@@ -59,6 +64,19 @@ public class SmartHomeSession {
 
 	private final HttpComponentsHelper httpHelper = new HttpComponentsHelper();
 
+	public SmartHomeSession() {
+		super();
+	}
+
+	public SmartHomeSession(String sessionId) {
+		setSessionId(sessionId);
+		if (SESSION_DATA.containsKey(sessionId)) {
+			SessionData sessionData = SESSION_DATA.get(sessionId);
+			requestId = sessionData.getRequestId();
+			setHostName(sessionData.getHostName());
+		}
+	}
+
 	public void logon(String userName, String passWord, String hostName) throws SHTechnicalException, LoginFailedException,
 			SmartHomeSessionExpiredException {
 		this.userName = userName;
@@ -75,17 +93,26 @@ public class SmartHomeSession {
 		String passWordEncrypted = generateHashFromPassword(passWord);
 		String loginData = "UserName=\"" + getUserName() + "\"";
 		loginData += " Password=\"" + passWordEncrypted + "\"";
-		String loginRequest = buildRequest("LoginRequest", FIRMWARE_VERSION, loginData);
+		String loginRequest = buildRequest("LoginRequest", loginData);
 		try {
-
+			if (FAKE) {
+				setSessionId("FAKE_SESSION_ID");
+				return;
+			}
 			String sResponse = executeRequest(loginRequest);
 			setSessionId(XMLUtil.XPathValueFromString(sResponse, "/BaseResponse/@SessionId"));
 			if (getSessionId() == null || "".equals(getSessionId())) {
 				throw new LoginFailedException("LoginFailed: Authentication with user:" + userName
 						+ " was not possible. Session ID is empty.");
 			}
+			SessionData sessionData = new SessionData();
+			sessionData.setSessionId(getSessionId());
+			sessionData.setRequestId(requestId);
+			sessionData.setHostName(getHostName());
+			sessionData.setVersion(XMLUtil.XPathValueFromString(sResponse, "/BaseResponse/@Version"));
 			currentConfigurationVersion = XMLUtil.XPathValueFromString(sResponse,
 					"/BaseResponse/@CurrentConfigurationVersion");
+			SESSION_DATA.put(getSessionId(), sessionData);
 		} catch (ParserConfigurationException ex) {
 			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
 			throw new SHTechnicalException("ParserConfigurationException:" + ex.getMessage(), ex);
@@ -141,6 +168,23 @@ public class SmartHomeSession {
 	}
 
 	/**
+	 * Destroy.
+	 */
+	public void destroy() {
+		String attributes = "SessionId=\"" + getSessionId() + "\"";
+		String logoutrequest = buildRequest("LogoutRequest", FIRMWARE_VERSION, attributes);
+		try {
+			executeRequest(logoutrequest);
+		} catch (SmartHomeSessionExpiredException e) {
+		}
+		if (SESSION_DATA.containsKey(sessionId)) {
+			SESSION_DATA.remove(sessionId);
+		}
+		sessionId = "";
+
+	}
+
+	/**
 	 * Execute request.
 	 * 
 	 * @param loginRequest
@@ -182,11 +226,14 @@ public class SmartHomeSession {
 
 	public String refreshConfiguration() throws SmartHomeSessionExpiredException {
 
-		String attrbutes = "SessionId=\"" + getSessionId() + "\"";
+		String attributes = "SessionId=\"" + getSessionId() + "\"";
 		String content = "<EntityType>Configuration</EntityType>";
-		String getConfigurationRequest = buildRequest("GetEntitiesRequest", "1.60", attrbutes, content);
+		String getConfigurationRequest = buildRequest("GetEntitiesRequest", attributes, content);
 
 		String sResponse = executeRequest(getConfigurationRequest);
+		if (sResponse == null || sResponse.isEmpty()) {
+			throw new SmartHomeSessionExpiredException("No response!");
+		}
 		Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, sResponse);
 		try {
 			refreshConfigurationFromInputStream(IOUtils.toInputStream(sResponse, "UTF8"));
@@ -206,6 +253,10 @@ public class SmartHomeSession {
 		return hostName;
 	}
 
+	private void setHostName(String hostName) {
+		this.hostName = hostName;
+	}
+
 	private String getUserName() {
 		return userName;
 	}
@@ -214,20 +265,62 @@ public class SmartHomeSession {
 		return sessionId;
 	}
 
-	public void setSessionId(String sessionId) {
+	private void setSessionId(String sessionId) {
 		this.sessionId = sessionId;
 	}
 
-	private String buildRequest(String type, String version, String attributes) {
-		return buildRequest(type, version, attributes, null);
+	private String buildRequest(String type, String attributes) {
+		return buildRequest(type, attributes, null);
 	}
 
-	private String buildRequest(String type, String version, String attributes, String content) {
-		String request = MessageFormat.format(BASEREQUEST_STARTTAG, type, version, requestId, attributes);
+	private String buildRequest(String type, String attributes, String content) {
+		String request = MessageFormat.format(BASEREQUEST_STARTTAG, type, FIRMWARE_VERSION, requestId, attributes);
 		if (content != null) {
 			request += content;
 		}
 		request += BASEREQUEST_ENDTAG;
 		return request;
 	}
+
+	private class SessionData {
+
+		private String sessionId;
+		private String requestId;
+		private String hostName;
+		private String version;
+
+		public String getSessionId() {
+			return sessionId;
+		}
+
+		public void setSessionId(String sessionId) {
+			this.sessionId = sessionId;
+		}
+
+		public String getRequestId() {
+			return requestId;
+		}
+
+		public void setRequestId(String requestId) {
+			this.requestId = requestId;
+		}
+
+		public String getHostName() {
+			return hostName;
+		}
+
+		public void setHostName(String hostName) {
+			this.hostName = hostName;
+		}
+
+		public String getVersion() {
+			return version;
+		}
+
+		public void setVersion(String version) {
+			this.version = version;
+		}
+
+	}
+
 }

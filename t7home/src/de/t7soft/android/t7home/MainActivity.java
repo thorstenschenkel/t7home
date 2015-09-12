@@ -242,6 +242,7 @@ public class MainActivity extends Activity {
 		@Override
 		protected LogonResult doInBackground(LogonData... params) {
 
+			LogonData logonData = params[0];
 			SmartHomeSession session = new SmartHomeSession();
 			int resultCode = LOGON_OK;
 			try {
@@ -314,18 +315,22 @@ public class MainActivity extends Activity {
 			this.session = session;
 		}
 
+		@SuppressWarnings("unused")
 		public int getResultCode() {
 			return resultCode;
 		}
 
+		@SuppressWarnings("unused")
 		public void setResultCode(int resultCode) {
 			this.resultCode = resultCode;
 		}
 
+		@SuppressWarnings("unused")
 		public SmartHomeSession getSession() {
 			return session;
 		}
 
+		@SuppressWarnings("unused")
 		public void setSession(SmartHomeSession session) {
 			this.session = session;
 		}
@@ -353,6 +358,7 @@ public class MainActivity extends Activity {
 			return username;
 		}
 
+		@SuppressWarnings("unused")
 		public void setUsername(String username) {
 			this.username = username;
 		}
@@ -361,6 +367,7 @@ public class MainActivity extends Activity {
 			return password;
 		}
 
+		@SuppressWarnings("unused")
 		public void setPassword(String password) {
 			this.password = password;
 		}
@@ -369,6 +376,7 @@ public class MainActivity extends Activity {
 			return ipAddress;
 		}
 
+		@SuppressWarnings("unused")
 		public void setIpAddress(String ipAddress) {
 			this.ipAddress = ipAddress;
 		}
