@@ -1,5 +1,7 @@
 package de.t7soft.android.t7home;
 
+import java.util.Enumeration;
+
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
@@ -8,6 +10,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
+import de.t7soft.android.t7home.database.HomeDatabaseAdapter;
+import de.t7soft.android.t7home.smarthome.api.SmartHomeLocation;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeSession;
 import de.t7soft.android.t7home.smarthome.api.exceptions.SmartHomeSessionExpiredException;
 
@@ -18,12 +22,18 @@ public class RoomsListActivity extends ListActivity {
 	private static final int REFRESH_OK = 0;
 	private static final int REFRESH_ERROR = 1;
 
+	private HomeDatabaseAdapter dbAdapter;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
 		// TODO menu with logoff, refresh
 
 		sessionId = getIntent().getExtras().getString(MainActivity.SESSION_ID_KEY);
+
+		if (dbAdapter == null) {
+			dbAdapter = new HomeDatabaseAdapter(this);
+		}
 
 		ListView listView = getListView();
 		View header = getLayoutInflater().inflate(R.layout.rooms_list_header, null);
@@ -39,11 +49,19 @@ public class RoomsListActivity extends ListActivity {
 	@Override
 	protected void onResume() {
 
+		dbAdapter.open();
+
 		super.onResume();
 
 		RefreshTask refreshTask = new RefreshTask();
 		refreshTask.execute(sessionId);
 
+	}
+
+	@Override
+	protected void onPause() {
+		dbAdapter.close();
+		super.onPause();
 	}
 
 	@Override
@@ -69,6 +87,13 @@ public class RoomsListActivity extends ListActivity {
 		private ProgressDialog progressDialog;
 		private AlertDialog.Builder alertDialogBuilder;
 
+		private void storeLocations(SmartHomeSession session) {
+			Enumeration<SmartHomeLocation> locations = session.getLocations().elements();
+			while (locations.hasMoreElements()) {
+				dbAdapter.insertLocation(locations.nextElement());
+			}
+		}
+
 		@Override
 		protected void onPreExecute() {
 			// https://www.google.com/design/spec/components/progress-activity.html#
@@ -86,7 +111,7 @@ public class RoomsListActivity extends ListActivity {
 			SmartHomeSession session = new SmartHomeSession(sessionId);
 			try {
 				session.refreshConfiguration();
-				// TODO store Locations etc. in data base
+				storeLocations(session);
 			} catch (SmartHomeSessionExpiredException e) {
 				return REFRESH_ERROR;
 			}

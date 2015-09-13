@@ -84,6 +84,7 @@ public class SmartHomeSession {
 		this.userName = userName;
 		this.passWord = passWord;
 		this.hostName = hostName;
+		version = FIRMWARE_VERSION;
 		initialize();
 	}
 
@@ -174,7 +175,7 @@ public class SmartHomeSession {
 	 */
 	public void destroy() {
 		String attributes = "SessionId=\"" + getSessionId() + "\"";
-		String logoutrequest = buildRequest("LogoutRequest", FIRMWARE_VERSION, attributes);
+		String logoutrequest = buildRequest("LogoutRequest", attributes);
 		try {
 			executeRequest(logoutrequest);
 		} catch (SmartHomeSessionExpiredException e) {
@@ -247,7 +248,7 @@ public class SmartHomeSession {
 
 	public void refreshConfigurationFromInputStream(InputStream is) {
 		SmartHomeEntitiesXMLResponse smartHomeEntitiesXMLRes = new SmartHomeEntitiesXMLResponse(is);
-		this.locations = smartHomeEntitiesXMLRes.getLocations();
+		this.setLocations(smartHomeEntitiesXMLRes.getLocations());
 		this.windowDoorSensors = smartHomeEntitiesXMLRes.getWindowDoorSensors();
 	}
 
@@ -282,6 +283,14 @@ public class SmartHomeSession {
 		}
 		request += BASEREQUEST_ENDTAG;
 		return request;
+	}
+
+	public ConcurrentHashMap<String, SmartHomeLocation> getLocations() {
+		return locations;
+	}
+
+	private void setLocations(ConcurrentHashMap<String, SmartHomeLocation> locations) {
+		this.locations = locations;
 	}
 
 	private class SessionData {
