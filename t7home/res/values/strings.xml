@@ -25,5 +25,6 @@
     
     <!-- rooms list -->
     <string name="rooms_subtitle">Räume</string>
-
+    <string name="rooms_refresh_menu_item">Aktualisieren</string>
+    
 </resources>

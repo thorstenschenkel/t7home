@@ -1,14 +1,20 @@
 package de.t7soft.android.t7home;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import de.t7soft.android.t7home.database.HomeDatabaseAdapter;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeLocation;
@@ -17,27 +23,37 @@ import de.t7soft.android.t7home.smarthome.api.exceptions.SmartHomeSessionExpired
 
 public class RoomsListActivity extends ListActivity {
 
+	public static final String LOCATION_ID = "locationId";
+
 	private String sessionId;
 
 	private static final int REFRESH_OK = 0;
 	private static final int REFRESH_ERROR = 1;
 
+	private final List<SmartHomeLocation> locations = new ArrayList<SmartHomeLocation>();
 	private HomeDatabaseAdapter dbAdapter;
+	private ArrayAdapter<SmartHomeLocation> listAdapter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
 		// TODO menu with logoff, refresh
 
-		sessionId = getIntent().getExtras().getString(MainActivity.SESSION_ID_KEY);
+		sessionId = getIntent().getExtras().getString(
+				MainActivity.SESSION_ID_KEY);
 
 		if (dbAdapter == null) {
 			dbAdapter = new HomeDatabaseAdapter(this);
 		}
 
 		ListView listView = getListView();
-		View header = getLayoutInflater().inflate(R.layout.rooms_list_header, null);
+		View header = getLayoutInflater().inflate(R.layout.rooms_list_header,
+				null);
 		listView.addHeaderView(header);
+
+		listAdapter = createListAdapter(locations);
+		setListAdapter(listAdapter);
+		listView.setTextFilterEnabled(true);
 
 		super.onCreate(savedInstanceState);
 
@@ -51,11 +67,16 @@ public class RoomsListActivity extends ListActivity {
 
 		dbAdapter.open();
 
+		refresh();
+
 		super.onResume();
 
+	}
+
+	private void refresh() {
 		RefreshTask refreshTask = new RefreshTask();
 		refreshTask.execute(sessionId);
-
+		updateListAdapter();
 	}
 
 	@Override
@@ -65,11 +86,55 @@ public class RoomsListActivity extends ListActivity {
 	}
 
 	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.rooms, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.about_item:
+			AboutDlg aboutDlg = new AboutDlg(this);
+			aboutDlg.show();
+			return true;
+		case R.id.refresh_item:
+			refresh();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
+
 		int itemPosition = position - getListView().getHeaderViewsCount();
 		if (itemPosition >= 0 && itemPosition < getListAdapter().getCount()) {
-			// TODO
+
+			SmartHomeLocation location = (SmartHomeLocation) getListAdapter()
+					.getItem(itemPosition);
+
+			Intent intent = new Intent(this, RoomActivity.class);
+			intent.putExtra(LOCATION_ID, location.getLocationId());
+			startActivity(intent);
+
 		}
+
+	}
+
+	private ArrayAdapter<SmartHomeLocation> createListAdapter(
+			final List<SmartHomeLocation> locations) {
+		return new ArrayAdapter<SmartHomeLocation>(this,
+				android.R.layout.simple_list_item_1, locations);
+	}
+
+	private void updateListAdapter() {
+
+		locations.clear();
+		locations.addAll(dbAdapter.getAllLocations());
+		listAdapter.notifyDataSetChanged();
+
 	}
 
 	// @Override
@@ -88,7 +153,9 @@ public class RoomsListActivity extends ListActivity {
 		private AlertDialog.Builder alertDialogBuilder;
 
 		private void storeLocations(SmartHomeSession session) {
-			Enumeration<SmartHomeLocation> locations = session.getLocations().elements();
+			dbAdapter.deleteAllLocations();
+			Enumeration<SmartHomeLocation> locations = session.getLocations()
+					.elements();
 			while (locations.hasMoreElements()) {
 				dbAdapter.insertLocation(locations.nextElement());
 			}
@@ -126,12 +193,13 @@ public class RoomsListActivity extends ListActivity {
 				alertDialogBuilder.setTitle("Aktualisierung"); // TODO
 				alertDialogBuilder.setCancelable(true);
 				// TODO
-				alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int id) {
-						dialog.cancel();
-					}
-				});
+				alertDialogBuilder.setPositiveButton("OK",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								dialog.cancel();
+							}
+						});
 				String msg = "Aktualisierung der Räume ist fehlgeschlagen!";
 				alertDialogBuilder.setMessage(msg);
 				alertDialogBuilder.create().show();
