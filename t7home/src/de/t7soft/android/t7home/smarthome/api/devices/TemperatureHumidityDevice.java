@@ -7,7 +7,7 @@ public class TemperatureHumidityDevice {
 	private SmartHomeLocation location = null;
 	private RoomTemperatureSensor temperatureSensor = null;
 	private RoomTemperatureActuator temperatureActuator = null;
-	private RoomHumiditySensor roomHumidtySensor = null;
+	private RoomHumiditySensor roomHumiditySensor = null;
 
 	public SmartHomeLocation getLocation() {
 		return location;
@@ -29,17 +29,16 @@ public class TemperatureHumidityDevice {
 		return temperatureActuator;
 	}
 
-	public void setTemperatureActuator(
-			RoomTemperatureActuator temperatureActuator) {
+	public void setTemperatureActuator(RoomTemperatureActuator temperatureActuator) {
 		this.temperatureActuator = temperatureActuator;
 	}
 
-	public RoomHumiditySensor getRoomHumidtySensor() {
-		return roomHumidtySensor;
+	public RoomHumiditySensor getRoomHumiditySensor() {
+		return roomHumiditySensor;
 	}
 
-	public void setRoomHumidtySensor(RoomHumiditySensor roomHumidtySensor) {
-		this.roomHumidtySensor = roomHumidtySensor;
+	public void setRoomHumiditySensor(RoomHumiditySensor roomHumiditySensor) {
+		this.roomHumiditySensor = roomHumiditySensor;
 	}
 
 	public String getLocationId() {

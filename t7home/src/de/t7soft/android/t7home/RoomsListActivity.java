@@ -3,6 +3,7 @@ package de.t7soft.android.t7home;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
@@ -19,6 +20,7 @@ import android.widget.ListView;
 import de.t7soft.android.t7home.database.HomeDatabaseAdapter;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeLocation;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeSession;
+import de.t7soft.android.t7home.smarthome.api.devices.TemperatureHumidityDevice;
 import de.t7soft.android.t7home.smarthome.api.exceptions.SmartHomeSessionExpiredException;
 
 public class RoomsListActivity extends ListActivity {
@@ -39,16 +41,14 @@ public class RoomsListActivity extends ListActivity {
 
 		// TODO menu with logoff, refresh
 
-		sessionId = getIntent().getExtras().getString(
-				MainActivity.SESSION_ID_KEY);
+		sessionId = getIntent().getExtras().getString(MainActivity.SESSION_ID_KEY);
 
 		if (dbAdapter == null) {
 			dbAdapter = new HomeDatabaseAdapter(this);
 		}
 
 		ListView listView = getListView();
-		View header = getLayoutInflater().inflate(R.layout.rooms_list_header,
-				null);
+		View header = getLayoutInflater().inflate(R.layout.rooms_list_header, null);
 		listView.addHeaderView(header);
 
 		listAdapter = createListAdapter(locations);
@@ -94,15 +94,15 @@ public class RoomsListActivity extends ListActivity {
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.about_item:
-			AboutDlg aboutDlg = new AboutDlg(this);
-			aboutDlg.show();
-			return true;
-		case R.id.refresh_item:
-			refresh();
-			return true;
-		default:
-			return super.onOptionsItemSelected(item);
+			case R.id.about_item:
+				AboutDlg aboutDlg = new AboutDlg(this);
+				aboutDlg.show();
+				return true;
+			case R.id.refresh_item:
+				refresh();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
 		}
 	}
 
@@ -112,8 +112,7 @@ public class RoomsListActivity extends ListActivity {
 		int itemPosition = position - getListView().getHeaderViewsCount();
 		if (itemPosition >= 0 && itemPosition < getListAdapter().getCount()) {
 
-			SmartHomeLocation location = (SmartHomeLocation) getListAdapter()
-					.getItem(itemPosition);
+			SmartHomeLocation location = (SmartHomeLocation) getListAdapter().getItem(itemPosition);
 
 			Intent intent = new Intent(this, RoomActivity.class);
 			intent.putExtra(LOCATION_ID, location.getLocationId());
@@ -123,10 +122,8 @@ public class RoomsListActivity extends ListActivity {
 
 	}
 
-	private ArrayAdapter<SmartHomeLocation> createListAdapter(
-			final List<SmartHomeLocation> locations) {
-		return new ArrayAdapter<SmartHomeLocation>(this,
-				android.R.layout.simple_list_item_1, locations);
+	private ArrayAdapter<SmartHomeLocation> createListAdapter(final List<SmartHomeLocation> locations) {
+		return new ArrayAdapter<SmartHomeLocation>(this, android.R.layout.simple_list_item_1, locations);
 	}
 
 	private void updateListAdapter() {
@@ -154,10 +151,27 @@ public class RoomsListActivity extends ListActivity {
 
 		private void storeLocations(SmartHomeSession session) {
 			dbAdapter.deleteAllLocations();
-			Enumeration<SmartHomeLocation> locations = session.getLocations()
-					.elements();
+			ConcurrentHashMap<String, SmartHomeLocation> locationsMap = session.getLocations();
+			if (locationsMap == null) {
+				return;
+			}
+			Enumeration<SmartHomeLocation> locations = locationsMap.elements();
 			while (locations.hasMoreElements()) {
 				dbAdapter.insertLocation(locations.nextElement());
+			}
+		}
+
+		private void storeTemperatureHumidityDevices(SmartHomeSession session) {
+			dbAdapter.deleteAllTemperatureHumidityDevices();
+			dbAdapter.deleteAllTemperatureSensors();
+			dbAdapter.deleteAllRoomHumidtySensors();
+			ConcurrentHashMap<String, TemperatureHumidityDevice> devicesMap = session.getTemperatureHumidityDevices();
+			if (devicesMap == null) {
+				return;
+			}
+			Enumeration<TemperatureHumidityDevice> devices = devicesMap.elements();
+			while (devices.hasMoreElements()) {
+				dbAdapter.insertTemperatureHumidityDevice(devices.nextElement());
 			}
 		}
 
@@ -179,6 +193,7 @@ public class RoomsListActivity extends ListActivity {
 			try {
 				session.refreshConfiguration();
 				storeLocations(session);
+				storeTemperatureHumidityDevices(session);
 			} catch (SmartHomeSessionExpiredException e) {
 				return REFRESH_ERROR;
 			}
@@ -193,13 +208,12 @@ public class RoomsListActivity extends ListActivity {
 				alertDialogBuilder.setTitle("Aktualisierung"); // TODO
 				alertDialogBuilder.setCancelable(true);
 				// TODO
-				alertDialogBuilder.setPositiveButton("OK",
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int id) {
-								dialog.cancel();
-							}
-						});
+				alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.cancel();
+					}
+				});
 				String msg = "Aktualisierung der Räume ist fehlgeschlagen!";
 				alertDialogBuilder.setMessage(msg);
 				alertDialogBuilder.create().show();
