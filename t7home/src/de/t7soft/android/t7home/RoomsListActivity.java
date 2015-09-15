@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -74,7 +75,7 @@ public class RoomsListActivity extends ListActivity {
 	}
 
 	private void refresh() {
-		RefreshTask refreshTask = new RefreshTask();
+		RefreshTask refreshTask = new RefreshTask(this);
 		refreshTask.execute(sessionId);
 		updateListAdapter();
 	}
@@ -146,8 +147,13 @@ public class RoomsListActivity extends ListActivity {
 
 	private class RefreshTask extends AsyncTask<String, Void, Integer> {
 
-		private ProgressDialog progressDialog;
-		private AlertDialog.Builder alertDialogBuilder;
+		private final ProgressDialog progressDialog;
+		private final AlertDialog.Builder alertDialogBuilder;
+
+		public RefreshTask(Context context) {
+			progressDialog = new ProgressDialog(context);
+			alertDialogBuilder = new AlertDialog.Builder(context);
+		}
 
 		private void storeLocations(SmartHomeSession session) {
 			dbAdapter.deleteAllLocations();
@@ -180,10 +186,9 @@ public class RoomsListActivity extends ListActivity {
 			// https://www.google.com/design/spec/components/progress-activity.html#
 			// Put the view in a layout if it's not and set
 			// android:animateLayoutChanges="true" for that layout.
-			progressDialog = new ProgressDialog(RoomsListActivity.this);
 			progressDialog.setMessage("Aktualisierung der Räume läuft..."); // TODO
+			progressDialog.setCanceledOnTouchOutside(false);
 			progressDialog.show();
-			alertDialogBuilder = new AlertDialog.Builder(RoomsListActivity.this);
 		}
 
 		@Override
@@ -202,7 +207,10 @@ public class RoomsListActivity extends ListActivity {
 
 		@Override
 		protected void onPostExecute(Integer resultCode) {
-			progressDialog.dismiss();
+
+			if (progressDialog.isShowing()) {
+				progressDialog.dismiss();
+			}
 
 			if (resultCode == REFRESH_ERROR) {
 				alertDialogBuilder.setTitle("Aktualisierung"); // TODO

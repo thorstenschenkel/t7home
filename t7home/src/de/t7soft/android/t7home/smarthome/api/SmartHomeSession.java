@@ -35,11 +35,12 @@ import de.t7soft.android.t7home.smarthome.util.InputStream2String;
 import de.t7soft.android.t7home.smarthome.util.XMLUtil;
 
 /**
- * https://code.google.com/p/smarthome-java-library/source/browse/SmarthomeJavaLibrary/src/main/java/de/itarchitecture/smarthome/api/SmartHomeSession.java
+ * https://code.google.com/p/smarthome-java-library/source/browse/SmarthomeJavaLibrary/src/main/java/de/itarchitecture/
+ * smarthome/api/SmartHomeSession.java
  */
 public class SmartHomeSession {
 
-	private static final boolean FAKE = true;
+	private static final boolean FAKE = false;
 
 	private static final String FIRMWARE_VERSION = "1.70";
 	private static final String BASEREQUEST_STARTTAG = "<BaseRequest xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"{0}\" Version=\"{1}\" RequestId=\"{2}\" {3}>";
@@ -61,8 +62,8 @@ public class SmartHomeSession {
 	private String currentConfigurationVersion = "";
 
 	private ConcurrentHashMap<String, SmartHomeLocation> locations = null;
-	private ConcurrentHashMap<String, ? extends LogicalDevice> windowDoorSensors = null;
-	private ConcurrentHashMap<String, TemperatureHumidityDevice> temperatureHumidityDevices = null;
+	private final ConcurrentHashMap<String, ? extends LogicalDevice> windowDoorSensors = null;
+	private final ConcurrentHashMap<String, TemperatureHumidityDevice> temperatureHumidityDevices = null;
 
 	private final HttpComponentsHelper httpHelper = new HttpComponentsHelper();
 
@@ -80,8 +81,8 @@ public class SmartHomeSession {
 		}
 	}
 
-	public void logon(String userName, String passWord, String hostName) throws SHTechnicalException,
-			LoginFailedException, SmartHomeSessionExpiredException {
+	public void logon(String userName, String passWord, String hostName) throws SHTechnicalException, LoginFailedException,
+			SmartHomeSessionExpiredException {
 		this.userName = userName;
 		this.passWord = passWord;
 		this.hostName = hostName;
@@ -265,8 +266,8 @@ public class SmartHomeSession {
 	public void refreshConfigurationFromInputStream(InputStream is) {
 		SmartHomeEntitiesXMLResponse smartHomeEntitiesXMLRes = new SmartHomeEntitiesXMLResponse(is);
 		this.setLocations(smartHomeEntitiesXMLRes.getLocations());
-		this.temperatureHumidityDevices = smartHomeEntitiesXMLRes.getTemperatureHumidityDevices();
-		this.windowDoorSensors = smartHomeEntitiesXMLRes.getWindowDoorSensors();
+		// this.temperatureHumidityDevices = smartHomeEntitiesXMLRes.getTemperatureHumidityDevices();
+		// this.windowDoorSensors = smartHomeEntitiesXMLRes.getWindowDoorSensors();
 	}
 
 	private String getHostName() {

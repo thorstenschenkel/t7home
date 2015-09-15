@@ -29,9 +29,9 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 
 	private ConcurrentHashMap<String, SmartHomeLocation> locations = null;
 	private ConcurrentHashMap<String, RoomHumiditySensor> roomHumiditySensors = null;
-	private final ConcurrentHashMap<String, RoomTemperatureSensor> roomTemperatureSensors = null;
+	private ConcurrentHashMap<String, RoomTemperatureSensor> roomTemperatureSensors = null;
 	private ConcurrentHashMap<String, TemperatureHumidityDevice> temperatureHumidityDevices = null;
-	private final ConcurrentHashMap<String, RoomTemperatureActuator> roomTemperatureActuators = null;
+	private ConcurrentHashMap<String, RoomTemperatureActuator> roomTemperatureActuators = null;
 	private ConcurrentHashMap<String, WindowDoorSensor> windowDoorSensors = null;
 	private ConcurrentHashMap<String, String> mapRoomsToTemperatureActuators = null;
 	private ConcurrentHashMap<String, String> mapRoomsToTemperatureSensors = null;
@@ -61,7 +61,9 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 			}
 			// LogicalDevices
 			NodeList nlLogicalDevices = docEle.getElementsByTagName("LD");
+			roomTemperatureActuators = new ConcurrentHashMap<String, RoomTemperatureActuator>();
 			roomHumiditySensors = new ConcurrentHashMap<String, RoomHumiditySensor>();
+			roomTemperatureSensors = new ConcurrentHashMap<String, RoomTemperatureSensor>();
 			temperatureHumidityDevices = new ConcurrentHashMap<String, TemperatureHumidityDevice>();
 			windowDoorSensors = new ConcurrentHashMap<String, WindowDoorSensor>();
 			mapRoomsToTemperatureActuators = new ConcurrentHashMap<String, String>();
@@ -127,8 +129,7 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 			logicalDevice = roomHumiditySensor;
 			roomHumiditySensors.put(roomHumiditySensor.getDeviceId(), roomHumiditySensor);
 			mapRoomsToHumiditySensors.put(roomHumiditySensor.getLocationId(), roomHumiditySensor.getDeviceId());
-			TemperatureHumidityDevice tempHumDev = getTemperatureHumidityDevices().get(
-					roomHumiditySensor.getLocationId());
+			TemperatureHumidityDevice tempHumDev = getTemperatureHumidityDevices().get(roomHumiditySensor.getLocationId());
 			logicalDevice.setLocation(locations.get(logicalDevice.getLocationId()));
 			if (null == tempHumDev) {
 				tempHumDev = new TemperatureHumidityDevice();
@@ -159,8 +160,7 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 			mapRoomsToTemperatureActuators.put(roomTemperatureActuator.getLocationId(),
 					roomTemperatureActuator.getDeviceId());
 			roomTemperatureActuators.put(roomTemperatureActuator.getDeviceId(), roomTemperatureActuator);
-			TemperatureHumidityDevice tempHumDev = temperatureHumidityDevices.get(roomTemperatureActuator
-					.getLocationId());
+			TemperatureHumidityDevice tempHumDev = temperatureHumidityDevices.get(roomTemperatureActuator.getLocationId());
 			logicalDevice.setLocation(locations.get(logicalDevice.getLocationId()));
 			if (null == tempHumDev) {
 				tempHumDev = new TemperatureHumidityDevice();
@@ -176,11 +176,9 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 			// NodeList underlyingDevNodes = devEl
 			// .getElementsByTagName("UDvIds");
 			roomTemperatureSensors.put(roomTemperatureSensor.getDeviceId(), roomTemperatureSensor);
-			mapRoomsToTemperatureSensors
-					.put(roomTemperatureSensor.getLocationId(), roomTemperatureSensor.getDeviceId());
+			mapRoomsToTemperatureSensors.put(roomTemperatureSensor.getLocationId(), roomTemperatureSensor.getDeviceId());
 			logicalDevice = roomTemperatureSensor;
-			TemperatureHumidityDevice tempHumDev = temperatureHumidityDevices
-					.get(roomTemperatureSensor.getLocationId());
+			TemperatureHumidityDevice tempHumDev = temperatureHumidityDevices.get(roomTemperatureSensor.getLocationId());
 			logicalDevice.setLocation(locations.get(logicalDevice.getLocationId()));
 			if (null == tempHumDev) {
 				tempHumDev = new TemperatureHumidityDevice();
