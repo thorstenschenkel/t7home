@@ -186,7 +186,6 @@ public class SmartHomeSession {
 			SESSION_DATA.remove(sessionId);
 		}
 		sessionId = "";
-
 	}
 
 	/**

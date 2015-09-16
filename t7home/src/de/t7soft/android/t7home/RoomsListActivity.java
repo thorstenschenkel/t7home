@@ -54,7 +54,9 @@ public class RoomsListActivity extends ListActivity {
 
 		dbAdapter.open();
 
-		refresh();
+		if (dbAdapter.getLocationsCount() == 0) {
+			refresh();
+		}
 
 		super.onResume();
 
@@ -84,7 +86,7 @@ public class RoomsListActivity extends ListActivity {
 				refresh();
 				return true;
 			case R.id.logout_item:
-				// TODO
+				logout();
 				return true;
 			case R.id.about_item:
 				AboutDlg aboutDlg = new AboutDlg(this);
@@ -93,6 +95,13 @@ public class RoomsListActivity extends ListActivity {
 			default:
 				return super.onOptionsItemSelected(item);
 		}
+	}
+
+	private void logout() {
+		// TODO -> AysnkTask
+		// ... session.destroy ...
+		Intent intent = new Intent(this, MainActivity.class);
+		startActivity(intent);
 	}
 
 	@Override

@@ -1,0 +1,914 @@
+<BaseResponse xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    ConfigurationVersion="260"
+    CorrespondingRequestId="aeb32bed-62fd-4c6d-9a7f-cc09294ace96"
+    Version="1.70"
+    xsi:type="GetEntitiesResponse" >
+
+    <LCs>
+
+        <LC>
+
+            <Id>
+652c8b1d-9548-4006-a639-3d7bb29b7025
+            </Id>
+
+            <Name>
+ÜBERGREIFEND
+            </Name>
+
+            <Position>
+0
+            </Position>
+
+            <RTyp>
+Other
+            </RTyp>
+        </LC>
+
+        <LC>
+
+            <Id>
+5bd73c29-4a9d-4bfc-81a4-9ca26ef07eda
+            </Id>
+
+            <Name>
+WOHNZIMMER
+            </Name>
+
+            <Position>
+1000
+            </Position>
+
+            <RTyp>
+Other
+            </RTyp>
+        </LC>
+
+        <LC>
+
+            <Id>
+08262998-041d-4f51-90f9-e27373bf5e5d
+            </Id>
+
+            <Name>
+BÜRO
+            </Name>
+
+            <Position>
+2000
+            </Position>
+
+            <RTyp>
+Other
+            </RTyp>
+        </LC>
+
+        <LC>
+
+            <Id>
+36792376-485a-4fa7-941a-280ac10011ec
+            </Id>
+
+            <Name>
+KÜCHE
+            </Name>
+
+            <Position>
+5000
+            </Position>
+
+            <RTyp>
+Other
+            </RTyp>
+        </LC>
+    </LCs>
+
+    <BDs>
+
+        <BD
+            AppId="sh://core.builtin"
+            FN="914110067096"
+            PrId="Cosip"
+            TOA="2012-09-08T12:06:14.7085956+02:00"
+            TOD="2012-09-08T10:05:45.494Z" >
+
+            <Id>
+3f39ac30-0346-4730-9c11-0ef5759cb390
+            </Id>
+
+            <AIPs>
+
+                <Ppt
+                    Name="DeviceType"
+                    Value="Rst"
+                    xsi:type="StringProperty" />
+            </AIPs>
+
+            <PrSPpts />
+        </BD>
+
+        <BD
+            AppId="sh://core.builtin"
+            FN="914110036712"
+            PrId="Cosip"
+            TOA="2012-09-08T14:37:43.7596943+02:00"
+            TOD="2012-09-08T12:37:17.215Z" >
+
+            <Id>
+608aac55-c39e-492c-aed9-945bee0bc511
+            </Id>
+
+            <AIPs>
+
+                <Ppt
+                    Name="DeviceType"
+                    Value="Rst"
+                    xsi:type="StringProperty" />
+            </AIPs>
+
+            <PrSPpts />
+        </BD>
+
+        <BD
+            AppId="sh://core.builtin"
+            FN="914110067662"
+            PrId="Cosip"
+            TOA="2012-09-08T12:07:49.0799934+02:00"
+            TOD="2012-09-08T10:05:45.503Z" >
+
+            <Id>
+79d1a065-2d5e-4d4b-949c-4dacf3b9baac
+            </Id>
+
+            <AIPs>
+
+                <Ppt
+                    Name="DeviceType"
+                    Value="Rst"
+                    xsi:type="StringProperty" />
+            </AIPs>
+
+            <PrSPpts />
+        </BD>
+
+        <BD
+            AppId="sh://VariableActuator.builtin"
+            FN=""
+            PrId="Virtual"
+            TOA="2012-09-08T14:19:06.2617771+02:00"
+            TOD="2012-09-08T14:18:30.9047548+02:00" >
+
+            <Id>
+a0708732-9b79-4b7d-af14-b482afc7e256
+            </Id>
+
+            <AIPs />
+        </BD>
+
+        <BD
+            AppId="sh://core.builtin"
+            FN="914240005693"
+            PrId="Cosip"
+            TOA="2014-10-24T11:01:06.0160211+02:00"
+            TOD="2014-10-24T09:00:54.102Z" >
+
+            <Id>
+3d099aa9-2d90-4858-806b-688395f48ad0
+            </Id>
+
+            <AIPs>
+
+                <Ppt
+                    Name="DeviceType"
+                    Value="Isr2"
+                    xsi:type="StringProperty" />
+            </AIPs>
+
+            <PrSPpts />
+        </BD>
+
+        <BD
+            AppId="sh://core.builtin"
+            FN="914240005694"
+            PrId="Cosip"
+            TOA="2014-10-24T10:55:57.6843856+02:00"
+            TOD="2014-10-24T08:55:41.994Z" >
+
+            <Id>
+900b1714-ec3b-4a77-9930-be1fcb6600f2
+            </Id>
+
+            <AIPs>
+
+                <Ppt
+                    Name="DeviceType"
+                    Value="Isr2"
+                    xsi:type="StringProperty" />
+            </AIPs>
+
+            <PrSPpts />
+        </BD>
+
+        <BD
+            AppId="sh://core.builtin"
+            FN="921430012049"
+            PrId="Cosip"
+            TOA="2013-06-03T19:42:43.2205819+02:00"
+            TOD="2013-06-03T17:42:23.366Z" >
+
+            <Id>
+c17c15f2-36fb-4832-bf81-bb907f7b1120
+            </Id>
+
+            <AIPs>
+
+                <Ppt
+                    Name="DeviceType"
+                    Value="Wds"
+                    xsi:type="StringProperty" />
+            </AIPs>
+
+            <PrSPpts />
+        </BD>
+
+        <BD
+            AppId="sh://SunriseSunsetSensor.RWE"
+            FN=""
+            PrId="Virtual"
+            TOA="2014-02-10T16:13:50.428722+01:00"
+            TOD="2014-02-10T16:13:28.983+01:00" >
+
+            <Id>
+9c01775f-7c4a-42fc-bbd6-afae5077a136
+            </Id>
+
+            <AIPs />
+
+            <PrSPpts />
+        </BD>
+    </BDs>
+
+    <LDs>
+
+        <LD
+            LCID="08262998-041d-4f51-90f9-e27373bf5e5d"
+            Name="Büro"
+            xsi:type="ThermostatActuator" >
+
+            <Id>
+f7671812-47a4-47bd-aeb1-fcafabe50dd1
+            </Id>
+
+            <BDId>
+3f39ac30-0346-4730-9c11-0ef5759cb390
+            </BDId>
+
+            <ActCls>
+Temperature
+            </ActCls>
+        </LD>
+
+        <LD
+            LCID="08262998-041d-4f51-90f9-e27373bf5e5d"
+            Name="Verdeckter Ventilsteller Heizkörperthermostat 1"
+            xsi:type="ValveActuator" >
+
+            <Id>
+712fe0e9-70d3-4edd-8b4c-af4a8c3b14ea
+            </Id>
+
+            <BDId>
+3f39ac30-0346-4730-9c11-0ef5759cb390
+            </BDId>
+
+            <ActCls>
+Temperature
+            </ActCls>
+
+            <ValveIndex>
+0
+            </ValveIndex>
+        </LD>
+
+        <LD
+            LCID="08262998-041d-4f51-90f9-e27373bf5e5d"
+            Name="Heizkörperthermostat 1"
+            xsi:type="TemperatureSensor" >
+
+            <Id>
+7ee52030-9703-47d5-8368-0718491518a6
+            </Id>
+
+            <BDId>
+3f39ac30-0346-4730-9c11-0ef5759cb390
+            </BDId>
+        </LD>
+
+        <LD
+            LCID="08262998-041d-4f51-90f9-e27373bf5e5d"
+            Name="Luftfeuchtesensor 1"
+            xsi:type="HumiditySensor" >
+
+            <Id>
+b08320d7-0754-4735-87ee-eed3f30a5b88
+            </Id>
+
+            <BDId>
+3f39ac30-0346-4730-9c11-0ef5759cb390
+            </BDId>
+        </LD>
+
+        <LD
+            LCID="36792376-485a-4fa7-941a-280ac10011ec"
+            Name="Heizkörperthermostat 1"
+            xsi:type="TemperatureSensor" >
+
+            <Id>
+901f42db-2bc5-46b6-9fef-d311b937cdfe
+            </Id>
+
+            <BDId>
+608aac55-c39e-492c-aed9-945bee0bc511
+            </BDId>
+        </LD>
+
+        <LD
+            LCID="36792376-485a-4fa7-941a-280ac10011ec"
+            Name="Heizung"
+            xsi:type="RoomTemperatureActuator" >
+
+            <Id>
+dbecee20-a770-41f5-a710-7b478fac141b
+            </Id>
+
+            <ActCls>
+Temperature
+            </ActCls>
+
+            <DOfStgs xsi:type="RoomTemperatureActuatorSettings" >
+
+                <Id>
+e8887c2a-188c-4019-a7ff-b38346e0e8ee
+                </Id>
+
+                <AcId>
+dbecee20-a770-41f5-a710-7b478fac141b
+                </AcId>
+
+                <PtTmp>
+17.0
+                </PtTmp>
+
+                <WndRd>
+false
+                </WndRd>
+            </DOfStgs>
+
+            <UDvIds>
+
+                <guid>
+10cae699-3319-47eb-8844-3036b87d4e6b
+                </guid>
+
+                <guid>
+f3486e5d-8262-4ef9-bb0c-988333e43302
+                </guid>
+            </UDvIds>
+
+            <MxTp>
+24.0
+            </MxTp>
+
+            <MnTp>
+6.0
+            </MnTp>
+
+            <PhFct>
+0
+            </PhFct>
+
+            <WLck>
+false
+            </WLck>
+
+            <RLck>
+false
+            </RLck>
+
+            <FPrA>
+true
+            </FPrA>
+
+            <FPr>
+6.0
+            </FPr>
+
+            <MPrA>
+false
+            </MPrA>
+
+            <HMPr>
+0.0
+            </HMPr>
+
+            <WOpTp>
+29.5
+            </WOpTp>
+
+            <DCTmp>
+TargetTemperatue
+            </DCTmp>
+        </LD>
+
+        <LD
+            LCID="36792376-485a-4fa7-941a-280ac10011ec"
+            Name="Verdeckter Ventilsteller Heizkörperthermostat 1"
+            xsi:type="ValveActuator" >
+
+            <Id>
+f3486e5d-8262-4ef9-bb0c-988333e43302
+            </Id>
+
+            <BDId>
+608aac55-c39e-492c-aed9-945bee0bc511
+            </BDId>
+
+            <ActCls>
+Temperature
+            </ActCls>
+
+            <ValveIndex>
+0
+            </ValveIndex>
+        </LD>
+
+        <LD
+            LCID="36792376-485a-4fa7-941a-280ac10011ec"
+            Name="Küche"
+            xsi:type="ThermostatActuator" >
+
+            <Id>
+10cae699-3319-47eb-8844-3036b87d4e6b
+            </Id>
+
+            <BDId>
+608aac55-c39e-492c-aed9-945bee0bc511
+            </BDId>
+
+            <ActCls>
+Temperature
+            </ActCls>
+        </LD>
+
+        <LD
+            LCID="08262998-041d-4f51-90f9-e27373bf5e5d"
+            Name="Wohnzimmer"
+            xsi:type="ThermostatActuator" >
+
+            <Id>
+91900888-9a3b-48a2-be1a-2e1db6450032
+            </Id>
+
+            <BDId>
+79d1a065-2d5e-4d4b-949c-4dacf3b9baac
+            </BDId>
+
+            <ActCls>
+Temperature
+            </ActCls>
+        </LD>
+
+        <LD
+            LCID="08262998-041d-4f51-90f9-e27373bf5e5d"
+            Name="Verdeckter Ventilsteller Heizkörperthermostat 3"
+            xsi:type="ValveActuator" >
+
+            <Id>
+077c22a0-9876-43ab-99c3-d176b9d14ea5
+            </Id>
+
+            <BDId>
+79d1a065-2d5e-4d4b-949c-4dacf3b9baac
+            </BDId>
+
+            <ActCls>
+Temperature
+            </ActCls>
+
+            <ValveIndex>
+0
+            </ValveIndex>
+        </LD>
+
+        <LD
+            LCID="08262998-041d-4f51-90f9-e27373bf5e5d"
+            Name="Heizkörperthermostat 3"
+            xsi:type="TemperatureSensor" >
+
+            <Id>
+421e6bbe-dd3a-4b91-a30d-ea84ebec00b2
+            </Id>
+
+            <BDId>
+79d1a065-2d5e-4d4b-949c-4dacf3b9baac
+            </BDId>
+        </LD>
+
+        <LD
+            LCID="08262998-041d-4f51-90f9-e27373bf5e5d"
+            Name="Luftfeuchtesensor 3"
+            xsi:type="HumiditySensor" >
+
+            <Id>
+e88f8bfa-e9d4-47a3-b8af-653dabe8e3ec
+            </Id>
+
+            <BDId>
+79d1a065-2d5e-4d4b-949c-4dacf3b9baac
+            </BDId>
+        </LD>
+
+        <LD
+            LCID="36792376-485a-4fa7-941a-280ac10011ec"
+            Name="Raumtemperatursensor"
+            xsi:type="RoomTemperatureSensor" >
+
+            <Id>
+290b3675-4340-4489-8dde-a87b0430ee32
+            </Id>
+
+            <UDvIds>
+
+                <guid>
+901f42db-2bc5-46b6-9fef-d311b937cdfe
+                </guid>
+            </UDvIds>
+        </LD>
+
+        <LD
+            LCID="36792376-485a-4fa7-941a-280ac10011ec"
+            Name="Luftfeuchtesensor 1"
+            xsi:type="HumiditySensor" >
+
+            <Id>
+fc62c572-3b30-47b6-a81f-d97c7e533490
+            </Id>
+
+            <BDId>
+608aac55-c39e-492c-aed9-945bee0bc511
+            </BDId>
+        </LD>
+
+        <LD
+            LCID="36792376-485a-4fa7-941a-280ac10011ec"
+            Name="Luftfeuchtesensor"
+            xsi:type="RoomHumiditySensor" >
+
+            <Id>
+17082bc6-a823-4f52-a88b-e406a5cea911
+            </Id>
+
+            <UDvIds>
+
+                <guid>
+fc62c572-3b30-47b6-a81f-d97c7e533490
+                </guid>
+            </UDvIds>
+        </LD>
+
+        <LD
+            LCID="5bd73c29-4a9d-4bfc-81a4-9ca26ef07eda"
+            Name="Rollladensteuerung-Unterputz 1"
+            xsi:type="PushButtonSensor" >
+
+            <Id>
+1d6d9c2d-2157-4bee-9dad-216676a7ae7a
+            </Id>
+
+            <BDId>
+3d099aa9-2d90-4858-806b-688395f48ad0
+            </BDId>
+
+            <ButtonCount>
+2
+            </ButtonCount>
+        </LD>
+
+        <LD
+            LCID="5bd73c29-4a9d-4bfc-81a4-9ca26ef07eda"
+            Name="RolllFenster"
+            xsi:type="RollerShutterActuator" >
+
+            <Id>
+79776d1b-5ac5-4719-b7cb-bc15304bc994
+            </Id>
+
+            <BDId>
+3d099aa9-2d90-4858-806b-688395f48ad0
+            </BDId>
+
+            <ActCls>
+RollerShutter
+            </ActCls>
+
+            <DOfStgs xsi:type="RollerShutterActuatorSettings" >
+
+                <Id>
+0934fd5f-56db-462e-b308-aab70a50ca5d
+                </Id>
+
+                <AcId>
+79776d1b-5ac5-4719-b7cb-bc15304bc994
+                </AcId>
+
+                <OnLvl>
+0
+                </OnLvl>
+
+                <OffLvl>
+0
+                </OffLvl>
+
+                <ShDT>
+1
+                </ShDT>
+
+                <SCBh>
+Normal
+                </SCBh>
+            </DOfStgs>
+
+            <TmFU>
+220
+            </TmFU>
+
+            <TmFD>
+250
+            </TmFD>
+
+            <IsCalibrating>
+false
+            </IsCalibrating>
+        </LD>
+
+        <LD
+            LCID="5bd73c29-4a9d-4bfc-81a4-9ca26ef07eda"
+            Name="Rollladensteuerung-Unterputz 2"
+            xsi:type="PushButtonSensor" >
+
+            <Id>
+9b8c3601-6b35-4575-8c5f-d04bdb6011a5
+            </Id>
+
+            <BDId>
+900b1714-ec3b-4a77-9930-be1fcb6600f2
+            </BDId>
+
+            <ButtonCount>
+2
+            </ButtonCount>
+        </LD>
+
+        <LD
+            LCID="5bd73c29-4a9d-4bfc-81a4-9ca26ef07eda"
+            Name="RollTür"
+            xsi:type="RollerShutterActuator" >
+
+            <Id>
+4a6e48f9-3193-4acc-9d31-79c2cf342a8c
+            </Id>
+
+            <BDId>
+900b1714-ec3b-4a77-9930-be1fcb6600f2
+            </BDId>
+
+            <ActCls>
+RollerShutter
+            </ActCls>
+
+            <DOfStgs xsi:type="RollerShutterActuatorSettings" >
+
+                <Id>
+0cbb7992-450b-43d2-803a-75f5b6d2e0fc
+                </Id>
+
+                <AcId>
+4a6e48f9-3193-4acc-9d31-79c2cf342a8c
+                </AcId>
+
+                <OnLvl>
+0
+                </OnLvl>
+
+                <OffLvl>
+0
+                </OffLvl>
+
+                <ShDT>
+1
+                </ShDT>
+
+                <SCBh>
+Normal
+                </SCBh>
+            </DOfStgs>
+
+            <TmFU>
+220
+            </TmFU>
+
+            <TmFD>
+230
+            </TmFD>
+
+            <IsCalibrating>
+false
+            </IsCalibrating>
+        </LD>
+
+        <LD
+            LCID="08262998-041d-4f51-90f9-e27373bf5e5d"
+            Name="Fenstersensor"
+            xsi:type="WindowDoorSensor" >
+
+            <Id>
+fd045244-fc46-46e6-a30c-435fb7aee381
+            </Id>
+
+            <BDId>
+c17c15f2-36fb-4832-bf81-bb907f7b1120
+            </BDId>
+
+            <Installation>
+Window
+            </Installation>
+
+            <EventFilterTime>
+0
+            </EventFilterTime>
+
+            <WOpFunc>
+true
+            </WOpFunc>
+        </LD>
+
+        <LD
+            LCID="08262998-041d-4f51-90f9-e27373bf5e5d"
+            Name="Heizung"
+            xsi:type="RoomTemperatureActuator" >
+
+            <Id>
+853ee681-8ff5-4290-9b72-21639e76934e
+            </Id>
+
+            <ActCls>
+Temperature
+            </ActCls>
+
+            <DOfStgs xsi:type="RoomTemperatureActuatorSettings" >
+
+                <Id>
+8b406554-baa3-4544-8d53-deed7ada348e
+                </Id>
+
+                <AcId>
+853ee681-8ff5-4290-9b72-21639e76934e
+                </AcId>
+
+                <PtTmp>
+17
+                </PtTmp>
+
+                <WndRd>
+false
+                </WndRd>
+            </DOfStgs>
+
+            <UDvIds>
+
+                <guid>
+f7671812-47a4-47bd-aeb1-fcafabe50dd1
+                </guid>
+
+                <guid>
+712fe0e9-70d3-4edd-8b4c-af4a8c3b14ea
+                </guid>
+
+                <guid>
+91900888-9a3b-48a2-be1a-2e1db6450032
+                </guid>
+
+                <guid>
+077c22a0-9876-43ab-99c3-d176b9d14ea5
+                </guid>
+            </UDvIds>
+
+            <MxTp>
+30
+            </MxTp>
+
+            <MnTp>
+6
+            </MnTp>
+
+            <PhFct>
+0
+            </PhFct>
+
+            <WLck>
+false
+            </WLck>
+
+            <RLck>
+false
+            </RLck>
+
+            <FPrA>
+false
+            </FPrA>
+
+            <FPr>
+0
+            </FPr>
+
+            <MPrA>
+false
+            </MPrA>
+
+            <HMPr>
+0
+            </HMPr>
+
+            <WOpTp>
+6.0
+            </WOpTp>
+
+            <DCTmp>
+TargetTemperatue
+            </DCTmp>
+        </LD>
+
+        <LD
+            LCID="08262998-041d-4f51-90f9-e27373bf5e5d"
+            Name="Raumtemperatursensor"
+            xsi:type="RoomTemperatureSensor" >
+
+            <Id>
+f5d38b34-93bb-46e6-9fd8-16dab533eee1
+            </Id>
+
+            <UDvIds>
+
+                <guid>
+7ee52030-9703-47d5-8368-0718491518a6
+                </guid>
+
+                <guid>
+421e6bbe-dd3a-4b91-a30d-ea84ebec00b2
+                </guid>
+            </UDvIds>
+        </LD>
+
+        <LD
+            LCID="08262998-041d-4f51-90f9-e27373bf5e5d"
+            Name="Luftfeuchtigkeitssensor"
+            xsi:type="RoomHumiditySensor" >
+
+            <Id>
+8e589109-b289-48d3-8535-6dfc608d80d5
+            </Id>
+
+            <UDvIds>
+
+                <guid>
+b08320d7-0754-4735-87ee-eed3f30a5b88
+                </guid>
+
+                <guid>
+e88f8bfa-e9d4-47a3-b8af-653dabe8e3ec
+                </guid>
+            </UDvIds>
+        </LD>
+
+        <LD
+            LCID="5bd73c29-4a9d-4bfc-81a4-9ca26ef07eda"
+            Name="Sonnen"
+            xsi:type="GenericSensor" >
+
+            <Id>
+6e313756-c342-4350-b2a3-117a20477047
+            </Id>
+
+            <BDId>
+9c01775f-7c4a-42fc-bbd6-afae5077a136
+            </BDId>
+
+            <Pmts>
+
+                <Ppt
+                    Name="Latitude"
+                    Value="49.480555555555555555555555556"
+                    xsi:type="NumericProperty" />
+
+                <Ppt xsi:type="NumericPrope..." >
+                </Ppt>

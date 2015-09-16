@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import de.t7soft.android.t7home.database.HomeDatabaseAdapter;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeSession;
 
 /**
@@ -30,6 +31,7 @@ public class MainActivity extends Activity {
 
 	private LogonData logonData;
 	private LogonTask logonTask;
+	private HomeDatabaseAdapter dbAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +39,9 @@ public class MainActivity extends Activity {
 		if (logonTask != null) {
 			logonTask.cancel(true);
 		}
-
+		if (dbAdapter == null) {
+			dbAdapter = new HomeDatabaseAdapter(this);
+		}
 		super.onCreate(savedInstanceState);
 
 		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -53,6 +57,18 @@ public class MainActivity extends Activity {
 
 		initView();
 
+	}
+
+	@Override
+	protected void onResume() {
+		dbAdapter.open();
+		super.onResume();
+	}
+
+	@Override
+	protected void onPause() {
+		dbAdapter.close();
+		super.onPause();
 	}
 
 	@Override
@@ -210,6 +226,7 @@ public class MainActivity extends Activity {
 		protected void onPostExecute(LogonResult result) {
 			super.onPostExecute(result);
 			if (result.getResultCode() == LogonResult.LOGON_OK) {
+				dbAdapter.deleteAll();
 				goRoomsList(result.getSession());
 				finish();
 			}

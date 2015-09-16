@@ -18,10 +18,10 @@ public class AboutDlg {
 
 	private static final String LOG_TAG = AboutDlg.class.getSimpleName();
 
-	private Context context;
+	private final Context context;
 
 	public AboutDlg(Context context) {
-
+		this.context = context;
 	}
 
 	public void show() {
@@ -29,8 +29,7 @@ public class AboutDlg {
 		String infoText = createInfoText();
 		WebView wv = new WebView(context);
 		wv.loadData(infoText, "text/html", "utf-8");
-		wv.setBackgroundColor(context.getResources().getColor(
-				android.R.color.white));
+		wv.setBackgroundColor(context.getResources().getColor(android.R.color.white));
 		wv.getSettings().setDefaultTextEncodingName("utf-8");
 		builder.setView(wv);
 		builder.setIcon(R.drawable.ic_launcher);
@@ -49,14 +48,11 @@ public class AboutDlg {
 
 	private String createInfoText() {
 		try {
-			String versionName = context.getPackageManager().getPackageInfo(
-					context.getPackageName(), 0).versionName;
+			String versionName = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
 			Date buildTime = getBuildTime();
-			String dateString = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
-					.format(buildTime);
+			String dateString = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(buildTime);
 			String msgString = context.getString(R.string.main_info_msg);
-			msgString = MessageFormat
-					.format(msgString, versionName, dateString);
+			msgString = MessageFormat.format(msgString, versionName, dateString);
 			return msgString;
 		} catch (NameNotFoundException e) {
 			Log.e(LOG_TAG, "No infos found!", e);
@@ -66,8 +62,7 @@ public class AboutDlg {
 
 	private Date getBuildTime() {
 		try {
-			ApplicationInfo ai = context.getPackageManager()
-					.getApplicationInfo(context.getPackageName(), 0);
+			ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), 0);
 			ZipFile zf = new ZipFile(ai.sourceDir);
 			ZipEntry ze = zf.getEntry("classes.dex");
 			long time = ze.getTime();

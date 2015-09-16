@@ -68,6 +68,22 @@ public class HomeDatabaseAdapter {
 		return profiles;
 	}
 
+	public int getLocationsCount() {
+		return getLocationsCount(database);
+	}
+
+	private static int getLocationsCount(SQLiteDatabase db) {
+
+		final Cursor cursor = db.query(HomeDatabaseHelper.LOCATIONS_TABLE_NAME, null, null, null, null, null, null);
+
+		int count = 0;
+		if (cursor != null) {
+			count = cursor.getCount();
+			cursor.close();
+		}
+		return count;
+	}
+
 	private static SmartHomeLocation createLocation(final Cursor cursor) {
 		SmartHomeLocation location = new SmartHomeLocation();
 		location.setLocationId(getString(cursor, HomeDatabaseHelper.LOCATION_ID_COL_NAME));
@@ -170,8 +186,7 @@ public class HomeDatabaseAdapter {
 		final List<TemperatureHumidityDevice> devices = new ArrayList<TemperatureHumidityDevice>();
 
 		String selection = createLocationSelection(location);
-		final Cursor cursor = db
-				.query(HomeDatabaseHelper.LOCATIONS_TABLE_NAME, null, selection, null, null, null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.LOCATIONS_TABLE_NAME, null, selection, null, null, null, null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
@@ -227,8 +242,7 @@ public class HomeDatabaseAdapter {
 		SmartHomeLocation location = null;
 
 		String selection = createLocationSelection(id);
-		final Cursor cursor = db
-				.query(HomeDatabaseHelper.LOCATIONS_TABLE_NAME, null, selection, null, null, null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.LOCATIONS_TABLE_NAME, null, selection, null, null, null, null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
@@ -269,8 +283,8 @@ public class HomeDatabaseAdapter {
 		RoomTemperatureSensor sensor = null;
 
 		String selection = createRoomTemperatureSensorSelection(id);
-		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_SENSOR_TABLE_NAME, null, selection, null,
-				null, null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_SENSOR_TABLE_NAME, null, selection, null, null,
+				null, null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
@@ -331,6 +345,13 @@ public class HomeDatabaseAdapter {
 	public boolean deleteAllTemperatureHumidityDevices() {
 		final int ret = database.delete(HomeDatabaseHelper.TEMPERATURE_HUMIDITY_DEVICE_TABLE_NAME, null, null);
 		return (ret > 0);
+	}
+
+	public void deleteAll() {
+		deleteAllLocations();
+		deleteAllRoomHumidtySensors();
+		deleteAllTemperatureSensors();
+		deleteAllTemperatureHumidityDevices();
 	}
 
 }

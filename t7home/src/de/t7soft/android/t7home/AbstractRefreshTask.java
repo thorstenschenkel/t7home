@@ -38,7 +38,6 @@ public abstract class AbstractRefreshTask extends AsyncTask<String, Void, Intege
 	}
 
 	private void storeLocations(SmartHomeSession session) {
-		dbAdapter.deleteAllLocations();
 		ConcurrentHashMap<String, SmartHomeLocation> locationsMap = session.getLocations();
 		if (locationsMap == null) {
 			return;
@@ -50,9 +49,6 @@ public abstract class AbstractRefreshTask extends AsyncTask<String, Void, Intege
 	}
 
 	private void storeTemperatureHumidityDevices(SmartHomeSession session) {
-		dbAdapter.deleteAllTemperatureHumidityDevices();
-		dbAdapter.deleteAllTemperatureSensors();
-		dbAdapter.deleteAllRoomHumidtySensors();
 		ConcurrentHashMap<String, TemperatureHumidityDevice> devicesMap = session.getTemperatureHumidityDevices();
 		if (devicesMap == null) {
 			return;
@@ -82,6 +78,7 @@ public abstract class AbstractRefreshTask extends AsyncTask<String, Void, Intege
 		SmartHomeSession session = new SmartHomeSession(sessionId);
 		try {
 			session.refreshConfiguration();
+			dbAdapter.deleteAll();
 			storeLocations(session);
 			storeTemperatureHumidityDevices(session);
 		} catch (SmartHomeSessionExpiredException e) {
