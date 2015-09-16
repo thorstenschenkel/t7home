@@ -1,17 +1,11 @@
 package de.t7soft.android.t7home;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
-import android.app.AlertDialog;
 import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,18 +14,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import de.t7soft.android.t7home.database.HomeDatabaseAdapter;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeLocation;
-import de.t7soft.android.t7home.smarthome.api.SmartHomeSession;
-import de.t7soft.android.t7home.smarthome.api.devices.TemperatureHumidityDevice;
-import de.t7soft.android.t7home.smarthome.api.exceptions.SmartHomeSessionExpiredException;
 
 public class RoomsListActivity extends ListActivity {
 
 	public static final String LOCATION_ID = "locationId";
 
 	private String sessionId;
-
-	private static final int REFRESH_OK = 0;
-	private static final int REFRESH_ERROR = 1;
 
 	private final List<SmartHomeLocation> locations = new ArrayList<SmartHomeLocation>();
 	private HomeDatabaseAdapter dbAdapter;
@@ -40,7 +28,7 @@ public class RoomsListActivity extends ListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
-		// TODO menu with logoff, refresh
+		// TODO menu with logoff
 
 		sessionId = getIntent().getExtras().getString(MainActivity.SESSION_ID_KEY);
 
@@ -75,9 +63,8 @@ public class RoomsListActivity extends ListActivity {
 	}
 
 	private void refresh() {
-		RefreshTask refreshTask = new RefreshTask(this);
+		RefreshTask refreshTask = new RefreshTask(this, dbAdapter);
 		refreshTask.execute(sessionId);
-		updateListAdapter();
 	}
 
 	@Override
@@ -145,89 +132,16 @@ public class RoomsListActivity extends ListActivity {
 	// return super.onOptionsItemSelected(item);
 	// }
 
-	private class RefreshTask extends AsyncTask<String, Void, Integer> {
+	private class RefreshTask extends AbstractRefreshTask {
 
-		private final ProgressDialog progressDialog;
-		private final AlertDialog.Builder alertDialogBuilder;
-
-		public RefreshTask(Context context) {
-			progressDialog = new ProgressDialog(context);
-			alertDialogBuilder = new AlertDialog.Builder(context);
-		}
-
-		private void storeLocations(SmartHomeSession session) {
-			dbAdapter.deleteAllLocations();
-			ConcurrentHashMap<String, SmartHomeLocation> locationsMap = session.getLocations();
-			if (locationsMap == null) {
-				return;
-			}
-			Enumeration<SmartHomeLocation> locations = locationsMap.elements();
-			while (locations.hasMoreElements()) {
-				dbAdapter.insertLocation(locations.nextElement());
-			}
-		}
-
-		private void storeTemperatureHumidityDevices(SmartHomeSession session) {
-			dbAdapter.deleteAllTemperatureHumidityDevices();
-			dbAdapter.deleteAllTemperatureSensors();
-			dbAdapter.deleteAllRoomHumidtySensors();
-			ConcurrentHashMap<String, TemperatureHumidityDevice> devicesMap = session.getTemperatureHumidityDevices();
-			if (devicesMap == null) {
-				return;
-			}
-			Enumeration<TemperatureHumidityDevice> devices = devicesMap.elements();
-			while (devices.hasMoreElements()) {
-				dbAdapter.insertTemperatureHumidityDevice(devices.nextElement());
-			}
-		}
-
-		@Override
-		protected void onPreExecute() {
-			// https://www.google.com/design/spec/components/progress-activity.html#
-			// Put the view in a layout if it's not and set
-			// android:animateLayoutChanges="true" for that layout.
-			progressDialog.setMessage("Aktualisierung der Räume läuft..."); // TODO
-			progressDialog.setCanceledOnTouchOutside(false);
-			progressDialog.show();
-		}
-
-		@Override
-		protected Integer doInBackground(String... params) {
-			String sessionId = params[0];
-			SmartHomeSession session = new SmartHomeSession(sessionId);
-			try {
-				session.refreshConfiguration();
-				storeLocations(session);
-				storeTemperatureHumidityDevices(session);
-			} catch (SmartHomeSessionExpiredException e) {
-				return REFRESH_ERROR;
-			}
-			return REFRESH_OK;
+		public RefreshTask(Context context, HomeDatabaseAdapter dbAdapter) {
+			super(context, dbAdapter);
 		}
 
 		@Override
 		protected void onPostExecute(Integer resultCode) {
-
-			if (progressDialog.isShowing()) {
-				progressDialog.dismiss();
-			}
-
-			if (resultCode == REFRESH_ERROR) {
-				alertDialogBuilder.setTitle("Aktualisierung"); // TODO
-				alertDialogBuilder.setCancelable(true);
-				// TODO
-				alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int id) {
-						dialog.cancel();
-					}
-				});
-				String msg = "Aktualisierung der Räume ist fehlgeschlagen!";
-				alertDialogBuilder.setMessage(msg);
-				alertDialogBuilder.create().show();
-			}
-
-			// TODO refresh list
+			super.onPostExecute(resultCode);
+			updateListAdapter();
 		}
 
 	}

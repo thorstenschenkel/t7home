@@ -1,13 +1,9 @@
 package de.t7soft.android.t7home;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.text.InputFilter;
@@ -17,9 +13,6 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeSession;
-import de.t7soft.android.t7home.smarthome.api.exceptions.LoginFailedException;
-import de.t7soft.android.t7home.smarthome.api.exceptions.SHTechnicalException;
-import de.t7soft.android.t7home.smarthome.api.exceptions.SmartHomeSessionExpiredException;
 
 /**
  * Logon
@@ -31,14 +24,9 @@ import de.t7soft.android.t7home.smarthome.api.exceptions.SmartHomeSessionExpired
  */
 public class MainActivity extends Activity {
 
-	static final String SESSION_ID_KEY = "sessionId";
+	public static final String SESSION_ID_KEY = "sessionId";
 
 	private static final String LOG_TAG = MainActivity.class.getSimpleName();
-
-	private static final int LOGON_OK = 0;
-	private static final int LOGON_LOGIN_FAILED = 1;
-	private static final int LOGON_SESSION_EXPIRED = 2;
-	private static final int LOGON_TECHNICAL_EXCEPTION = 3;
 
 	private LogonData logonData;
 	private LogonTask logonTask;
@@ -163,126 +151,13 @@ public class MainActivity extends Activity {
 		editor.commit();
 	}
 
-	private class LogonTask extends AsyncTask<LogonData, Void, LogonResult> {
-
-		private final ProgressDialog progressDialog;
-		private final AlertDialog.Builder alertDialogBuilder;
-
-		public LogonTask(Context context) {
-			progressDialog = new ProgressDialog(context);
-			alertDialogBuilder = new AlertDialog.Builder(context);
-		}
-
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			// https://www.google.com/design/spec/components/progress-activity.html#
-			// Put the view in a layout if it's not and set
-			// android:animateLayoutChanges="true" for that layout.
-			progressDialog.setMessage("Anmeldung läuft..."); // TODO
-			progressDialog.setCanceledOnTouchOutside(false);
-			progressDialog.show();
-		}
-
-		@Override
-		protected LogonResult doInBackground(LogonData... params) {
-
-			LogonData logonData = params[0];
-			SmartHomeSession session = new SmartHomeSession();
-			int resultCode = LOGON_OK;
-			try {
-				session.logon(logonData.getUsername(), logonData.getPassword(), logonData.getIpAddress());
-			} catch (LoginFailedException e) {
-				resultCode = LOGON_LOGIN_FAILED;
-			} catch (SmartHomeSessionExpiredException e) {
-				resultCode = LOGON_SESSION_EXPIRED;
-			} catch (SHTechnicalException e) {
-				resultCode = LOGON_TECHNICAL_EXCEPTION;
-			}
-
-			return new LogonResult(resultCode, session);
-		}
-
-		@Override
-		protected void onPostExecute(LogonResult result) {
-
-			progressDialog.dismiss();
-
-			if (result.resultCode == LOGON_OK) {
-				goRoomsList(result.session);
-			} else {
-				alertDialogBuilder.setTitle("Anmeldung"); // TODO
-				alertDialogBuilder.setCancelable(true);
-				// TODO
-				alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int id) {
-						dialog.cancel();
-					}
-				});
-				String msg;
-				switch (result.resultCode) {
-					case LOGON_LOGIN_FAILED:
-						msg = "Anmeldung ist mit den Anmeldedaten nicht möglich!"; // TODO
-						break;
-					case LOGON_SESSION_EXPIRED:
-						msg = "Anmeldung ist fehlgeschlagen. Die Session ist abgelaufen."; // TODO
-						break;
-					case LOGON_TECHNICAL_EXCEPTION:
-						msg = "Anmeldung ist fehlgeschlagen. Es ist ein technischer Fehler aufgetreten."; // TODO
-						break;
-					default:
-						msg = "Anmeldung ist fehlgeschlagen. Es ist ein unbekannter Fehler aufgetreten."; // TODO
-						break;
-				}
-				alertDialogBuilder.setMessage(msg);
-				alertDialogBuilder.create().show();
-			}
-
-		}
-
-	}
-
-	private void goRoomsList(SmartHomeSession session) {
+	void goRoomsList(SmartHomeSession session) {
 		Intent intent = new Intent(this, RoomsListActivity.class);
 		intent.putExtra(SESSION_ID_KEY, session.getSessionId());
 		MainActivity.this.startActivity(intent);
 	}
 
-	private class LogonResult {
-
-		private int resultCode;
-		private SmartHomeSession session;
-
-		public LogonResult(int resultCode, SmartHomeSession session) {
-			super();
-			this.resultCode = resultCode;
-			this.session = session;
-		}
-
-		@SuppressWarnings("unused")
-		public int getResultCode() {
-			return resultCode;
-		}
-
-		@SuppressWarnings("unused")
-		public void setResultCode(int resultCode) {
-			this.resultCode = resultCode;
-		}
-
-		@SuppressWarnings("unused")
-		public SmartHomeSession getSession() {
-			return session;
-		}
-
-		@SuppressWarnings("unused")
-		public void setSession(SmartHomeSession session) {
-			this.session = session;
-		}
-
-	}
-
-	private class LogonData {
+	class LogonData {
 
 		private String username;
 		private String password;
@@ -303,7 +178,6 @@ public class MainActivity extends Activity {
 			return username;
 		}
 
-		@SuppressWarnings("unused")
 		public void setUsername(String username) {
 			this.username = username;
 		}
@@ -312,7 +186,6 @@ public class MainActivity extends Activity {
 			return password;
 		}
 
-		@SuppressWarnings("unused")
 		public void setPassword(String password) {
 			this.password = password;
 		}
@@ -321,11 +194,26 @@ public class MainActivity extends Activity {
 			return ipAddress;
 		}
 
-		@SuppressWarnings("unused")
 		public void setIpAddress(String ipAddress) {
 			this.ipAddress = ipAddress;
 		}
 
+	}
+
+	private class LogonTask extends AbstractLogonTask {
+
+		public LogonTask(Context context) {
+			super(context);
+		}
+
+		@Override
+		protected void onPostExecute(LogonResult result) {
+			super.onPostExecute(result);
+			if (result.getResultCode() == LogonResult.LOGON_OK) {
+				goRoomsList(result.getSession());
+				finish();
+			}
+		}
 	}
 
 }
