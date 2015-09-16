@@ -4,18 +4,31 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/textView1"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/subtitle_background"
-        android:text="@string/logon_subtitle"
-        android:paddingLeft="@dimen/subtitle_paddingX"
-        android:paddingRight="@dimen/subtitle_paddingX"
-        android:paddingTop="@dimen/subtitle_paddingY"
-        android:paddingBottom="@dimen/subtitle_paddingY"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@color/subtitle_text" />
+        android:paddingLeft="@dimen/subtitle_paddingX" >
+
+        <ImageView
+            android:id="@+id/imageViewLogonSubTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/logon_subtitle"
+            android:src="@drawable/ic_logout" />
+
+        <TextView
+            android:id="@+id/textViewLogonSubTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/subtitle_paddingY"
+            android:paddingLeft="@dimen/subtitle_paddingX"
+            android:paddingRight="@dimen/subtitle_paddingX"
+            android:paddingTop="@dimen/subtitle_paddingY"
+            android:text="@string/logon_subtitle"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/subtitle_text" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

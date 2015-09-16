@@ -28,8 +28,6 @@ public class RoomsListActivity extends ListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
-		// TODO menu with logoff
-
 		sessionId = getIntent().getExtras().getString(MainActivity.SESSION_ID_KEY);
 
 		if (dbAdapter == null) {
@@ -82,12 +80,15 @@ public class RoomsListActivity extends ListActivity {
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		switch (item.getItemId()) {
+			case R.id.refresh_item:
+				refresh();
+				return true;
+			case R.id.logout_item:
+				// TODO
+				return true;
 			case R.id.about_item:
 				AboutDlg aboutDlg = new AboutDlg(this);
 				aboutDlg.show();
-				return true;
-			case R.id.refresh_item:
-				refresh();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -135,7 +136,7 @@ public class RoomsListActivity extends ListActivity {
 	private class RefreshTask extends AbstractRefreshTask {
 
 		public RefreshTask(Context context, HomeDatabaseAdapter dbAdapter) {
-			super(context, dbAdapter);
+			super(context, dbAdapter, R.string.rooms_subtitle);
 		}
 
 		@Override

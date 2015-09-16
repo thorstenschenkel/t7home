@@ -203,7 +203,7 @@ public class MainActivity extends Activity {
 	private class LogonTask extends AbstractLogonTask {
 
 		public LogonTask(Context context) {
-			super(context);
+			super(context, R.string.logon_subtitle);
 		}
 
 		@Override

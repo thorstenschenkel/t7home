@@ -21,12 +21,18 @@ public abstract class AbstractRefreshTask extends AsyncTask<String, Void, Intege
 
 	private final ProgressDialog progressDialog;
 	private final AlertDialog.Builder alertDialogBuilder;
-	private final HomeDatabaseAdapter dbAdapter;
 	private final Context context;
+	private final HomeDatabaseAdapter dbAdapter;
+	private final int titleId;
 
 	public AbstractRefreshTask(Context context, HomeDatabaseAdapter dbAdapter) {
-		this.dbAdapter = dbAdapter;
+		this(context, dbAdapter, -1);
+	}
+
+	public AbstractRefreshTask(Context context, HomeDatabaseAdapter dbAdapter, int titleId) {
 		this.context = context;
+		this.dbAdapter = dbAdapter;
+		this.titleId = titleId;
 		progressDialog = new ProgressDialog(context);
 		alertDialogBuilder = new AlertDialog.Builder(context);
 	}
@@ -62,7 +68,10 @@ public abstract class AbstractRefreshTask extends AsyncTask<String, Void, Intege
 		// https://www.google.com/design/spec/components/progress-activity.html#
 		// Put the view in a layout if it's not and set
 		// android:animateLayoutChanges="true" for that layout.
-		progressDialog.setMessage("Aktualisierung der Räume läuft..."); // TODO
+		if (titleId >= 0) {
+			progressDialog.setTitle(titleId);
+		}
+		progressDialog.setMessage(context.getString(R.string.refresh_in_progress));
 		progressDialog.setCanceledOnTouchOutside(false);
 		progressDialog.show();
 	}
@@ -89,17 +98,17 @@ public abstract class AbstractRefreshTask extends AsyncTask<String, Void, Intege
 		}
 
 		if (resultCode == REFRESH_ERROR) {
-			alertDialogBuilder.setTitle("Aktualisierung"); // TODO
+			if (titleId >= 0) {
+				alertDialogBuilder.setTitle(titleId);
+			}
 			alertDialogBuilder.setCancelable(true);
-			// TODO
-			alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			alertDialogBuilder.setPositiveButton(R.string.ok_button, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int id) {
 					dialog.cancel();
 				}
 			});
-			String msg = "Aktualisierung der Räume ist fehlgeschlagen!";
-			alertDialogBuilder.setMessage(msg);
+			alertDialogBuilder.setMessage(R.string.refresh_error);
 			alertDialogBuilder.create().show();
 		}
 

@@ -22,9 +22,18 @@
     <string name="preference_key_logon_username">de.t7soft.android.t7home.PREFERENCE_LOGON_USERNAME</string>
     <string name="preference_key_logon_password">de.t7soft.android.t7home.PREFERENCE_LOGON_PASSWORD</string>
     <string name="preference_key_logon_ip_address">de.t7soft.android.t7home.PREFERENCE_LOGON_IP_ADDRESS</string>
+    <string name="logon_in_progress">Anmeldung läuft...</string>
+    <string name="logon_error_login_failed">Anmeldung ist mit den Anmeldedaten nicht möglich!</string>
+    <string name="logon_error_session_expired">Anmeldung ist fehlgeschlagen. Die Session ist abgelaufen.</string>
+    <string name="logon_error_technical_exception">Anmeldung ist fehlgeschlagen. Es ist ein technischer Fehler aufgetreten.</string>
+    <string name="logon_error_unkown">Anmeldung ist fehlgeschlagen. Es ist ein unbekannter Fehler aufgetreten.</string>
+    <string name="ok_button">OK</string>
     
     <!-- rooms list -->
     <string name="rooms_subtitle">Räume</string>
     <string name="rooms_refresh_menu_item">Aktualisieren</string>
+    <string name="rooms_logout_menu_item">Abmelden</string>
+    <string name="refresh_in_progress">Aktualisierung läuft...</string>
+    <string name="refresh_error">Aktualisierung ist fehlgeschlagen!</string>
     
 </resources>
