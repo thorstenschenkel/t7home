@@ -29,6 +29,10 @@
     <string name="logon_error_unkown">Anmeldung ist fehlgeschlagen. Es ist ein unbekannter Fehler aufgetreten.</string>
     <string name="ok_button">OK</string>
     
+    <!-- logout -->
+    <string name="logout_subtitle">Abmeldung</string>
+    <string name="heater">Heizung</string>
+    
     <!-- rooms list -->
     <string name="rooms_subtitle">Räume</string>
     <string name="rooms_refresh_menu_item">Aktualisieren</string>
@@ -37,9 +41,12 @@
     <string name="refresh_error">Aktualisierung ist fehlgeschlagen!</string>
     
     <!-- room list -->
-    <string name="room_subtitle">Raume</string>
-    
-    <!-- logout -->
-    <string name="logout_subtitle">Abmeldung</string>
+    <string name="room_subtitle">Raum</string>
+    <string name="room_temperature_value">Raumtemperatur</string>
+    <string name="dummy_temperature_value">\?? °C</string>
+    <string name="room_humidity_value">Luftfeuchtigkeit</string>
+    <string name="dummy_humidity_value">\?? %</string>
+    <string name="preset_temperature_value">Eingestellt Temperatur</string>
+    <string name="temperature_mode">Modus</string>
     
 </resources>

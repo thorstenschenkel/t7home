@@ -1,5 +1,8 @@
 package de.t7soft.android.t7home;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.ActionBar;
 import android.app.ListActivity;
 import android.content.Context;
@@ -8,35 +11,54 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ListView;
 import de.t7soft.android.t7home.database.HomeDatabaseAdapter;
+import de.t7soft.android.t7home.smarthome.api.SmartHomeLocation;
 
 /**
  * http://stackoverflow.com/questions/4777272/android-listview-with-different-layout-for-each-row
  * 
- * http://www.fancyicons.com/frei-ikonen/232/mabeinheiten-icon-set/frei-temperatur-icon-png/ http://www.iconsdb.com/green-icons/thermometer-2-icon.html http://www.sjoarafting.de/a/i/temperatur.png
- * http://www.shutterstock.com/pic.mhtml?irgwc=1&utm_medium=Affiliate&language=de&utm_campaign=FindIcons.com&utm_source=38925&id=69743743&tpl=38925-42764
+ * http://www.fancyicons.com/frei-ikonen/232/mabeinheiten-icon-set/frei-temperatur-icon-png/
+ * http://www.iconsdb.com/green-icons/thermometer-2-icon.html http://www.sjoarafting.de/a/i/temperatur.png
+ * http://www.shutterstock
+ * .com/pic.mhtml?irgwc=1&utm_medium=Affiliate&language=de&utm_campaign=FindIcons.com&utm_source=38925&
+ * id=69743743&tpl=38925-42764
  * 
- * http://www.iconarchive.com/show/android-icons-by-icons8/Measurement-Units-Humidity-icon.html http://findicons.com/icon/557445/humidity http://www.iconarchive.com/show/outline-icons-by-iconsmind/Rain-Drop-icon.html
- * http://www.shutterstock.com/pic.mhtml?language=de&irgwc=1&id=96107042&utm_source=38925&tpl=38925-42764&utm_medium=Affiliate&utm_campaign=FindIcons.com
- * http://www.shutterstock.com/pic.mhtml?utm_campaign=FindIcons.com&irgwc=1&language=de&utm_medium=Affiliate&utm_source=38925&tpl=38925-42764&id=102080212
+ * http://www.iconarchive.com/show/android-icons-by-icons8/Measurement-Units-Humidity-icon.html
+ * http://findicons.com/icon/557445/humidity http://www.iconarchive.com/show/outline-icons-by-iconsmind/Rain-Drop-icon.html
+ * http
+ * ://www.shutterstock.com/pic.mhtml?language=de&irgwc=1&id=96107042&utm_source=38925&tpl=38925-42764&utm_medium=Affiliate
+ * &utm_campaign=FindIcons.com
+ * http://www.shutterstock.com/pic.mhtml?utm_campaign=FindIcons.com&irgwc=1&language=de&utm_medium
+ * =Affiliate&utm_source=38925&tpl=38925-42764&id=102080212
  * 
  * 
  */
 public class RoomActivity extends ListActivity {
 
 	private HomeDatabaseAdapter dbAdapter;
-	private Object loactionId;
+	private String locationId;
 	private String sessionId;
+	private final List<Object> devices = new ArrayList<Object>();
+	private RoomListAdapter listAdapter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
-		loactionId = getIntent().getExtras().getString(RoomsListActivity.LOCATION_ID);
+		locationId = getIntent().getExtras().getString(RoomsListActivity.LOCATION_ID);
 		sessionId = getIntent().getExtras().getString(MainActivity.SESSION_ID_KEY);
 
 		if (dbAdapter == null) {
 			dbAdapter = new HomeDatabaseAdapter(this);
 		}
+
+		ListView listView = getListView();
+		View header = getLayoutInflater().inflate(R.layout.room_list_header, null);
+		listView.addHeaderView(header);
+
+		listAdapter = new RoomListAdapter(this, devices);
+		setListAdapter(listAdapter);
 
 		super.onCreate(savedInstanceState);
 
@@ -48,6 +70,7 @@ public class RoomActivity extends ListActivity {
 	@Override
 	protected void onResume() {
 		dbAdapter.open();
+		updateListAdapter();
 		super.onResume();
 	}
 
@@ -61,6 +84,16 @@ public class RoomActivity extends ListActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.rooms, menu);
 		return true;
+	}
+
+	private void updateListAdapter() {
+
+		devices.clear();
+		SmartHomeLocation location = new SmartHomeLocation();
+		location.setLocationId(locationId);
+		devices.addAll(dbAdapter.getAllDevices(location));
+		listAdapter.notifyDataSetChanged();
+
 	}
 
 	private void refresh() {
@@ -104,7 +137,7 @@ public class RoomActivity extends ListActivity {
 		@Override
 		protected void onPostExecute(Integer resultCode) {
 			super.onPostExecute(resultCode);
-			// updateListAdapter(); TODO
+			updateListAdapter();
 		}
 
 	}

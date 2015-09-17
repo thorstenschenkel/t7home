@@ -62,8 +62,8 @@ public class SmartHomeSession {
 	private String currentConfigurationVersion = "";
 
 	private ConcurrentHashMap<String, SmartHomeLocation> locations = null;
-	private final ConcurrentHashMap<String, ? extends LogicalDevice> windowDoorSensors = null;
-	private final ConcurrentHashMap<String, TemperatureHumidityDevice> temperatureHumidityDevices = null;
+	private ConcurrentHashMap<String, ? extends LogicalDevice> windowDoorSensors = null;
+	private ConcurrentHashMap<String, TemperatureHumidityDevice> temperatureHumidityDevices = null;
 
 	private final HttpComponentsHelper httpHelper = new HttpComponentsHelper();
 
@@ -265,8 +265,8 @@ public class SmartHomeSession {
 	public void refreshConfigurationFromInputStream(InputStream is) {
 		SmartHomeEntitiesXMLResponse smartHomeEntitiesXMLRes = new SmartHomeEntitiesXMLResponse(is);
 		this.setLocations(smartHomeEntitiesXMLRes.getLocations());
-		// this.temperatureHumidityDevices = smartHomeEntitiesXMLRes.getTemperatureHumidityDevices();
-		// this.windowDoorSensors = smartHomeEntitiesXMLRes.getWindowDoorSensors();
+		this.temperatureHumidityDevices = smartHomeEntitiesXMLRes.getTemperatureHumidityDevices();
+		this.windowDoorSensors = smartHomeEntitiesXMLRes.getWindowDoorSensors();
 	}
 
 	private String getHostName() {

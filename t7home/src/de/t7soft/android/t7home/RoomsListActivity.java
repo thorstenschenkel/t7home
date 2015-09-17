@@ -39,7 +39,7 @@ public class RoomsListActivity extends ListActivity {
 
 		listAdapter = createListAdapter(locations);
 		setListAdapter(listAdapter);
-		listView.setTextFilterEnabled(true);
+		// listView.setTextFilterEnabled(true);
 
 		super.onCreate(savedInstanceState);
 
@@ -109,6 +109,7 @@ public class RoomsListActivity extends ListActivity {
 
 			Intent intent = new Intent(this, RoomActivity.class);
 			intent.putExtra(LOCATION_ID, location.getLocationId());
+			intent.putExtra(MainActivity.SESSION_ID_KEY, sessionId);
 			startActivity(intent);
 
 		}

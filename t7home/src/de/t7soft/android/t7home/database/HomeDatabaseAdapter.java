@@ -177,6 +177,12 @@ public class HomeDatabaseAdapter {
 		return values;
 	}
 
+	public List<Object> getAllDevices(SmartHomeLocation location) {
+		List<Object> devices = new ArrayList<Object>();
+		devices.addAll(getTemperatureHumidityDevices(database, location));
+		return devices;
+	}
+
 	public List<TemperatureHumidityDevice> getTemperatureHumidityDevices(SmartHomeLocation location) {
 		return getTemperatureHumidityDevices(database, location);
 	}
@@ -186,7 +192,8 @@ public class HomeDatabaseAdapter {
 		final List<TemperatureHumidityDevice> devices = new ArrayList<TemperatureHumidityDevice>();
 
 		String selection = createLocationSelection(location);
-		final Cursor cursor = db.query(HomeDatabaseHelper.LOCATIONS_TABLE_NAME, null, selection, null, null, null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.TEMPERATURE_HUMIDITY_DEVICE_TABLE_NAME, null, selection, null,
+				null, null, null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
@@ -203,13 +210,13 @@ public class HomeDatabaseAdapter {
 
 	private TemperatureHumidityDevice createTemperatureHumidityDevice(Cursor cursor) {
 
-		TemperatureHumidityDevice device = new TemperatureHumidityDevice();
-
-		device.setLocationId(getString(cursor, HomeDatabaseHelper.LOCATION_ID_COL_NAME));
-		device.setLocation(getLocation(device.getLocationId()));
+		String locationId = getString(cursor, HomeDatabaseHelper.LOCATION_ID_COL_NAME);
 		String roomTemperatureSensorId = getString(cursor, HomeDatabaseHelper.TEMPERATURE_SENSOR_ID_COL_NAME);
-		device.setTemperatureSensor(getRoomTemperatureSensor(database, roomTemperatureSensorId));
 		String roomHumiditySensorId = getString(cursor, HomeDatabaseHelper.ROOMHUMIDTY_SENSOR_ID_COL_NAME);
+
+		TemperatureHumidityDevice device = new TemperatureHumidityDevice();
+		device.setLocation(getLocation(locationId));
+		device.setTemperatureSensor(getRoomTemperatureSensor(database, roomTemperatureSensorId));
 		device.setRoomHumiditySensor(getRoomHumiditySensor(database, roomHumiditySensorId));
 		// TODO device.setTemperatureActuator
 
@@ -226,11 +233,11 @@ public class HomeDatabaseAdapter {
 	}
 
 	private static String createRoomTemperatureSensorSelection(final String id) {
-		return HomeDatabaseHelper.TEMPERATURE_SENSOR_ID_COL_NAME + "=" + "\"" + id + "\"";
+		return HomeDatabaseHelper.LOGICAL_DEVICE_ID_COL_NAME + "=" + "\"" + id + "\"";
 	}
 
 	private static String createRoomHumiditySensorSelection(final String id) {
-		return HomeDatabaseHelper.ROOMHUMIDTY_SENSOR_ID_COL_NAME + "=" + "\"" + id + "\"";
+		return HomeDatabaseHelper.LOGICAL_DEVICE_ID_COL_NAME + "=" + "\"" + id + "\"";
 	}
 
 	private SmartHomeLocation getLocation(String id) {

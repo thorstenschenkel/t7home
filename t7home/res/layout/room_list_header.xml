@@ -11,19 +11,19 @@
         android:paddingLeft="@dimen/subtitle_paddingX" >
 
         <ImageView
-            android:id="@+id/imageViewRoomsListHeader"
+            android:id="@+id/imageViewRoomListHeader"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:contentDescription="@string/logon_subtitle"
-            android:src="@drawable/ic_rooms" />
+            android:src="@drawable/ic_room" />
 
         <TextView
-            android:id="@+id/textViewRoomsListHeader"
+            android:id="@+id/textViewRoomListHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingLeft="@dimen/subtitle_paddingX"
             android:paddingRight="@dimen/subtitle_paddingX"
-            android:text="@string/rooms_subtitle"
+            android:text="@string/room_subtitle"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/subtitle_text" />
     </LinearLayout>
