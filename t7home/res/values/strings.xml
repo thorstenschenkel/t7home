@@ -36,4 +36,10 @@
     <string name="refresh_in_progress">Aktualisierung läuft...</string>
     <string name="refresh_error">Aktualisierung ist fehlgeschlagen!</string>
     
+    <!-- room list -->
+    <string name="room_subtitle">Raume</string>
+    
+    <!-- logout -->
+    <string name="logout_subtitle">Abmeldung</string>
+    
 </resources>

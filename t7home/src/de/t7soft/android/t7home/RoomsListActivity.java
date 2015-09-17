@@ -20,9 +20,8 @@ public class RoomsListActivity extends ListActivity {
 	public static final String LOCATION_ID = "locationId";
 
 	private String sessionId;
-
-	private final List<SmartHomeLocation> locations = new ArrayList<SmartHomeLocation>();
 	private HomeDatabaseAdapter dbAdapter;
+	private final List<SmartHomeLocation> locations = new ArrayList<SmartHomeLocation>();
 	private ArrayAdapter<SmartHomeLocation> listAdapter;
 
 	@Override
@@ -43,9 +42,6 @@ public class RoomsListActivity extends ListActivity {
 		listView.setTextFilterEnabled(true);
 
 		super.onCreate(savedInstanceState);
-
-		// ActionBar actionBar = getActionBar();
-		// actionBar.setDisplayHomeAsUpEnabled(true);
 
 	}
 
@@ -86,7 +82,8 @@ public class RoomsListActivity extends ListActivity {
 				refresh();
 				return true;
 			case R.id.logout_item:
-				logout();
+				LogoutTask logoutTask = new LogoutTask(this, dbAdapter);
+				logoutTask.execute(sessionId);
 				return true;
 			case R.id.about_item:
 				AboutDlg aboutDlg = new AboutDlg(this);
@@ -98,8 +95,6 @@ public class RoomsListActivity extends ListActivity {
 	}
 
 	private void logout() {
-		// TODO -> AysnkTask
-		// ... session.destroy ...
 		Intent intent = new Intent(this, MainActivity.class);
 		startActivity(intent);
 	}
@@ -152,6 +147,20 @@ public class RoomsListActivity extends ListActivity {
 		protected void onPostExecute(Integer resultCode) {
 			super.onPostExecute(resultCode);
 			updateListAdapter();
+		}
+
+	}
+
+	private class LogoutTask extends AbstractLogoutTask {
+
+		public LogoutTask(Context context, HomeDatabaseAdapter dbAdapter) {
+			super(context, dbAdapter, R.string.logout_subtitle);
+		}
+
+		@Override
+		protected void onPostExecute(Integer resultCode) {
+			super.onPostExecute(resultCode);
+			logout();
 		}
 
 	}
