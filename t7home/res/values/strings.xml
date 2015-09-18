@@ -28,18 +28,21 @@
     <string name="logon_error_technical_exception">Anmeldung ist fehlgeschlagen. Es ist ein technischer Fehler aufgetreten.</string>
     <string name="logon_error_unkown">Anmeldung ist fehlgeschlagen. Es ist ein unbekannter Fehler aufgetreten.</string>
     <string name="ok_button">OK</string>
-    
+
     <!-- logout -->
     <string name="logout_subtitle">Abmeldung</string>
     <string name="heater">Heizung</string>
-    
+
     <!-- rooms list -->
     <string name="rooms_subtitle">Räume</string>
     <string name="rooms_refresh_menu_item">Aktualisieren</string>
     <string name="rooms_logout_menu_item">Abmelden</string>
     <string name="refresh_in_progress">Aktualisierung läuft...</string>
+    <string name="refresh_configuration">Konfiguration wird aktualisiert...</string>
+    <string name="refresh_states">Zustände werden aktualisiert...</string>
+    <string name="refresh_store">Konfiguration und Zustände werden gespeichert...</string>
     <string name="refresh_error">Aktualisierung ist fehlgeschlagen!</string>
-    
+
     <!-- room list -->
     <string name="room_subtitle">Raum</string>
     <string name="room_temperature_value">Raumtemperatur</string>
@@ -48,5 +51,5 @@
     <string name="dummy_humidity_value">\?? %</string>
     <string name="preset_temperature_value">Eingestellt Temperatur</string>
     <string name="temperature_mode">Modus</string>
-    
+
 </resources>

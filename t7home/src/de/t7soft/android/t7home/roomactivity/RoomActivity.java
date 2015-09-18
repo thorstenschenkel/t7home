@@ -1,4 +1,4 @@
-package de.t7soft.android.t7home;
+package de.t7soft.android.t7home.roomactivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +13,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import de.t7soft.android.t7home.AboutDlg;
+import de.t7soft.android.t7home.MainActivity;
+import de.t7soft.android.t7home.R;
+import de.t7soft.android.t7home.R.id;
+import de.t7soft.android.t7home.R.layout;
+import de.t7soft.android.t7home.R.menu;
+import de.t7soft.android.t7home.R.string;
 import de.t7soft.android.t7home.database.HomeDatabaseAdapter;
+import de.t7soft.android.t7home.roomsactivity.RoomsListActivity;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeLocation;
+import de.t7soft.android.t7home.tasks.AbstractLogoutTask;
+import de.t7soft.android.t7home.tasks.AbstractRefreshTask;
 
 /**
  * http://stackoverflow.com/questions/4777272/android-listview-with-different-layout-for-each-row

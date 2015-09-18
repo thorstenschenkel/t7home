@@ -1,0 +1,94 @@
+<BaseResponse xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    CorrespondingRequestId="62d5aa1e-e5ac-412a-8dc5-1a0db48efce7"
+    Result="Ok"
+    Version="1.70"
+    xsi:type="GetAllLogicalDeviceStatesResponse" >
+
+    <States>
+
+        <LogicalDeviceState
+            LID="fd045244-fc46-46e6-a30c-435fb7aee381"
+            xsi:type="WindowDoorSensorState" >
+
+            <IsOpen>
+false
+            </IsOpen>
+        </LogicalDeviceState>
+
+        <LogicalDeviceState
+            LID="290b3675-4340-4489-8dde-a87b0430ee32"
+            Temperature="21"
+            xsi:type="RoomTemperatureSensorState" />
+
+        <LogicalDeviceState
+            LID="dbecee20-a770-41f5-a710-7b478fac141b"
+            OpnMd="Auto"
+            PtTmp="19.0"
+            WRAc="False"
+            xsi:type="RoomTemperatureActuatorState" />
+
+        <LogicalDeviceState
+            Humidity="64"
+            LID="17082bc6-a823-4f52-a88b-e406a5cea911"
+            xsi:type="RoomHumiditySensorState" />
+
+        <LogicalDeviceState
+            LID="4a6e48f9-3193-4acc-9d31-79c2cf342a8c"
+            xsi:type="RollerShutterActuatorState" >
+
+            <ShutterLevel>
+0
+            </ShutterLevel>
+        </LogicalDeviceState>
+
+        <LogicalDeviceState
+            LID="6e313756-c342-4350-b2a3-117a20477047"
+            xsi:type="GenericDeviceState" >
+
+            <Ppts>
+
+                <Ppt
+                    Name="NextSunrise"
+                    Value="2015-09-19T07:07:31.8980000+02:00"
+                    xsi:type="DateTimeProperty" />
+
+                <Ppt
+                    Name="NextSunset"
+                    Value="2015-09-18T19:34:31.5840000+02:00"
+                    xsi:type="DateTimeProperty" />
+
+                <Ppt
+                    Name="NextTimeEvent"
+                    Value="2015-09-18T19:34:31.5840000+02:00"
+                    xsi:type="DateTimeProperty" />
+            </Ppts>
+        </LogicalDeviceState>
+
+        <LogicalDeviceState
+            LID="79776d1b-5ac5-4719-b7cb-bc15304bc994"
+            xsi:type="RollerShutterActuatorState" >
+
+            <ShutterLevel>
+0
+            </ShutterLevel>
+        </LogicalDeviceState>
+
+        <LogicalDeviceState
+            LID="853ee681-8ff5-4290-9b72-21639e76934e"
+            OpnMd="Auto"
+            PtTmp="21.5"
+            WRAc="False"
+            xsi:type="RoomTemperatureActuatorState" />
+
+        <LogicalDeviceState
+            LID="f5d38b34-93bb-46e6-9fd8-16dab533eee1"
+            Temperature="22.05"
+            xsi:type="RoomTemperatureSensorState" />
+
+        <LogicalDeviceState
+            Humidity="63"
+            LID="8e589109-b289-48d3-8535-6dfc608d80d5"
+            xsi:type="RoomHumiditySensorState" />
+    </States>
+
+</BaseResponse>

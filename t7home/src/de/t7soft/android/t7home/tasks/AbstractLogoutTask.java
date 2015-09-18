@@ -1,8 +1,10 @@
-package de.t7soft.android.t7home;
+package de.t7soft.android.t7home.tasks;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import de.t7soft.android.t7home.R;
+import de.t7soft.android.t7home.R.string;
 import de.t7soft.android.t7home.database.HomeDatabaseAdapter;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeSession;
 

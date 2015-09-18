@@ -27,11 +27,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="RoomsListActivity"
+            android:name=".roomsactivity.RoomsListActivity"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="RoomActivity"
+            android:name=".roomactivity.RoomActivity"
             android:screenOrientation="portrait" >
         </activity>
     </application>

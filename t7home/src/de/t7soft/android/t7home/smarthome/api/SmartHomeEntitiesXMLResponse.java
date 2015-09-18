@@ -224,4 +224,8 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 		return roomTemperatureActuators;
 	}
 
+	public ConcurrentHashMap<String, RoomHumiditySensor> getRoomHumiditySensors() {
+		return roomHumiditySensors;
+	}
+
 }

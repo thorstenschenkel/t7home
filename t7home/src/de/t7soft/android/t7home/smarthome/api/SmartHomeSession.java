@@ -26,6 +26,9 @@ import org.apache.http.protocol.HTTP;
 import org.xml.sax.SAXException;
 
 import de.t7soft.android.t7home.smarthome.api.devices.LogicalDevice;
+import de.t7soft.android.t7home.smarthome.api.devices.RoomHumiditySensor;
+import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureActuator;
+import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureSensor;
 import de.t7soft.android.t7home.smarthome.api.devices.TemperatureHumidityDevice;
 import de.t7soft.android.t7home.smarthome.api.exceptions.LoginFailedException;
 import de.t7soft.android.t7home.smarthome.api.exceptions.SHTechnicalException;
@@ -37,6 +40,8 @@ import de.t7soft.android.t7home.smarthome.util.XMLUtil;
 /**
  * https://code.google.com/p/smarthome-java-library/source/browse/SmarthomeJavaLibrary/src/main/java/de/itarchitecture/
  * smarthome/api/SmartHomeSession.java
+ * 
+ * http://www.ollie.in/rwe-smarthome-api/
  */
 public class SmartHomeSession {
 
@@ -64,6 +69,9 @@ public class SmartHomeSession {
 	private ConcurrentHashMap<String, SmartHomeLocation> locations = null;
 	private ConcurrentHashMap<String, ? extends LogicalDevice> windowDoorSensors = null;
 	private ConcurrentHashMap<String, TemperatureHumidityDevice> temperatureHumidityDevices = null;
+	private ConcurrentHashMap<String, RoomTemperatureActuator> roomTemperatureActuators;
+	private ConcurrentHashMap<String, RoomTemperatureSensor> roomTemperatureSensors;
+	private ConcurrentHashMap<String, RoomHumiditySensor> roomHumiditySensors;
 
 	private final HttpComponentsHelper httpHelper = new HttpComponentsHelper();
 
@@ -115,8 +123,8 @@ public class SmartHomeSession {
 			sessionData.setRequestId(requestId);
 			sessionData.setHostName(getHostName());
 			sessionData.setVersion(XMLUtil.XPathValueFromString(sResponse, "/BaseResponse/@Version"));
-			currentConfigurationVersion = XMLUtil.XPathValueFromString(sResponse,
-					"/BaseResponse/@CurrentConfigurationVersion");
+			// currentConfigurationVersion = XMLUtil.XPathValueFromString(sResponse,
+			// "/BaseResponse/@CurrentConfigurationVersion");
 			SESSION_DATA.put(getSessionId(), sessionData);
 		} catch (ParserConfigurationException ex) {
 			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
@@ -228,7 +236,7 @@ public class SmartHomeSession {
 
 	}
 
-	public String refreshConfiguration() throws SmartHomeSessionExpiredException {
+	public String refreshConfiguration() throws SmartHomeSessionExpiredException, SHTechnicalException {
 
 		String attributes = "SessionId=\"" + getSessionId() + "\"";
 		String content = "<EntityType>Configuration</EntityType>";
@@ -253,9 +261,19 @@ public class SmartHomeSession {
 		if (sResponse == null || sResponse.isEmpty()) {
 			throw new SmartHomeSessionExpiredException("No response!");
 		}
-		Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, sResponse);
+		Logger.getLogger(SmartHomeSession.class.getName()).log(Level.INFO, sResponse);
 		try {
+			currentConfigurationVersion = XMLUtil.XPathValueFromString(sResponse, "/BaseResponse/@ConfigurationVersion");
 			refreshConfigurationFromInputStream(IOUtils.toInputStream(sResponse, "UTF8"));
+		} catch (ParserConfigurationException ex) {
+			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
+			throw new SHTechnicalException("ParserConfigurationException:" + ex.getMessage(), ex);
+		} catch (SAXException ex) {
+			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
+			throw new SHTechnicalException("SAXException:" + ex.getMessage(), ex);
+		} catch (XPathExpressionException ex) {
+			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
+			throw new SHTechnicalException("XPathExpressionException:" + ex.getMessage(), ex);
 		} catch (IOException e) {
 			throw new SmartHomeSessionExpiredException(e);
 		}
@@ -266,7 +284,28 @@ public class SmartHomeSession {
 		SmartHomeEntitiesXMLResponse smartHomeEntitiesXMLRes = new SmartHomeEntitiesXMLResponse(is);
 		this.setLocations(smartHomeEntitiesXMLRes.getLocations());
 		this.temperatureHumidityDevices = smartHomeEntitiesXMLRes.getTemperatureHumidityDevices();
+		this.roomTemperatureActuators = smartHomeEntitiesXMLRes.getRoomTemperatureActuators();
+		this.roomTemperatureSensors = smartHomeEntitiesXMLRes.getRoomTemperatureSensors();
+		this.roomHumiditySensors = smartHomeEntitiesXMLRes.getRoomHumiditySensors();
 		this.windowDoorSensors = smartHomeEntitiesXMLRes.getWindowDoorSensors();
+	}
+
+	public String refreshLogicalDeviceState() throws SmartHomeSessionExpiredException {
+		String attributes = "SessionId=\"" + getSessionId() + "\"";
+		attributes += " ";
+		attributes += "BasedOnConfigVersion=\"" + currentConfigurationVersion + "\"";
+		String getLogicalDevicesRequest = buildRequest("GetAllLogicalDeviceStatesRequest", attributes);
+		String sResponse = executeRequest(getLogicalDevicesRequest);
+		if (sResponse == null || sResponse.isEmpty()) {
+			throw new SmartHomeSessionExpiredException("No response!");
+		}
+		Logger.getLogger(SmartHomeSession.class.getName()).log(Level.INFO, sResponse);
+		LogicalDeviceXMLResponse logDevXmlRes = new LogicalDeviceXMLResponse();
+		logDevXmlRes.refreshLogicalDevices(IOUtils.toInputStream(sResponse), roomTemperatureActuators);
+		logDevXmlRes.refreshLogicalDevices(IOUtils.toInputStream(sResponse), roomTemperatureSensors);
+		logDevXmlRes.refreshLogicalDevices(IOUtils.toInputStream(sResponse), roomHumiditySensors);
+		logDevXmlRes.refreshLogicalDevices(IOUtils.toInputStream(sResponse), windowDoorSensors);
+		return sResponse;
 	}
 
 	private String getHostName() {

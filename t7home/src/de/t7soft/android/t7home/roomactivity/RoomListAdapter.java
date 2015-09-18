@@ -1,4 +1,4 @@
-package de.t7soft.android.t7home;
+package de.t7soft.android.t7home.roomactivity;
 
 import java.text.DecimalFormat;
 import java.text.Format;
@@ -10,6 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import de.t7soft.android.t7home.R;
+import de.t7soft.android.t7home.R.id;
+import de.t7soft.android.t7home.R.layout;
 import de.t7soft.android.t7home.smarthome.api.devices.TemperatureHumidityDevice;
 
 public class RoomListAdapter extends BaseAdapter {

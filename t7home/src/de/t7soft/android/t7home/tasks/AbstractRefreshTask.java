@@ -1,4 +1,4 @@
-package de.t7soft.android.t7home;
+package de.t7soft.android.t7home.tasks;
 
 import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
@@ -8,13 +8,15 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
+import de.t7soft.android.t7home.R;
 import de.t7soft.android.t7home.database.HomeDatabaseAdapter;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeLocation;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeSession;
 import de.t7soft.android.t7home.smarthome.api.devices.TemperatureHumidityDevice;
+import de.t7soft.android.t7home.smarthome.api.exceptions.SHTechnicalException;
 import de.t7soft.android.t7home.smarthome.api.exceptions.SmartHomeSessionExpiredException;
 
-public abstract class AbstractRefreshTask extends AsyncTask<String, Void, Integer> {
+public abstract class AbstractRefreshTask extends AsyncTask<String, Integer, Integer> {
 
 	public static final int REFRESH_OK = 0;
 	public static final int REFRESH_ERROR = 1;
@@ -73,14 +75,26 @@ public abstract class AbstractRefreshTask extends AsyncTask<String, Void, Intege
 	}
 
 	@Override
+	protected void onProgressUpdate(Integer... resIds) {
+		context.getString(R.string.refresh_in_progress);
+		progressDialog.setMessage(context.getString(R.string.refresh_in_progress));
+	}
+
+	@Override
 	protected Integer doInBackground(String... params) {
 		String sessionId = params[0];
 		SmartHomeSession session = new SmartHomeSession(sessionId);
 		try {
+			publishProgress(R.string.refresh_configuration);
 			session.refreshConfiguration();
+			publishProgress(R.string.refresh_states);
+			session.refreshLogicalDeviceState();
+			publishProgress(R.string.refresh_store);
 			dbAdapter.deleteAll();
 			storeLocations(session);
 			storeTemperatureHumidityDevices(session);
+		} catch (SHTechnicalException e) {
+			return REFRESH_ERROR;
 		} catch (SmartHomeSessionExpiredException e) {
 			return REFRESH_ERROR;
 		}

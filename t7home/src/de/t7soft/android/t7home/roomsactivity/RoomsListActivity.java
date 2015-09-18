@@ -1,6 +1,8 @@
-package de.t7soft.android.t7home;
+package de.t7soft.android.t7home.roomsactivity;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import android.app.ListActivity;
@@ -12,8 +14,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import de.t7soft.android.t7home.AboutDlg;
+import de.t7soft.android.t7home.MainActivity;
+import de.t7soft.android.t7home.R;
 import de.t7soft.android.t7home.database.HomeDatabaseAdapter;
+import de.t7soft.android.t7home.roomactivity.RoomActivity;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeLocation;
+import de.t7soft.android.t7home.tasks.AbstractLogoutTask;
+import de.t7soft.android.t7home.tasks.AbstractRefreshTask;
 
 public class RoomsListActivity extends ListActivity {
 
@@ -124,6 +132,12 @@ public class RoomsListActivity extends ListActivity {
 
 		locations.clear();
 		locations.addAll(dbAdapter.getAllLocations());
+		Collections.sort(locations, new Comparator<SmartHomeLocation>() {
+			@Override
+			public int compare(SmartHomeLocation location1, SmartHomeLocation location2) {
+				return location1.getPosition().compareTo(location2.getPosition());
+			}
+		});
 		listAdapter.notifyDataSetChanged();
 
 	}

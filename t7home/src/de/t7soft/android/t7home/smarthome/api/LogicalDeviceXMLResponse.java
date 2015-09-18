@@ -16,6 +16,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import de.t7soft.android.t7home.smarthome.api.devices.LogicalDevice;
+import de.t7soft.android.t7home.smarthome.api.devices.RoomHumiditySensor;
+import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureActuator;
+import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureSensor;
 import de.t7soft.android.t7home.smarthome.api.devices.WindowDoorSensor;
 
 public class LogicalDeviceXMLResponse extends XMLResponse {
@@ -63,7 +66,24 @@ public class LogicalDeviceXMLResponse extends XMLResponse {
 	private LogicalDevice refreshLogicalDevice(Element devEl, LogicalDevice logicalDevice) {
 
 		String sType = getTextValueFromAttribute(devEl, "xsi:type");
-		if (LogicalDevice.Type_WindowDoorSensorState.equals(sType)) {
+		if (LogicalDevice.Type_RoomHumiditySensorState.equals(sType)) {
+			RoomHumiditySensor roomHumiditySensor = (RoomHumiditySensor) logicalDevice;
+			roomHumiditySensor.setLogicalDeviceType(LogicalDevice.Type_RoomHumiditySensor);
+			roomHumiditySensor.setHumidity(getDoubleValueFromAttribute(devEl, "Humidity"));
+			logicalDevice = roomHumiditySensor;
+		} else if (LogicalDevice.Type_RoomTemperatureActuatorState.equals(sType)) {
+			RoomTemperatureActuator roomTemperatureActuator = (RoomTemperatureActuator) logicalDevice;
+			roomTemperatureActuator.setLogicalDeviceType(LogicalDevice.Type_RoomTemperatureActuator);
+			roomTemperatureActuator.setOperationMode(getTextValueFromAttribute(devEl, "OpnMd"));
+			roomTemperatureActuator.setPointTemperature(getDoubleValueFromAttribute(devEl, "PtTmp"));
+			roomTemperatureActuator.setWindowReductionActive(getTextValueFromAttribute(devEl, "WRAc"));
+			logicalDevice = roomTemperatureActuator;
+		} else if (LogicalDevice.Type_RoomTemperatureSensorState.equals(sType)) {
+			RoomTemperatureSensor roomTemperatureSensor = (RoomTemperatureSensor) logicalDevice;
+			roomTemperatureSensor.setLogicalDeviceType(LogicalDevice.Type_RoomTemperatureSensor);
+			roomTemperatureSensor.setTemperature(getDoubleValueFromAttribute(devEl, "Temperature"));
+			logicalDevice = roomTemperatureSensor;
+		} else if (LogicalDevice.Type_WindowDoorSensorState.equals(sType)) {
 			WindowDoorSensor windowDoorSensor = (WindowDoorSensor) logicalDevice;
 			windowDoorSensor.setLogicalDeviceType(LogicalDevice.Type_WindowDoorSensor);
 			windowDoorSensor.setOpen(getBooleanValueFromElements(devEl, "IsOpen"));
