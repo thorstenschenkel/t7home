@@ -43,7 +43,8 @@ public class HomeDatabaseAdapter {
 
 	public boolean deleteLocation(final SmartHomeLocation location) {
 		final String id = location.getLocationId();
-		final int ret = database.delete(HomeDatabaseHelper.LOCATIONS_TABLE_NAME, createLocationSelection(id), null);
+		String where = createLocationSelection(id);
+		final int ret = database.delete(HomeDatabaseHelper.LOCATIONS_TABLE_NAME, where, null);
 		return (ret > 0);
 	}
 
@@ -57,11 +58,12 @@ public class HomeDatabaseAdapter {
 		final Cursor cursor = db.query(HomeDatabaseHelper.LOCATIONS_TABLE_NAME, null, null, null, null, null, null);
 
 		if (cursor != null) {
-			cursor.moveToFirst();
-			while (!cursor.isAfterLast()) {
-				final SmartHomeLocation location = createLocation(cursor);
-				profiles.add(location);
-				cursor.moveToNext();
+			if (cursor.moveToFirst()) {
+				while (!cursor.isAfterLast()) {
+					final SmartHomeLocation location = createLocation(cursor);
+					profiles.add(location);
+					cursor.moveToNext();
+				}
 			}
 			cursor.close();
 		}
@@ -192,8 +194,8 @@ public class HomeDatabaseAdapter {
 		final List<TemperatureHumidityDevice> devices = new ArrayList<TemperatureHumidityDevice>();
 
 		String selection = createLocationSelection(location);
-		final Cursor cursor = db.query(HomeDatabaseHelper.TEMPERATURE_HUMIDITY_DEVICE_TABLE_NAME, null, selection, null,
-				null, null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.TEMPERATURE_HUMIDITY_DEVICE_TABLE_NAME, null, selection,
+				null, null, null, null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
@@ -240,7 +242,7 @@ public class HomeDatabaseAdapter {
 		return HomeDatabaseHelper.LOGICAL_DEVICE_ID_COL_NAME + "=" + "\"" + id + "\"";
 	}
 
-	private SmartHomeLocation getLocation(String id) {
+	public SmartHomeLocation getLocation(String id) {
 		return getLocation(database, id);
 	}
 
@@ -249,13 +251,12 @@ public class HomeDatabaseAdapter {
 		SmartHomeLocation location = null;
 
 		String selection = createLocationSelection(id);
-		final Cursor cursor = db.query(HomeDatabaseHelper.LOCATIONS_TABLE_NAME, null, selection, null, null, null, null);
+		final Cursor cursor = db
+				.query(HomeDatabaseHelper.LOCATIONS_TABLE_NAME, null, selection, null, null, null, null);
 
 		if (cursor != null) {
-			cursor.moveToFirst();
-			while (!cursor.isAfterLast()) {
+			if (cursor.moveToFirst()) {
 				location = createLocation(cursor);
-				break;
 			}
 			cursor.close();
 		}
@@ -273,10 +274,8 @@ public class HomeDatabaseAdapter {
 				null, null);
 
 		if (cursor != null) {
-			cursor.moveToFirst();
-			while (!cursor.isAfterLast()) {
+			if (cursor.moveToFirst()) {
 				sensor = createRoomHumiditySensor(cursor);
-				break;
 			}
 			cursor.close();
 		}
@@ -290,14 +289,12 @@ public class HomeDatabaseAdapter {
 		RoomTemperatureSensor sensor = null;
 
 		String selection = createRoomTemperatureSensorSelection(id);
-		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_SENSOR_TABLE_NAME, null, selection, null, null,
-				null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_SENSOR_TABLE_NAME, null, selection, null,
+				null, null, null);
 
 		if (cursor != null) {
-			cursor.moveToFirst();
-			while (!cursor.isAfterLast()) {
+			if (cursor.moveToFirst()) {
 				sensor = createRoomTemperatureSensor(cursor);
-				break;
 			}
 			cursor.close();
 		}

@@ -13,13 +13,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 import de.t7soft.android.t7home.AboutDlg;
 import de.t7soft.android.t7home.MainActivity;
 import de.t7soft.android.t7home.R;
-import de.t7soft.android.t7home.R.id;
-import de.t7soft.android.t7home.R.layout;
-import de.t7soft.android.t7home.R.menu;
-import de.t7soft.android.t7home.R.string;
 import de.t7soft.android.t7home.database.HomeDatabaseAdapter;
 import de.t7soft.android.t7home.roomsactivity.RoomsListActivity;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeLocation;
@@ -29,18 +26,11 @@ import de.t7soft.android.t7home.tasks.AbstractRefreshTask;
 /**
  * http://stackoverflow.com/questions/4777272/android-listview-with-different-layout-for-each-row
  * 
- * http://www.fancyicons.com/frei-ikonen/232/mabeinheiten-icon-set/frei-temperatur-icon-png/
- * http://www.iconsdb.com/green-icons/thermometer-2-icon.html http://www.sjoarafting.de/a/i/temperatur.png
- * http://www.shutterstock
- * .com/pic.mhtml?irgwc=1&utm_medium=Affiliate&language=de&utm_campaign=FindIcons.com&utm_source=38925&
- * id=69743743&tpl=38925-42764
+ * http://www.fancyicons.com/frei-ikonen/232/mabeinheiten-icon-set/frei-temperatur-icon-png/ http://www.iconsdb.com/green-icons/thermometer-2-icon.html http://www.sjoarafting.de/a/i/temperatur.png http://www.shutterstock
+ * .com/pic.mhtml?irgwc=1&utm_medium=Affiliate&language=de&utm_campaign=FindIcons.com&utm_source=38925& id=69743743&tpl=38925-42764
  * 
- * http://www.iconarchive.com/show/android-icons-by-icons8/Measurement-Units-Humidity-icon.html
- * http://findicons.com/icon/557445/humidity http://www.iconarchive.com/show/outline-icons-by-iconsmind/Rain-Drop-icon.html
- * http
- * ://www.shutterstock.com/pic.mhtml?language=de&irgwc=1&id=96107042&utm_source=38925&tpl=38925-42764&utm_medium=Affiliate
- * &utm_campaign=FindIcons.com
- * http://www.shutterstock.com/pic.mhtml?utm_campaign=FindIcons.com&irgwc=1&language=de&utm_medium
+ * http://www.iconarchive.com/show/android-icons-by-icons8/Measurement-Units-Humidity-icon.html http://findicons.com/icon/557445/humidity http://www.iconarchive.com/show/outline-icons-by-iconsmind/Rain-Drop-icon.html http
+ * ://www.shutterstock.com/pic.mhtml?language=de&irgwc=1&id=96107042&utm_source=38925&tpl=38925-42764&utm_medium=Affiliate &utm_campaign=FindIcons.com http://www.shutterstock.com/pic.mhtml?utm_campaign=FindIcons.com&irgwc=1&language=de&utm_medium
  * =Affiliate&utm_source=38925&tpl=38925-42764&id=102080212
  * 
  * 
@@ -52,6 +42,7 @@ public class RoomActivity extends ListActivity {
 	private String sessionId;
 	private final List<Object> devices = new ArrayList<Object>();
 	private RoomListAdapter listAdapter;
+	private TextView textViewRoomListHeader;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -65,6 +56,7 @@ public class RoomActivity extends ListActivity {
 
 		ListView listView = getListView();
 		View header = getLayoutInflater().inflate(R.layout.room_list_header, null);
+		textViewRoomListHeader = (TextView) header.findViewById(R.id.textViewRoomListHeader);
 		listView.addHeaderView(header);
 
 		listAdapter = new RoomListAdapter(this, devices);
@@ -99,8 +91,18 @@ public class RoomActivity extends ListActivity {
 	private void updateListAdapter() {
 
 		devices.clear();
-		SmartHomeLocation location = new SmartHomeLocation();
-		location.setLocationId(locationId);
+
+		SmartHomeLocation location = dbAdapter.getLocation(locationId);
+
+		String subTitle = getString(R.string.room_subtitle);
+		if (location != null && location.getName() != null && !location.getName().isEmpty()) {
+			subTitle += ": " + location.getName();
+			textViewRoomListHeader.setText(subTitle);
+		} else {
+			location = new SmartHomeLocation();
+			location.setLocationId(locationId);
+		}
+
 		devices.addAll(dbAdapter.getAllDevices(location));
 		listAdapter.notifyDataSetChanged();
 
