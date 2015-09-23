@@ -100,7 +100,7 @@ public class RoomActivity extends ListActivity {
 			textViewRoomListHeader.setText(subTitle);
 		} else {
 			location = new SmartHomeLocation();
-			location.setLocationId(locationId);
+			location.setLocationId(subTitle);
 		}
 
 		devices.addAll(dbAdapter.getAllDevices(location));

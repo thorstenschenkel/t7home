@@ -6,6 +6,9 @@
     
     <dimen name="subtitle_paddingX">10dp</dimen>
     <dimen name="subtitle_paddingY">10dp</dimen>
+    <dimen name="room_row_paddingX">10dp</dimen>
+    <dimen name="room_row_paddingY">8dp</dimen>
+    <dimen name="room_row_value_paddingY">4dp</dimen>
     
 
 </resources>

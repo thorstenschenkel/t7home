@@ -9,6 +9,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/row_header_background"
+        android:paddingBottom="@dimen/room_row_paddingY"
+        android:paddingLeft="@dimen/room_row_paddingX"
+        android:paddingRight="@dimen/room_row_paddingX"
+        android:paddingTop="@dimen/room_row_paddingY"
         android:text="@string/heater"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/row_header_text" />
@@ -16,7 +20,11 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/room_row_value_paddingY"
+        android:paddingLeft="@dimen/room_row_paddingX"
+        android:paddingRight="@dimen/room_row_paddingX"
+        android:paddingTop="@dimen/room_row_value_paddingY" >
 
         <TextView
             android:id="@+id/textViewRoomTemperatureLabel"
@@ -41,14 +49,18 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/room_row_value_paddingY"
+        android:paddingLeft="@dimen/room_row_paddingX"
+        android:paddingRight="@dimen/room_row_paddingX"
+        android:paddingTop="@dimen/room_row_value_paddingY" >
 
         <TextView
             android:id="@+id/textViewRoomHumidityLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/room_humidity_value" />
+            android:text="@string/room_humidity_value"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <Space
             android:layout_width="0dp"
@@ -59,8 +71,8 @@
             android:id="@+id/textViewRoomHumidityValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/dummy_humidity_value" />
+            android:text="@string/dummy_humidity_value"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
     </LinearLayout>
 
 </LinearLayout>
