@@ -13,6 +13,10 @@ import android.widget.TextView;
 import de.t7soft.android.t7home.R;
 import de.t7soft.android.t7home.smarthome.api.devices.TemperatureHumidityDevice;
 
+/*
+ * setOnSeekBarChangeListener
+ * 
+ */
 public class RoomListAdapter extends BaseAdapter {
 
 	private static final int TYPE_UNKOWN = -1;

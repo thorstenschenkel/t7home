@@ -79,4 +79,76 @@
             android:textAppearance="?android:attr/textAppearanceMedium" />
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginBottom="@dimen/room_row_value_paddingY"
+        android:layout_marginTop="@dimen/room_row_value_paddingY"
+        android:background="@color/subtitle_background" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/room_row_value_paddingY"
+        android:paddingLeft="@dimen/room_row_paddingX"
+        android:paddingRight="@dimen/room_row_paddingX"
+        android:paddingTop="@dimen/room_row_value_paddingY" >
+
+        <TextView
+            android:id="@+id/textViewPresetTemperatureLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/preset_temperature_value"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/textViewPresetTemperatureValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dummy_temperature_value"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </LinearLayout>
+
+    <SeekBar
+        android:id="@+id/seekBarPresetTemperature"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/room_row_value_paddingY"
+        android:paddingLeft="@dimen/room_row_paddingX"
+        android:paddingRight="@dimen/room_row_paddingX"
+        android:paddingTop="@dimen/room_row_value_paddingY" >
+
+        <TextView
+            android:id="@+id/textViewPresetMinTemperature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/dummy_temperature_value"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/textViewPresetMaxTemperature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dummy_temperature_value"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </LinearLayout>
+    
 </LinearLayout>
