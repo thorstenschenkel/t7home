@@ -11,8 +11,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 import de.t7soft.android.t7home.R;
-import de.t7soft.android.t7home.R.id;
-import de.t7soft.android.t7home.R.layout;
 import de.t7soft.android.t7home.smarthome.api.devices.TemperatureHumidityDevice;
 
 public class RoomListAdapter extends BaseAdapter {
@@ -20,8 +18,8 @@ public class RoomListAdapter extends BaseAdapter {
 	private static final int TYPE_UNKOWN = -1;
 	private static final int TYPE_TEMPERATURE_HUMIDITY_DEVICE = 0;
 	private static final int TYPE_MAX_COUNT = 1;
-	private static final Format TEMPERATURE_FORMAT = new DecimalFormat("#.##");
-	private static final Format HUMIDITY_FORMAT = new DecimalFormat("#.##");
+	private static final Format TEMPERATURE_FORMAT = new DecimalFormat("#.#");
+	private static final Format HUMIDITY_FORMAT = new DecimalFormat("#.#");
 
 	private final Context context;
 	private final List<Object> listItems;

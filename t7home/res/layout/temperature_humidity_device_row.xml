@@ -30,6 +30,8 @@
             android:id="@+id/textViewRoomTemperatureLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:drawableStart="@drawable/ic_s_blue_temperature"
             android:text="@string/room_temperature_value"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -59,6 +61,8 @@
             android:id="@+id/textViewRoomHumidityLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:drawableStart="@drawable/ic_s_blue_water"
             android:text="@string/room_humidity_value"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
