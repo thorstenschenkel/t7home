@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "home.db";
-	private static final int DATABASE_VERSION = 3;
+	private static final int DATABASE_VERSION = 4;
 
 	// common cols
 	public static final String LOCATION_ID_COL_NAME = "locationId";
@@ -34,6 +34,16 @@ public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper
 	public static final String ROOM_HUMIDITY_SENSOR_TABLE_NAME = "roomhHumiditySensors";
 	public static final String HUMIDITY_COL_NAME = "humidity";
 
+	// RoomTemperatureActuator
+	public static final String ROOM_TEMPERATURE_ACTUATOR_TABLE_NAME = "roomTemperatureActuators";
+	public static final String POINT_TEMPERATURE = "pointTemperature";
+	public static final String OPERATION_MODE_COL_NAME = "operationMode";
+	public static final String MAX_TEMPERATURE_COL_NAME = "maxTemperature";
+	public static final String MIN_TEMPERATURE_COL_NAME = "minTemperature";
+	public static final String IS_LOCKED_COL_NAME = "isLocked";
+	public static final String ROOM_HUMIDITYSENSOR_ID_COL_NAME = "roomHumiditySensorId";
+	public static final String ROOM_TEMPERATURESENSOR_ID_COL_NAME = "roomTemperatureSensorId";
+
 	public HomeDatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
@@ -43,6 +53,7 @@ public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper
 
 		createLocationsTable(db);
 		createTemperatureHumidityDeviceTable(db);
+		createRoomTemperatureActuatorTable(db);
 		createRoomTemperatureSensorTable(db);
 		createRoomHumiditySensorTable(db);
 
@@ -108,6 +119,33 @@ public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper
 		sqlBuffer.append(" DOUBLE");
 		createLogicalDeviceTabDef(db, ROOM_HUMIDITY_SENSOR_TABLE_NAME, sqlBuffer.toString());
 	}
+
+	private void createRoomTemperatureActuatorTable(SQLiteDatabase db) {
+
+		StringBuffer sqlBuffer = new StringBuffer();
+		sqlBuffer.append(POINT_TEMPERATURE);
+		sqlBuffer.append(" DOUBLE");
+		sqlBuffer.append(", ");
+		sqlBuffer.append(OPERATION_MODE_COL_NAME);
+		sqlBuffer.append(" TEXT");
+		sqlBuffer.append(", ");
+		sqlBuffer.append(MAX_TEMPERATURE_COL_NAME);
+		sqlBuffer.append(" DOUBLE");
+		sqlBuffer.append(", ");
+		sqlBuffer.append(MIN_TEMPERATURE_COL_NAME);
+		sqlBuffer.append(" DOUBLE");
+		sqlBuffer.append(", ");
+		sqlBuffer.append(IS_LOCKED_COL_NAME);
+		sqlBuffer.append(" INTEGER");
+		sqlBuffer.append(", ");
+		sqlBuffer.append(ROOM_HUMIDITYSENSOR_ID_COL_NAME);
+		sqlBuffer.append(" TEXT");
+		sqlBuffer.append(", ");
+		sqlBuffer.append(ROOM_TEMPERATURESENSOR_ID_COL_NAME);
+		sqlBuffer.append(" TEXT");
+		createLogicalDeviceTabDef(db, ROOM_TEMPERATURE_ACTUATOR_TABLE_NAME, sqlBuffer.toString());
+
+	};
 
 	private void createTemperatureHumidityDeviceTable(SQLiteDatabase db) {
 		StringBuffer sqlBuffer = new StringBuffer();

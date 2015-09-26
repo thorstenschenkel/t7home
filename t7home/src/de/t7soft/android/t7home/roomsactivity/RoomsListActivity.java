@@ -35,6 +35,7 @@ public class RoomsListActivity extends ListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
+		// TODO: null after "back"
 		sessionId = getIntent().getExtras().getString(MainActivity.SESSION_ID_KEY);
 
 		if (dbAdapter == null) {

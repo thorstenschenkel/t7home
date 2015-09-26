@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import de.t7soft.android.t7home.R;
 import de.t7soft.android.t7home.smarthome.api.devices.TemperatureHumidityDevice;
@@ -98,6 +99,28 @@ public class RoomListAdapter extends BaseAdapter {
 		doubleValue = temperatureHumidityDevice.getRoomHumiditySensor().getHumidity();
 		value = HUMIDITY_FORMAT.format(doubleValue) + "%";
 		textView.setText(value);
+
+		textView = (TextView) rowView.findViewById(R.id.textViewPresetTemperatureValue);
+		double presetTemperature = temperatureHumidityDevice.getTemperatureActuator().getPointTemperature();
+		value = TEMPERATURE_FORMAT.format(presetTemperature) + "°C";
+		textView.setText(value);
+
+		textView = (TextView) rowView.findViewById(R.id.textViewPresetMinTemperature);
+		double minTemperature = temperatureHumidityDevice.getTemperatureActuator().getMinTemperature();
+		value = TEMPERATURE_FORMAT.format(minTemperature) + "°C";
+		textView.setText(value);
+
+		textView = (TextView) rowView.findViewById(R.id.textViewPresetMaxTemperature);
+		double maxTemperature = temperatureHumidityDevice.getTemperatureActuator().getMaxTemperature();
+		value = TEMPERATURE_FORMAT.format(maxTemperature) + "°C";
+		textView.setText(value);
+
+		SeekBar temperatureSeekBar = (SeekBar) rowView.findViewById(R.id.seekBarPresetTemperature);
+		long max = Math.round(maxTemperature * 10 - minTemperature * 10);
+		temperatureSeekBar.setMax(0);
+		temperatureSeekBar.setMax((int) max);
+		long progress = Math.round(presetTemperature * 10 - minTemperature * 10);
+		temperatureSeekBar.setProgress((int) progress);
 
 	}
 

@@ -10,6 +10,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeLocation;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomHumiditySensor;
+import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureActuator;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureSensor;
 import de.t7soft.android.t7home.smarthome.api.devices.TemperatureHumidityDevice;
 
@@ -123,6 +124,24 @@ public class HomeDatabaseAdapter {
 		return getDouble(cursor, cursor.getColumnIndex(columnName));
 	}
 
+	private static boolean getBoolean(final Cursor cursor, String columnName) {
+		return getBoolean(cursor, cursor.getColumnIndex(columnName));
+	}
+
+	private static boolean getBoolean(final Cursor cursor, int columnIndex) {
+		boolean value = false;
+		if (columnIndex < 0) {
+			return false;
+		}
+		try {
+			int intValue = cursor.getInt(columnIndex);
+			value = (intValue != 0);
+		} catch (Exception e) {
+			value = false;
+		}
+		return value;
+	}
+
 	private static double getDouble(final Cursor cursor, int columnIndex) {
 		double value = Double.MIN_VALUE;
 		if (columnIndex < 0) {
@@ -145,8 +164,9 @@ public class HomeDatabaseAdapter {
 		db.insert(HomeDatabaseHelper.ROOM_HUMIDITY_SENSOR_TABLE_NAME, null, initialValues);
 		initialValues = createContentValues(device.getTemperatureSensor());
 		db.insert(HomeDatabaseHelper.ROOM_TEMPERATURE_SENSOR_TABLE_NAME, null, initialValues);
+		initialValues = createContentValues(device.getTemperatureActuator());
+		db.insert(HomeDatabaseHelper.ROOM_TEMPERATURE_ACTUATOR_TABLE_NAME, null, initialValues);
 		initialValues = createContentValues(device);
-		// TODO device.getTemperatureActuator();
 		return db.insert(HomeDatabaseHelper.TEMPERATURE_HUMIDITY_DEVICE_TABLE_NAME, null, initialValues);
 	}
 
@@ -161,21 +181,41 @@ public class HomeDatabaseAdapter {
 
 	private static ContentValues createContentValues(final RoomHumiditySensor sensor) {
 		final ContentValues values = new ContentValues();
+
 		values.put(HomeDatabaseHelper.LOCATION_ID_COL_NAME, sensor.getLocationId());
 		values.put(HomeDatabaseHelper.LOGICAL_DEVICE_ID_COL_NAME, sensor.getLogicalDeviceId());
 		values.put(HomeDatabaseHelper.LOGICAL_DEVICE_NAME_COL_NAME, sensor.getLogicalDeviceName());
 		values.put(HomeDatabaseHelper.LOGICAL_DEVICE_TYPE_COL_NAME, sensor.getLogicalDeviceType());
+
 		values.put(HomeDatabaseHelper.HUMIDITY_COL_NAME, sensor.getHumidity());
 		return values;
 	}
 
 	private static ContentValues createContentValues(final RoomTemperatureSensor sensor) {
 		final ContentValues values = new ContentValues();
+
 		values.put(HomeDatabaseHelper.LOCATION_ID_COL_NAME, sensor.getLocationId());
 		values.put(HomeDatabaseHelper.LOGICAL_DEVICE_ID_COL_NAME, sensor.getLogicalDeviceId());
 		values.put(HomeDatabaseHelper.LOGICAL_DEVICE_NAME_COL_NAME, sensor.getLogicalDeviceName());
 		values.put(HomeDatabaseHelper.LOGICAL_DEVICE_TYPE_COL_NAME, sensor.getLogicalDeviceType());
+
 		values.put(HomeDatabaseHelper.TEMPERATURE_COL_NAME, sensor.getTemperature());
+		return values;
+	}
+
+	private static ContentValues createContentValues(final RoomTemperatureActuator actuator) {
+		final ContentValues values = new ContentValues();
+
+		values.put(HomeDatabaseHelper.LOCATION_ID_COL_NAME, actuator.getLocationId());
+		values.put(HomeDatabaseHelper.LOGICAL_DEVICE_ID_COL_NAME, actuator.getLogicalDeviceId());
+		values.put(HomeDatabaseHelper.LOGICAL_DEVICE_NAME_COL_NAME, actuator.getLogicalDeviceName());
+		values.put(HomeDatabaseHelper.LOGICAL_DEVICE_TYPE_COL_NAME, actuator.getLogicalDeviceType());
+
+		values.put(HomeDatabaseHelper.POINT_TEMPERATURE, actuator.getPointTemperature());
+		values.put(HomeDatabaseHelper.OPERATION_MODE_COL_NAME, actuator.getOperationMode());
+		values.put(HomeDatabaseHelper.MAX_TEMPERATURE_COL_NAME, actuator.getMaxTemperature());
+		values.put(HomeDatabaseHelper.MIN_TEMPERATURE_COL_NAME, actuator.getMinTemperature());
+		values.put(HomeDatabaseHelper.IS_LOCKED_COL_NAME, actuator.getIsLocked());
 		return values;
 	}
 
@@ -194,8 +234,8 @@ public class HomeDatabaseAdapter {
 		final List<TemperatureHumidityDevice> devices = new ArrayList<TemperatureHumidityDevice>();
 
 		String selection = createLocationSelection(location);
-		final Cursor cursor = db.query(HomeDatabaseHelper.TEMPERATURE_HUMIDITY_DEVICE_TABLE_NAME, null, selection,
-				null, null, null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.TEMPERATURE_HUMIDITY_DEVICE_TABLE_NAME, null, selection, null,
+				null, null, null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
@@ -215,12 +255,15 @@ public class HomeDatabaseAdapter {
 		String locationId = getString(cursor, HomeDatabaseHelper.LOCATION_ID_COL_NAME);
 		String roomTemperatureSensorId = getString(cursor, HomeDatabaseHelper.TEMPERATURE_SENSOR_ID_COL_NAME);
 		String roomHumiditySensorId = getString(cursor, HomeDatabaseHelper.ROOMHUMIDTY_SENSOR_ID_COL_NAME);
+		String temperatureActuatorId = getString(cursor, HomeDatabaseHelper.TEMPERATURE_ACTUATOR_ID_COL_NAME);
 
 		TemperatureHumidityDevice device = new TemperatureHumidityDevice();
 		device.setLocation(getLocation(locationId));
 		device.setTemperatureSensor(getRoomTemperatureSensor(database, roomTemperatureSensorId));
 		device.setRoomHumiditySensor(getRoomHumiditySensor(database, roomHumiditySensorId));
-		// TODO device.setTemperatureActuator
+		device.setTemperatureActuator(getRoomTemperatureActuator(database, temperatureActuatorId));
+		device.getTemperatureActuator().setRoomTemperatureSensor(device.getTemperatureSensor());
+		device.getTemperatureActuator().setRoomHumiditySensor(device.getRoomHumiditySensor());
 
 		return device;
 
@@ -242,6 +285,10 @@ public class HomeDatabaseAdapter {
 		return HomeDatabaseHelper.LOGICAL_DEVICE_ID_COL_NAME + "=" + "\"" + id + "\"";
 	}
 
+	private static String createRoomTemperatureSensorActuator(final String id) {
+		return HomeDatabaseHelper.LOGICAL_DEVICE_ID_COL_NAME + "=" + "\"" + id + "\"";
+	}
+
 	public SmartHomeLocation getLocation(String id) {
 		return getLocation(database, id);
 	}
@@ -251,8 +298,7 @@ public class HomeDatabaseAdapter {
 		SmartHomeLocation location = null;
 
 		String selection = createLocationSelection(id);
-		final Cursor cursor = db
-				.query(HomeDatabaseHelper.LOCATIONS_TABLE_NAME, null, selection, null, null, null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.LOCATIONS_TABLE_NAME, null, selection, null, null, null, null);
 
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
@@ -289,12 +335,31 @@ public class HomeDatabaseAdapter {
 		RoomTemperatureSensor sensor = null;
 
 		String selection = createRoomTemperatureSensorSelection(id);
-		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_SENSOR_TABLE_NAME, null, selection, null,
-				null, null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_SENSOR_TABLE_NAME, null, selection, null, null,
+				null, null);
 
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
 				sensor = createRoomTemperatureSensor(cursor);
+			}
+			cursor.close();
+		}
+
+		return sensor;
+
+	}
+
+	private RoomTemperatureActuator getRoomTemperatureActuator(SQLiteDatabase db, String id) {
+
+		RoomTemperatureActuator sensor = null;
+
+		String selection = createRoomTemperatureSensorActuator(id);
+		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_ACTUATOR_TABLE_NAME, null, selection, null, null,
+				null, null);
+
+		if (cursor != null) {
+			if (cursor.moveToFirst()) {
+				sensor = createRoomTemperatureActuator(cursor);
 			}
 			cursor.close();
 		}
@@ -311,6 +376,7 @@ public class HomeDatabaseAdapter {
 		sensor.setLogicalDeviceId(getString(cursor, HomeDatabaseHelper.LOGICAL_DEVICE_ID_COL_NAME));
 		sensor.setLogicalDeviceName(getString(cursor, HomeDatabaseHelper.LOGICAL_DEVICE_NAME_COL_NAME));
 		sensor.setLogicalDeviceType(getString(cursor, HomeDatabaseHelper.LOGICAL_DEVICE_TYPE_COL_NAME));
+
 		sensor.setTemperature(getDouble(cursor, HomeDatabaseHelper.TEMPERATURE_COL_NAME));
 		sensor.setLocation(getLocation(sensor.getLocationId()));
 		return sensor;
@@ -325,9 +391,30 @@ public class HomeDatabaseAdapter {
 		sensor.setLogicalDeviceId(getString(cursor, HomeDatabaseHelper.LOGICAL_DEVICE_ID_COL_NAME));
 		sensor.setLogicalDeviceName(getString(cursor, HomeDatabaseHelper.LOGICAL_DEVICE_NAME_COL_NAME));
 		sensor.setLogicalDeviceType(getString(cursor, HomeDatabaseHelper.LOGICAL_DEVICE_TYPE_COL_NAME));
+
 		sensor.setHumidity(getDouble(cursor, HomeDatabaseHelper.HUMIDITY_COL_NAME));
 		sensor.setLocation(getLocation(sensor.getLocationId()));
 		return sensor;
+
+	};
+
+	private RoomTemperatureActuator createRoomTemperatureActuator(final Cursor cursor) {
+
+		RoomTemperatureActuator actuator = new RoomTemperatureActuator();
+
+		actuator.setLocationId(getString(cursor, HomeDatabaseHelper.LOCATION_ID_COL_NAME));
+		actuator.setLogicalDeviceId(getString(cursor, HomeDatabaseHelper.LOGICAL_DEVICE_ID_COL_NAME));
+		actuator.setLogicalDeviceName(getString(cursor, HomeDatabaseHelper.LOGICAL_DEVICE_NAME_COL_NAME));
+		actuator.setLogicalDeviceType(getString(cursor, HomeDatabaseHelper.LOGICAL_DEVICE_TYPE_COL_NAME));
+
+		actuator.setPointTemperature(getDouble(cursor, HomeDatabaseHelper.POINT_TEMPERATURE));
+		actuator.setOperationMode(getString(cursor, HomeDatabaseHelper.OPERATION_MODE_COL_NAME));
+		actuator.setMaxTemperature(getDouble(cursor, HomeDatabaseHelper.MAX_TEMPERATURE_COL_NAME));
+		actuator.setMinTemperature(getDouble(cursor, HomeDatabaseHelper.MIN_TEMPERATURE_COL_NAME));
+		actuator.setIsLocked(getBoolean(cursor, HomeDatabaseHelper.IS_LOCKED_COL_NAME));
+
+		actuator.setLocation(getLocation(actuator.getLocationId()));
+		return actuator;
 
 	};
 
@@ -351,10 +438,16 @@ public class HomeDatabaseAdapter {
 		return (ret > 0);
 	}
 
+	public boolean deleteAllTemperatureActuators() {
+		final int ret = database.delete(HomeDatabaseHelper.ROOM_TEMPERATURE_ACTUATOR_TABLE_NAME, null, null);
+		return (ret > 0);
+	}
+
 	public void deleteAll() {
 		deleteAllLocations();
 		deleteAllRoomHumidtySensors();
 		deleteAllTemperatureSensors();
+		deleteAllTemperatureActuators();
 		deleteAllTemperatureHumidityDevices();
 	}
 
