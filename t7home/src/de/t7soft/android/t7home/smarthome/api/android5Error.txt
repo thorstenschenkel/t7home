@@ -1,0 +1,25 @@
+09-27 12:06:37.541: E/SmartHomeSession(7961): javax.net.ssl.SSLHandshakeException: Connection closed by peer
+09-27 12:06:37.541: E/SmartHomeSession(7961): 	at com.android.org.conscrypt.NativeCrypto.SSL_do_handshake(Native Method)
+09-27 12:06:37.541: E/SmartHomeSession(7961): 	at com.android.org.conscrypt.OpenSSLSocketImpl.startHandshake(OpenSSLSocketImpl.java:318)
+09-27 12:06:37.541: E/SmartHomeSession(7961): 	at com.android.org.conscrypt.OpenSSLSocketImpl.waitForHandshake(OpenSSLSocketImpl.java:623)
+09-27 12:06:37.541: E/SmartHomeSession(7961): 	at com.android.org.conscrypt.OpenSSLSocketImpl.getInputStream(OpenSSLSocketImpl.java:585)
+09-27 12:06:37.541: E/SmartHomeSession(7961): 	at org.apache.http.impl.io.SocketInputBuffer.<init>(SocketInputBuffer.java:75)
+09-27 12:06:37.541: E/SmartHomeSession(7961): 	at org.apache.http.impl.SocketHttpClientConnection.createSessionInputBuffer(SocketHttpClientConnection.java:88)
+09-27 12:06:37.541: E/SmartHomeSession(7961): 	at org.apache.http.impl.conn.DefaultClientConnection.createSessionInputBuffer(DefaultClientConnection.java:175)
+09-27 12:06:37.541: E/SmartHomeSession(7961): 	at org.apache.http.impl.SocketHttpClientConnection.bind(SocketHttpClientConnection.java:111)
+09-27 12:06:37.541: E/SmartHomeSession(7961): 	at org.apache.http.impl.conn.DefaultClientConnection.openCompleted(DefaultClientConnection.java:134)
+09-27 12:06:37.541: E/SmartHomeSession(7961): 	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:177)
+09-27 12:06:37.541: E/SmartHomeSession(7961): 	at org.apache.http.impl.conn.AbstractPoolEntry.open(AbstractPoolEntry.java:169)
+09-27 12:06:37.541: E/SmartHomeSession(7961): 	at org.apache.http.impl.conn.AbstractPooledConnAdapter.open(AbstractPooledConnAdapter.java:124)
+09-27 12:06:37.541: E/SmartHomeSession(7961): 	at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:365)
+09-27 12:06:37.541: E/SmartHomeSession(7961): 	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:560)
+09-27 12:06:37.541: E/SmartHomeSession(7961): 	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:492)
+09-27 12:06:37.541: E/SmartHomeSession(7961): 	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:470)
+09-27 12:06:37.541: E/SmartHomeSession(7961): 	at de.t7soft.android.t7home.smarthome.api.SmartHomeSession.executeRequest(SmartHomeSession.java:223)
+09-27 12:06:37.541: E/SmartHomeSession(7961): 	at de.t7soft.android.t7home.smarthome.api.SmartHomeSession.initialize(SmartHomeSession.java:115)
+
+
+
+https://code.google.com/p/android/issues/detail?id=81603
+https://jira.appcelerator.org/browse/TIMOB-17879
+http://nanashi07.blogspot.de/2015/05/javaxnetsslsslhandshakeexception.html

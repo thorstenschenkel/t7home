@@ -113,6 +113,10 @@ public class SmartHomeSession {
 				return;
 			}
 			String sResponse = executeRequest(loginRequest);
+			if (sResponse == null || "".equals(sResponse)) {
+				throw new LoginFailedException("LoginFailed: Authentication with user:" + userName
+						+ " was not possible. Session ID is empty.");
+			}
 			setSessionId(XMLUtil.XPathValueFromString(sResponse, "/BaseResponse/@SessionId"));
 			if (getSessionId() == null || "".equals(getSessionId())) {
 				throw new LoginFailedException("LoginFailed: Authentication with user:" + userName
