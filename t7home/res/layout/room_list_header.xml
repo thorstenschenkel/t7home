@@ -10,12 +10,12 @@
         android:layout_height="wrap_content"
         android:paddingLeft="@dimen/subtitle_paddingX" >
 
-        <ImageView
-            android:id="@+id/imageViewRoomListHeader"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:contentDescription="@string/logon_subtitle"
-            android:src="@drawable/ic_room" />
+<!--         <ImageView -->
+<!--             android:id="@+id/imageViewRoomListHeader" -->
+<!--             android:layout_width="wrap_content" -->
+<!--             android:layout_height="match_parent" -->
+<!--             android:contentDescription="@string/logon_subtitle" -->
+<!--             android:src="@drawable/ic_room" /> -->
 
         <TextView
             android:id="@+id/textViewRoomListHeader"
