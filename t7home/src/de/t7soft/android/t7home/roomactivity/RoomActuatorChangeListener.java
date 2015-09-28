@@ -20,10 +20,14 @@ public class RoomActuatorChangeListener implements ActuatorChangeListener {
 	@Override
 	public void changed(final String deviceId, final String deviceType, final String newValue) {
 
+		// TODO Progressbar?
+
 		final SmartHomeSession session = new SmartHomeSession(sessionId);
 		try {
 			if (deviceType.equals(LogicalDevice.Type_RoomTemperatureActuator)) {
 				session.roomTemperatureActuatorChangeState(deviceId, newValue);
+				session.refreshLogicalDeviceState();
+				// TODO update in database (only temperatrue !?! )
 			}
 		} catch (final SmartHomeSessionExpiredException e) {
 			e.printStackTrace();

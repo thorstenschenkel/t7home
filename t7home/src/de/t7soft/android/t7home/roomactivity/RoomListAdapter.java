@@ -9,8 +9,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.Switch;
 import android.widget.TextView;
 import de.t7soft.android.t7home.R;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureActuator;
@@ -106,6 +109,10 @@ public class RoomListAdapter extends BaseAdapter {
 		value = HUMIDITY_FORMAT.format(doubleValue) + "%";
 		textView.setText(value);
 
+		final Switch lockedSwitch = (Switch) rowView.findViewById(R.id.switchLocked);
+		final Boolean isLocked = temperatureHumidityDevice.getTemperatureActuator().getIsLocked();
+		lockedSwitch.setChecked(isLocked);
+
 		textView = (TextView) rowView.findViewById(R.id.textViewPresetTemperatureValue);
 		final double presetTemperature = temperatureHumidityDevice.getTemperatureActuator().getPointTemperature();
 		value = TEMPERATURE_FORMAT.format(presetTemperature) + "°C";
@@ -122,6 +129,7 @@ public class RoomListAdapter extends BaseAdapter {
 		textView.setText(value);
 
 		final SeekBar temperatureSeekBar = (SeekBar) rowView.findViewById(R.id.seekBarPresetTemperature);
+		temperatureSeekBar.setEnabled(!isLocked);
 		final long max = Math.round((maxTemperature * 10) - (minTemperature * 10));
 		temperatureSeekBar.setMax(0);
 		temperatureSeekBar.setMax((int) max);
@@ -143,17 +151,30 @@ public class RoomListAdapter extends BaseAdapter {
 			@Override
 			public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
 				if (fromUser) {
-					double newTemperatue = progress / 10.0;
-					newTemperatue += minTemperature;
-					final RoomTemperatureActuator temperatureActuator = temperatureHumidityDevice
-							.getTemperatureActuator();
-					final String deviceId = temperatureActuator.getDeviceId();
-					final String deviceType = temperatureActuator.getType();
-					final String value = TEMPERATURE_FORMAT.format(newTemperatue);
-					changeListener.changed(deviceId, deviceType, value);
+					fireChanged(temperatureHumidityDevice, minTemperature, progress);
 				}
 			}
 		});
 
+		lockedSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
+				fireChanged(temperatureHumidityDevice, minTemperature, progress);
+			}
+
+		});
+
 	}
+
+	private void fireChanged(final TemperatureHumidityDevice temperatureHumidityDevice, final double minTemperature,
+			final long progress) {
+		double newTemperatue = progress / 10.0;
+		newTemperatue += minTemperature;
+		final RoomTemperatureActuator temperatureActuator = temperatureHumidityDevice.getTemperatureActuator();
+		final String deviceId = temperatureActuator.getDeviceId();
+		final String deviceType = temperatureActuator.getType();
+		final String value = TEMPERATURE_FORMAT.format(newTemperatue);
+		changeListener.changed(deviceId, deviceType, value);
+	}
+
 }

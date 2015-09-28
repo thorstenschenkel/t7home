@@ -52,6 +52,8 @@
     <string name="preset_temperature_value">Eingestellt Temperatur</string>
     <string name="temperature_mode">Modus</string>
     <string name="temperature_set_error">Temperatur kann nicht eingestellt werden!</string>
+    <string name="room_modus">Modus: {0}</string>    
+    <string name="on">an</string>    
+    <string name="off">aus</string>    
     
-
 </resources>
