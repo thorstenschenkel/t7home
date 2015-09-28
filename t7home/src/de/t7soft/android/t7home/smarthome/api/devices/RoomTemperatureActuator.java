@@ -24,11 +24,15 @@ public class RoomTemperatureActuator extends LogicalDevice {
 	private RoomHumiditySensor roomHumiditySensor = null;
 	private RoomTemperatureSensor roomTemperatureSensor = null;
 
+	public RoomTemperatureActuator() {
+		this.setType(LogicalDevice.Type_RoomTemperatureActuatorState);
+	}
+
 	public Double getPointTemperature() {
 		return pointTemperature;
 	}
 
-	public void setPointTemperature(Double pointTemperature) {
+	public void setPointTemperature(final Double pointTemperature) {
 		this.pointTemperature = pointTemperature;
 	}
 
@@ -36,7 +40,7 @@ public class RoomTemperatureActuator extends LogicalDevice {
 		return operationMode;
 	}
 
-	public void setOperationMode(String operationMode) {
+	public void setOperationMode(final String operationMode) {
 		this.operationMode = operationMode;
 	}
 
@@ -44,7 +48,7 @@ public class RoomTemperatureActuator extends LogicalDevice {
 		return windowReductionActive;
 	}
 
-	public void setWindowReductionActive(String windowReductionActive) {
+	public void setWindowReductionActive(final String windowReductionActive) {
 		this.windowReductionActive = windowReductionActive;
 	}
 
@@ -52,7 +56,7 @@ public class RoomTemperatureActuator extends LogicalDevice {
 		return underlyingDevicesIds;
 	}
 
-	public void setUnderlyingDevicesIds(List<String> underlyingDevicesIds) {
+	public void setUnderlyingDevicesIds(final List<String> underlyingDevicesIds) {
 		this.underlyingDevicesIds = underlyingDevicesIds;
 	}
 
@@ -60,7 +64,7 @@ public class RoomTemperatureActuator extends LogicalDevice {
 		return maxTemperature;
 	}
 
-	public void setMaxTemperature(Double maxTemperature) {
+	public void setMaxTemperature(final Double maxTemperature) {
 		this.maxTemperature = maxTemperature;
 	}
 
@@ -68,7 +72,7 @@ public class RoomTemperatureActuator extends LogicalDevice {
 		return minTemperature;
 	}
 
-	public void setMinTemperature(Double minTemperature) {
+	public void setMinTemperature(final Double minTemperature) {
 		this.minTemperature = minTemperature;
 	}
 
@@ -76,7 +80,7 @@ public class RoomTemperatureActuator extends LogicalDevice {
 		return preheatFactor;
 	}
 
-	public void setPreheatFactor(Double preheatFactor) {
+	public void setPreheatFactor(final Double preheatFactor) {
 		this.preheatFactor = preheatFactor;
 	}
 
@@ -84,7 +88,7 @@ public class RoomTemperatureActuator extends LogicalDevice {
 		return isLocked;
 	}
 
-	public void setIsLocked(Boolean isLocked) {
+	public void setIsLocked(final Boolean isLocked) {
 		this.isLocked = isLocked;
 	}
 
@@ -92,7 +96,7 @@ public class RoomTemperatureActuator extends LogicalDevice {
 		return isFreezeProtectionActivated;
 	}
 
-	public void setIsFreezeProtectionActivated(Boolean isFreezeProtectionActivated) {
+	public void setIsFreezeProtectionActivated(final Boolean isFreezeProtectionActivated) {
 		this.isFreezeProtectionActivated = isFreezeProtectionActivated;
 	}
 
@@ -100,7 +104,7 @@ public class RoomTemperatureActuator extends LogicalDevice {
 		return freezeProtection;
 	}
 
-	public void setFreezeProtection(Double freezeProtection) {
+	public void setFreezeProtection(final Double freezeProtection) {
 		this.freezeProtection = freezeProtection;
 	}
 
@@ -108,7 +112,7 @@ public class RoomTemperatureActuator extends LogicalDevice {
 		return isMoldProtectionActivated;
 	}
 
-	public void setIsMoldProtectionActivated(Boolean isMoldProtectionActivated) {
+	public void setIsMoldProtectionActivated(final Boolean isMoldProtectionActivated) {
 		this.isMoldProtectionActivated = isMoldProtectionActivated;
 	}
 
@@ -116,7 +120,7 @@ public class RoomTemperatureActuator extends LogicalDevice {
 		return humidityMoldProtection;
 	}
 
-	public void setHumidityMoldProtection(Double humidityMoldProtection) {
+	public void setHumidityMoldProtection(final Double humidityMoldProtection) {
 		this.humidityMoldProtection = humidityMoldProtection;
 	}
 
@@ -124,7 +128,7 @@ public class RoomTemperatureActuator extends LogicalDevice {
 		return windowsOpenTemperature;
 	}
 
-	public void setWindowsOpenTemperature(Double windowsOpenTemperature) {
+	public void setWindowsOpenTemperature(final Double windowsOpenTemperature) {
 		this.windowsOpenTemperature = windowsOpenTemperature;
 	}
 
@@ -132,7 +136,7 @@ public class RoomTemperatureActuator extends LogicalDevice {
 		return roomHumiditySensor;
 	}
 
-	public void setRoomHumiditySensor(RoomHumiditySensor roomHumiditySensor) {
+	public void setRoomHumiditySensor(final RoomHumiditySensor roomHumiditySensor) {
 		this.roomHumiditySensor = roomHumiditySensor;
 	}
 
@@ -140,7 +144,7 @@ public class RoomTemperatureActuator extends LogicalDevice {
 		return roomTemperatureSensor;
 	}
 
-	public void setRoomTemperatureSensor(RoomTemperatureSensor roomTemperatureSensor) {
+	public void setRoomTemperatureSensor(final RoomTemperatureSensor roomTemperatureSensor) {
 		this.roomTemperatureSensor = roomTemperatureSensor;
 	}
 

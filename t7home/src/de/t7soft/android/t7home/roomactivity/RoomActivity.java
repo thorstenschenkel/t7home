@@ -45,7 +45,7 @@ public class RoomActivity extends ListActivity {
 	private TextView textViewRoomListHeader;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(final Bundle savedInstanceState) {
 
 		locationId = getIntent().getExtras().getString(RoomsListActivity.LOCATION_ID);
 		sessionId = getIntent().getExtras().getString(MainActivity.SESSION_ID_KEY);
@@ -54,17 +54,17 @@ public class RoomActivity extends ListActivity {
 			dbAdapter = new HomeDatabaseAdapter(this);
 		}
 
-		ListView listView = getListView();
-		View header = getLayoutInflater().inflate(R.layout.room_list_header, null);
+		final ListView listView = getListView();
+		final View header = getLayoutInflater().inflate(R.layout.room_list_header, null);
 		textViewRoomListHeader = (TextView) header.findViewById(R.id.textViewRoomListHeader);
 		listView.addHeaderView(header);
 
-		listAdapter = new RoomListAdapter(this, devices);
+		listAdapter = new RoomListAdapter(this, devices, new RoomActuatorChangeListener(this, sessionId));
 		setListAdapter(listAdapter);
 
 		super.onCreate(savedInstanceState);
 
-		ActionBar actionBar = getActionBar();
+		final ActionBar actionBar = getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
 	}
@@ -83,7 +83,7 @@ public class RoomActivity extends ListActivity {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(final Menu menu) {
 		getMenuInflater().inflate(R.menu.rooms, menu);
 		return true;
 	}
@@ -95,7 +95,7 @@ public class RoomActivity extends ListActivity {
 		SmartHomeLocation location = dbAdapter.getLocation(locationId);
 
 		String subTitle = getString(R.string.room_subtitle);
-		if (location != null && location.getName() != null && !location.getName().isEmpty()) {
+		if ((location != null) && (location.getName() != null) && !location.getName().isEmpty()) {
 			subTitle += ": " + location.getName();
 			textViewRoomListHeader.setText(subTitle);
 		} else {
@@ -109,7 +109,7 @@ public class RoomActivity extends ListActivity {
 	}
 
 	private void refresh() {
-		RefreshTask refreshTask = new RefreshTask(this, dbAdapter);
+		final RefreshTask refreshTask = new RefreshTask(this, dbAdapter);
 		refreshTask.execute(sessionId);
 	}
 
@@ -123,11 +123,11 @@ public class RoomActivity extends ListActivity {
 				refresh();
 				return true;
 			case R.id.logout_item:
-				LogoutTask logoutTask = new LogoutTask(this, dbAdapter);
+				final LogoutTask logoutTask = new LogoutTask(this, dbAdapter);
 				logoutTask.execute(sessionId);
 				return true;
 			case R.id.about_item:
-				AboutDlg aboutDlg = new AboutDlg(this);
+				final AboutDlg aboutDlg = new AboutDlg(this);
 				aboutDlg.show();
 				return true;
 			default:
@@ -136,18 +136,18 @@ public class RoomActivity extends ListActivity {
 	}
 
 	private void logout() {
-		Intent intent = new Intent(this, MainActivity.class);
+		final Intent intent = new Intent(this, MainActivity.class);
 		startActivity(intent);
 	}
 
 	private class RefreshTask extends AbstractRefreshTask {
 
-		public RefreshTask(Context context, HomeDatabaseAdapter dbAdapter) {
+		public RefreshTask(final Context context, final HomeDatabaseAdapter dbAdapter) {
 			super(context, dbAdapter, R.string.room_subtitle);
 		}
 
 		@Override
-		protected void onPostExecute(Integer resultCode) {
+		protected void onPostExecute(final Integer resultCode) {
 			super.onPostExecute(resultCode);
 			updateListAdapter();
 		}
@@ -156,12 +156,12 @@ public class RoomActivity extends ListActivity {
 
 	private class LogoutTask extends AbstractLogoutTask {
 
-		public LogoutTask(Context context, HomeDatabaseAdapter dbAdapter) {
+		public LogoutTask(final Context context, final HomeDatabaseAdapter dbAdapter) {
 			super(context, dbAdapter, R.string.logout_subtitle);
 		}
 
 		@Override
-		protected void onPostExecute(Integer resultCode) {
+		protected void onPostExecute(final Integer resultCode) {
 			super.onPostExecute(resultCode);
 			logout();
 		}

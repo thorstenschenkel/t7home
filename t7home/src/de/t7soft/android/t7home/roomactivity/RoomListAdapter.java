@@ -10,8 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import de.t7soft.android.t7home.R;
+import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureActuator;
 import de.t7soft.android.t7home.smarthome.api.devices.TemperatureHumidityDevice;
 
 /*
@@ -28,11 +30,14 @@ public class RoomListAdapter extends BaseAdapter {
 
 	private final Context context;
 	private final List<Object> listItems;
+	private final ActuatorChangeListener changeListener;
 	private final LayoutInflater inflater;
 
-	public RoomListAdapter(Context context, List<Object> listItems) {
+	public RoomListAdapter(final Context context, final List<Object> listItems,
+			final ActuatorChangeListener changeListener) {
 		this.context = context;
 		this.listItems = listItems;
+		this.changeListener = changeListener;
 		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
@@ -42,17 +47,17 @@ public class RoomListAdapter extends BaseAdapter {
 	}
 
 	@Override
-	public Object getItem(int position) {
+	public Object getItem(final int position) {
 		return listItems.get(position);
 	}
 
 	@Override
-	public long getItemId(int position) {
+	public long getItemId(final int position) {
 		return position;
 	}
 
 	@Override
-	public int getItemViewType(int position) {
+	public int getItemViewType(final int position) {
 		if (getItem(position) instanceof TemperatureHumidityDevice) {
 			return TYPE_TEMPERATURE_HUMIDITY_DEVICE;
 		} else {
@@ -66,9 +71,9 @@ public class RoomListAdapter extends BaseAdapter {
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public View getView(final int position, final View convertView, final ViewGroup parent) {
 		View rowView = convertView;
-		int type = getItemViewType(position);
+		final int type = getItemViewType(position);
 		if (rowView == null) {
 			switch (type) {
 				case TYPE_TEMPERATURE_HUMIDITY_DEVICE:
@@ -79,7 +84,7 @@ public class RoomListAdapter extends BaseAdapter {
 		if (rowView != null) {
 			switch (type) {
 				case TYPE_TEMPERATURE_HUMIDITY_DEVICE:
-					TemperatureHumidityDevice temperatureHumidityDevice = (TemperatureHumidityDevice) listItems
+					final TemperatureHumidityDevice temperatureHumidityDevice = (TemperatureHumidityDevice) listItems
 							.get(position);
 					updateTemperatureHumidityDeviceRow(rowView, temperatureHumidityDevice);
 					break;
@@ -88,7 +93,8 @@ public class RoomListAdapter extends BaseAdapter {
 		return rowView;
 	}
 
-	private void updateTemperatureHumidityDeviceRow(View rowView, TemperatureHumidityDevice temperatureHumidityDevice) {
+	private void updateTemperatureHumidityDeviceRow(final View rowView,
+			final TemperatureHumidityDevice temperatureHumidityDevice) {
 
 		TextView textView = (TextView) rowView.findViewById(R.id.textViewRoomTemperatureValue);
 		double doubleValue = temperatureHumidityDevice.getTemperatureSensor().getTemperature();
@@ -101,27 +107,53 @@ public class RoomListAdapter extends BaseAdapter {
 		textView.setText(value);
 
 		textView = (TextView) rowView.findViewById(R.id.textViewPresetTemperatureValue);
-		double presetTemperature = temperatureHumidityDevice.getTemperatureActuator().getPointTemperature();
+		final double presetTemperature = temperatureHumidityDevice.getTemperatureActuator().getPointTemperature();
 		value = TEMPERATURE_FORMAT.format(presetTemperature) + "°C";
 		textView.setText(value);
 
 		textView = (TextView) rowView.findViewById(R.id.textViewPresetMinTemperature);
-		double minTemperature = temperatureHumidityDevice.getTemperatureActuator().getMinTemperature();
+		final double minTemperature = temperatureHumidityDevice.getTemperatureActuator().getMinTemperature();
 		value = TEMPERATURE_FORMAT.format(minTemperature) + "°C";
 		textView.setText(value);
 
 		textView = (TextView) rowView.findViewById(R.id.textViewPresetMaxTemperature);
-		double maxTemperature = temperatureHumidityDevice.getTemperatureActuator().getMaxTemperature();
+		final double maxTemperature = temperatureHumidityDevice.getTemperatureActuator().getMaxTemperature();
 		value = TEMPERATURE_FORMAT.format(maxTemperature) + "°C";
 		textView.setText(value);
 
-		SeekBar temperatureSeekBar = (SeekBar) rowView.findViewById(R.id.seekBarPresetTemperature);
-		long max = Math.round(maxTemperature * 10 - minTemperature * 10);
+		final SeekBar temperatureSeekBar = (SeekBar) rowView.findViewById(R.id.seekBarPresetTemperature);
+		final long max = Math.round((maxTemperature * 10) - (minTemperature * 10));
 		temperatureSeekBar.setMax(0);
 		temperatureSeekBar.setMax((int) max);
-		long progress = Math.round(presetTemperature * 10 - minTemperature * 10);
+		final long progress = Math.round((presetTemperature * 10) - (minTemperature * 10));
 		temperatureSeekBar.setProgress((int) progress);
 
-	}
+		temperatureSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
+			@Override
+			public void onStopTrackingTouch(final SeekBar seekBar) {
+				// nothing to do
+			}
+
+			@Override
+			public void onStartTrackingTouch(final SeekBar seekBar) {
+				// nothing to do
+			}
+
+			@Override
+			public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
+				if (fromUser) {
+					double newTemperatue = progress / 10.0;
+					newTemperatue += minTemperature;
+					final RoomTemperatureActuator temperatureActuator = temperatureHumidityDevice
+							.getTemperatureActuator();
+					final String deviceId = temperatureActuator.getDeviceId();
+					final String deviceType = temperatureActuator.getType();
+					final String value = TEMPERATURE_FORMAT.format(newTemperatue);
+					changeListener.changed(deviceId, deviceType, value);
+				}
+			}
+		});
+
+	}
 }

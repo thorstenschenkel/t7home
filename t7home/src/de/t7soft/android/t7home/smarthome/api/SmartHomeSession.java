@@ -38,8 +38,7 @@ import de.t7soft.android.t7home.smarthome.util.InputStream2String;
 import de.t7soft.android.t7home.smarthome.util.XMLUtil;
 
 /**
- * https://code.google.com/p/smarthome-java-library/source/browse/SmarthomeJavaLibrary/src/main/java/de/itarchitecture/
- * smarthome/api/SmartHomeSession.java
+ * https://code.google.com/p/smarthome-java-library/source/browse/SmarthomeJavaLibrary/src/main/java/de/itarchitecture/ smarthome/api/SmartHomeSession.java
  * 
  * http://www.ollie.in/rwe-smarthome-api/
  */
@@ -89,8 +88,8 @@ public class SmartHomeSession {
 		}
 	}
 
-	public void logon(String userName, String passWord, String hostName) throws SHTechnicalException, LoginFailedException,
-			SmartHomeSessionExpiredException {
+	public void logon(String userName, String passWord, String hostName) throws SHTechnicalException,
+			LoginFailedException, SmartHomeSessionExpiredException {
 		this.userName = userName;
 		this.passWord = passWord;
 		this.hostName = hostName;
@@ -267,7 +266,8 @@ public class SmartHomeSession {
 		}
 		Logger.getLogger(SmartHomeSession.class.getName()).log(Level.INFO, sResponse);
 		try {
-			currentConfigurationVersion = XMLUtil.XPathValueFromString(sResponse, "/BaseResponse/@ConfigurationVersion");
+			currentConfigurationVersion = XMLUtil
+					.XPathValueFromString(sResponse, "/BaseResponse/@ConfigurationVersion");
 			refreshConfigurationFromInputStream(IOUtils.toInputStream(sResponse, "UTF8"));
 		} catch (ParserConfigurationException ex) {
 			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
@@ -355,6 +355,28 @@ public class SmartHomeSession {
 
 	public ConcurrentHashMap<String, TemperatureHumidityDevice> getTemperatureHumidityDevices() {
 		return temperatureHumidityDevices;
+	}
+
+	public void roomTemperatureActuatorChangeState(String deviceId, String temperature)
+			throws SmartHomeSessionExpiredException {
+
+		String attributes = "SessionId=\"" + getSessionId() + "\"";
+		attributes += " ";
+		attributes += "BasedOnConfigVersion=\"" + currentConfigurationVersion + "\"";
+		String content = "<ActuatorStates>";
+		content += "<LogicalDeviceState xsi:type=\"RoomTemperatureActuatorState\" LID=\"";
+		content += deviceId;
+		content += "\" PtTmp=\"";
+		content += temperature;
+		content += "\" OpnMd=\"";
+		content += "Auto";
+		content += "\" WRAc=\"False\" />";
+		content += "</ActuatorStates>";
+		String temperatureChangeRequest = buildRequest("SetActuatorStatesRequest", attributes, content);
+		Logger.getLogger(SmartHomeSession.class.getName()).log(Level.FINE,
+				"ChangingTemperature: " + temperatureChangeRequest);
+		executeRequest(temperatureChangeRequest);
+
 	}
 
 	private class SessionData {

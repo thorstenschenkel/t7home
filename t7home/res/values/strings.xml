@@ -51,6 +51,7 @@
     <string name="dummy_humidity_value">\?? %</string>
     <string name="preset_temperature_value">Eingestellt Temperatur</string>
     <string name="temperature_mode">Modus</string>
-
+    <string name="temperature_set_error">Temperatur kann nicht eingestellt werden!</string>
+    
 
 </resources>
