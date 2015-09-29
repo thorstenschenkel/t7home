@@ -35,34 +35,28 @@ public class HttpComponentsHelper {
 	// call this in the constructor of the class that does the connection if
 	// it's used multiple times
 	private void setup() {
-		SchemeRegistry schemeRegistry = new SchemeRegistry();
+		final SchemeRegistry schemeRegistry = new SchemeRegistry();
 
 		// http scheme
-		schemeRegistry.register(new Scheme("http", PlainSocketFactory
-				.getSocketFactory(), 80));
+		schemeRegistry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
 		// https scheme
-		schemeRegistry.register(new Scheme("https", new EasySSLSocketFactory(),
-				443));
+		schemeRegistry.register(new Scheme("https", new EasySSLSocketFactory(), 443));
 
 		params = new BasicHttpParams();
 		params.setParameter(ConnManagerPNames.MAX_TOTAL_CONNECTIONS, 1);
-		params.setParameter(ConnManagerPNames.MAX_CONNECTIONS_PER_ROUTE,
-				new ConnPerRouteBean(1));
+		params.setParameter(ConnManagerPNames.MAX_CONNECTIONS_PER_ROUTE, new ConnPerRouteBean(1));
 		params.setParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, false);
 		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
 		HttpProtocolParams.setContentCharset(params, "utf8");
 
-		CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+		final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 		// set the user credentials for our site "example.com"
-		credentialsProvider.setCredentials(new AuthScope("example.com",
-				AuthScope.ANY_PORT), new UsernamePasswordCredentials(
-				"UserNameHere", "UserPasswordHere"));
-		clientConnectionManager = new ThreadSafeClientConnManager(params,
-				schemeRegistry);
+		credentialsProvider.setCredentials(new AuthScope("example.com", AuthScope.ANY_PORT),
+				new UsernamePasswordCredentials("UserNameHere", "UserPasswordHere"));
+		clientConnectionManager = new ThreadSafeClientConnManager(params, schemeRegistry);
 
 		context = new BasicHttpContext();
-		context.setAttribute("http.auth.credentials-provider",
-				credentialsProvider);
+		context.setAttribute("http.auth.credentials-provider", credentialsProvider);
 	}
 
 }

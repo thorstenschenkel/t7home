@@ -16,18 +16,18 @@ import org.apache.http.conn.scheme.SocketFactory;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
-public class EasySSLSocketFactory implements SocketFactory,
-		LayeredSocketFactory {
+public class EasySSLSocketFactory implements SocketFactory, LayeredSocketFactory {
 
 	private SSLContext sslcontext = null;
 
 	private static SSLContext createEasySSLContext() throws IOException {
 		try {
-			SSLContext context = SSLContext.getInstance("TLS");
-			context.init(null, new TrustManager[] { new EasyX509TrustManager(
-					null) }, null);
+			final SSLContext context = SSLContext.getInstance("TLS");
+			context.init(null, new TrustManager[] {
+				new EasyX509TrustManager(null)
+			}, null);
 			return context;
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			throw new IOException(e.getMessage());
 		}
 	}
@@ -40,25 +40,22 @@ public class EasySSLSocketFactory implements SocketFactory,
 	}
 
 	/**
-	 * @see org.apache.http.conn.scheme.SocketFactory#connectSocket(java.net.Socket,
-	 *      java.lang.String, int, java.net.InetAddress, int,
-	 *      org.apache.http.params.HttpParams)
+	 * @see org.apache.http.conn.scheme.SocketFactory#connectSocket(java.net.Socket, java.lang.String, int, java.net.InetAddress, int, org.apache.http.params.HttpParams)
 	 */
-	public Socket connectSocket(Socket sock, String host, int port,
-			InetAddress localAddress, int localPort, HttpParams params)
-			throws IOException, UnknownHostException, ConnectTimeoutException {
-		int connTimeout = HttpConnectionParams.getConnectionTimeout(params);
-		int soTimeout = HttpConnectionParams.getSoTimeout(params);
-		InetSocketAddress remoteAddress = new InetSocketAddress(host, port);
-		SSLSocket sslsock = (SSLSocket) ((sock != null) ? sock : createSocket());
+	@Override
+	public Socket connectSocket(final Socket sock, final String host, final int port, final InetAddress localAddress,
+			int localPort, final HttpParams params) throws IOException, UnknownHostException, ConnectTimeoutException {
+		final int connTimeout = HttpConnectionParams.getConnectionTimeout(params);
+		final int soTimeout = HttpConnectionParams.getSoTimeout(params);
+		final InetSocketAddress remoteAddress = new InetSocketAddress(host, port);
+		final SSLSocket sslsock = (SSLSocket) ((sock != null) ? sock : createSocket());
 
 		if ((localAddress != null) || (localPort > 0)) {
 			// we need to bind explicitly
 			if (localPort < 0) {
 				localPort = 0; // indicates "any"
 			}
-			InetSocketAddress isa = new InetSocketAddress(localAddress,
-					localPort);
+			final InetSocketAddress isa = new InetSocketAddress(localAddress, localPort);
 			sslsock.bind(isa);
 		}
 
@@ -71,6 +68,7 @@ public class EasySSLSocketFactory implements SocketFactory,
 	/**
 	 * @see org.apache.http.conn.scheme.SocketFactory#createSocket()
 	 */
+	@Override
 	public Socket createSocket() throws IOException {
 		return getSSLContext().getSocketFactory().createSocket();
 	}
@@ -78,18 +76,18 @@ public class EasySSLSocketFactory implements SocketFactory,
 	/**
 	 * @see org.apache.http.conn.scheme.SocketFactory#isSecure(java.net.Socket)
 	 */
-	public boolean isSecure(Socket socket) throws IllegalArgumentException {
+	@Override
+	public boolean isSecure(final Socket socket) throws IllegalArgumentException {
 		return true;
 	}
 
 	/**
-	 * @see org.apache.http.conn.scheme.LayeredSocketFactory#createSocket(java.net.Socket,
-	 *      java.lang.String, int, boolean)
+	 * @see org.apache.http.conn.scheme.LayeredSocketFactory#createSocket(java.net.Socket, java.lang.String, int, boolean)
 	 */
-	public Socket createSocket(Socket socket, String host, int port,
-			boolean autoClose) throws IOException, UnknownHostException {
-		return getSSLContext().getSocketFactory().createSocket(socket, host,
-				port, autoClose);
+	@Override
+	public Socket createSocket(final Socket socket, final String host, final int port, final boolean autoClose)
+			throws IOException, UnknownHostException {
+		return getSSLContext().getSocketFactory().createSocket(socket, host, port, autoClose);
 	}
 
 	// -------------------------------------------------------------------
@@ -99,9 +97,8 @@ public class EasySSLSocketFactory implements SocketFactory,
 	// -------------------------------------------------------------------
 
 	@Override
-	public boolean equals(Object obj) {
-		return ((obj != null) && obj.getClass().equals(
-				EasySSLSocketFactory.class));
+	public boolean equals(final Object obj) {
+		return ((obj != null) && obj.getClass().equals(EasySSLSocketFactory.class));
 	}
 
 	@Override

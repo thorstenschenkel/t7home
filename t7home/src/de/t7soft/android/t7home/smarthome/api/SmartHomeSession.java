@@ -44,6 +44,7 @@ import de.t7soft.android.t7home.smarthome.util.XMLUtil;
  */
 public class SmartHomeSession {
 
+	private static final Logger LOGGER = Logger.getLogger(SmartHomeSession.class.getName());
 	private static final boolean FAKE = false;
 
 	private static final String FIRMWARE_VERSION = "1.70";
@@ -78,17 +79,17 @@ public class SmartHomeSession {
 		super();
 	}
 
-	public SmartHomeSession(String sessionId) {
+	public SmartHomeSession(final String sessionId) {
 		setSessionId(sessionId);
 		if (SESSION_DATA.containsKey(sessionId)) {
-			SessionData sessionData = SESSION_DATA.get(sessionId);
+			final SessionData sessionData = SESSION_DATA.get(sessionId);
 			requestId = sessionData.getRequestId();
 			version = sessionData.getVersion();
 			setHostName(sessionData.getHostName());
 		}
 	}
 
-	public void logon(String userName, String passWord, String hostName) throws SHTechnicalException,
+	public void logon(final String userName, final String passWord, final String hostName) throws SHTechnicalException,
 			LoginFailedException, SmartHomeSessionExpiredException {
 		this.userName = userName;
 		this.passWord = passWord;
@@ -102,26 +103,26 @@ public class SmartHomeSession {
 		clientId = UUID.randomUUID().toString();
 
 		requestId = generateRequestId();
-		String passWordEncrypted = generateHashFromPassword(passWord);
+		final String passWordEncrypted = generateHashFromPassword(passWord);
 		String loginData = "UserName=\"" + getUserName() + "\"";
 		loginData += " Password=\"" + passWordEncrypted + "\"";
-		String loginRequest = buildRequest("LoginRequest", loginData);
+		final String loginRequest = buildRequest("LoginRequest", loginData);
 		try {
 			if (FAKE) {
 				setSessionId("FAKE_SESSION_ID");
 				return;
 			}
-			String sResponse = executeRequest(loginRequest);
-			if (sResponse == null || "".equals(sResponse)) {
+			final String sResponse = executeRequest(loginRequest, true);
+			if ((sResponse == null) || "".equals(sResponse)) {
 				throw new LoginFailedException("LoginFailed: Authentication with user:" + userName
 						+ " was not possible. Session ID is empty.");
 			}
 			setSessionId(XMLUtil.XPathValueFromString(sResponse, "/BaseResponse/@SessionId"));
-			if (getSessionId() == null || "".equals(getSessionId())) {
+			if ((getSessionId() == null) || "".equals(getSessionId())) {
 				throw new LoginFailedException("LoginFailed: Authentication with user:" + userName
 						+ " was not possible. Session ID is empty.");
 			}
-			SessionData sessionData = new SessionData();
+			final SessionData sessionData = new SessionData();
 			sessionData.setSessionId(getSessionId());
 			sessionData.setRequestId(requestId);
 			sessionData.setHostName(getHostName());
@@ -129,16 +130,16 @@ public class SmartHomeSession {
 			// currentConfigurationVersion = XMLUtil.XPathValueFromString(sResponse,
 			// "/BaseResponse/@CurrentConfigurationVersion");
 			SESSION_DATA.put(getSessionId(), sessionData);
-		} catch (ParserConfigurationException ex) {
+		} catch (final ParserConfigurationException ex) {
 			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
 			throw new SHTechnicalException("ParserConfigurationException:" + ex.getMessage(), ex);
-		} catch (SAXException ex) {
+		} catch (final SAXException ex) {
 			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
 			throw new SHTechnicalException("SAXException:" + ex.getMessage(), ex);
-		} catch (XPathExpressionException ex) {
+		} catch (final XPathExpressionException ex) {
 			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
 			throw new SHTechnicalException("XPathExpressionException:" + ex.getMessage(), ex);
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
 			throw new SHTechnicalException("IOException. Communication with host " + hostName
 					+ " was not possiblte or interrupted. " + ex.getMessage(), ex);
@@ -161,21 +162,21 @@ public class SmartHomeSession {
 	 *            the plain password
 	 * @return the string
 	 */
-	private String generateHashFromPassword(String plainPassword) {
+	private String generateHashFromPassword(final String plainPassword) {
 
 		String sReturn = "";
 
 		try {
 
-			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			final MessageDigest md = MessageDigest.getInstance("SHA-256");
 			md.update(plainPassword.getBytes());
-			byte byteData[] = md.digest();
+			final byte byteData[] = md.digest();
 			// byte[] byteData = md.digest(plainPassword.getBytes()); // Missing
 			// charset
 
 			sReturn = new String(Base64.encodeBase64(byteData));
 
-		} catch (NoSuchAlgorithmException ex) {
+		} catch (final NoSuchAlgorithmException ex) {
 			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
 		}
 
@@ -187,11 +188,11 @@ public class SmartHomeSession {
 	 * Destroy.
 	 */
 	public void destroy() {
-		String attributes = "SessionId=\"" + getSessionId() + "\"";
-		String logoutrequest = buildRequest("LogoutRequest", attributes);
+		final String attributes = "SessionId=\"" + getSessionId() + "\"";
+		final String logoutrequest = buildRequest("LogoutRequest", attributes);
 		try {
 			executeRequest(logoutrequest);
-		} catch (SmartHomeSessionExpiredException e) {
+		} catch (final SmartHomeSessionExpiredException e) {
 		}
 		if (SESSION_DATA.containsKey(sessionId)) {
 			SESSION_DATA.remove(sessionId);
@@ -199,39 +200,55 @@ public class SmartHomeSession {
 		sessionId = "";
 	}
 
+	private String executeRequest(final String loginRequest) throws SmartHomeSessionExpiredException {
+		return executeRequest(loginRequest, false);
+	}
+
 	/**
 	 * Execute request.
 	 * 
 	 * @param loginRequest
 	 *            the login request
-	 * @return the string
 	 * @throws SmartHomeSessionExpiredException
 	 *             the smart home session expired exception
 	 */
-	private String executeRequest(String loginRequest) throws SmartHomeSessionExpiredException {
+	private String executeRequest(final String loginRequest, final boolean login)
+			throws SmartHomeSessionExpiredException {
+
+		if ((!login) && ("".equals(this.sessionId))) {
+			throw new SmartHomeSessionExpiredException();
+		}
+
 		String sReturn = "";
-		HttpClient httpclient = httpHelper.getNewHttpClient();
+		final HttpClient httpclient = httpHelper.getNewHttpClient();
 		try {
-			HttpPost httpPost = new HttpPost("https://" + getHostName() + "/cmd");
+
+			final HttpPost httpPost = new HttpPost("https://" + getHostName() + "/cmd");
 			httpPost.addHeader("ClientId", clientId);
 			httpPost.addHeader("Connection", "Keep-Alive");
-			HttpResponse response1;
-			StringEntity se = new StringEntity(loginRequest, HTTP.UTF_8);
+			final StringEntity se = new StringEntity(loginRequest, HTTP.UTF_8);
 			se.setContentType("text/xml");
 			httpPost.setEntity(se);
-			response1 = httpclient.execute(httpPost);
-			HttpEntity entity1 = response1.getEntity();
-			InputStream in = entity1.getContent();
+			final HttpResponse response = httpclient.execute(httpPost);
+
+			if (response.getStatusLine().getStatusCode() == 401) {
+				LOGGER.log(Level.WARNING, "401 Unauthorized returned - Session expired!");
+				this.sessionId = "";
+				throw new SmartHomeSessionExpiredException(sReturn);
+			}
+
+			final HttpEntity entity1 = response.getEntity();
+			final InputStream in = entity1.getContent();
 			sReturn = InputStream2String.copyFromInputStream(in, "UTF-8");
 			if (sReturn.contains("IllegalSessionId")) {
 				throw new SmartHomeSessionExpiredException(sReturn);
 			}
-			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.FINE, "XMLResponse:{0}", sReturn);
+			LOGGER.log(Level.FINE, "XMLResponse:{0}", sReturn);
 			// EntityUtils.consume(entity1);
-		} catch (ClientProtocolException ex) {
-			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
-		} catch (IOException ex) {
-			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
+		} catch (final ClientProtocolException ex) {
+			LOGGER.log(Level.SEVERE, null, ex);
+		} catch (final IOException ex) {
+			LOGGER.log(Level.SEVERE, null, ex);
 		} finally {
 			// httpPost.releaseConnection();
 		}
@@ -241,9 +258,9 @@ public class SmartHomeSession {
 
 	public String refreshConfiguration() throws SmartHomeSessionExpiredException, SHTechnicalException {
 
-		String attributes = "SessionId=\"" + getSessionId() + "\"";
-		String content = "<EntityType>Configuration</EntityType>";
-		String getConfigurationRequest = buildRequest("GetEntitiesRequest", attributes, content);
+		final String attributes = "SessionId=\"" + getSessionId() + "\"";
+		final String content = "<EntityType>Configuration</EntityType>";
+		final String getConfigurationRequest = buildRequest("GetEntitiesRequest", attributes, content);
 
 		if (FAKE) {
 			locations = new ConcurrentHashMap<String, SmartHomeLocation>();
@@ -260,8 +277,8 @@ public class SmartHomeSession {
 			return "";
 		}
 
-		String sResponse = executeRequest(getConfigurationRequest);
-		if (sResponse == null || sResponse.isEmpty()) {
+		final String sResponse = executeRequest(getConfigurationRequest);
+		if ((sResponse == null) || sResponse.isEmpty()) {
 			throw new SmartHomeSessionExpiredException("No response!");
 		}
 		Logger.getLogger(SmartHomeSession.class.getName()).log(Level.INFO, sResponse);
@@ -269,23 +286,23 @@ public class SmartHomeSession {
 			currentConfigurationVersion = XMLUtil
 					.XPathValueFromString(sResponse, "/BaseResponse/@ConfigurationVersion");
 			refreshConfigurationFromInputStream(IOUtils.toInputStream(sResponse, "UTF8"));
-		} catch (ParserConfigurationException ex) {
+		} catch (final ParserConfigurationException ex) {
 			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
 			throw new SHTechnicalException("ParserConfigurationException:" + ex.getMessage(), ex);
-		} catch (SAXException ex) {
+		} catch (final SAXException ex) {
 			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
 			throw new SHTechnicalException("SAXException:" + ex.getMessage(), ex);
-		} catch (XPathExpressionException ex) {
+		} catch (final XPathExpressionException ex) {
 			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
 			throw new SHTechnicalException("XPathExpressionException:" + ex.getMessage(), ex);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw new SmartHomeSessionExpiredException(e);
 		}
 		return sResponse;
 	}
 
-	public void refreshConfigurationFromInputStream(InputStream is) {
-		SmartHomeEntitiesXMLResponse smartHomeEntitiesXMLRes = new SmartHomeEntitiesXMLResponse(is);
+	public void refreshConfigurationFromInputStream(final InputStream is) {
+		final SmartHomeEntitiesXMLResponse smartHomeEntitiesXMLRes = new SmartHomeEntitiesXMLResponse(is);
 		this.setLocations(smartHomeEntitiesXMLRes.getLocations());
 		this.temperatureHumidityDevices = smartHomeEntitiesXMLRes.getTemperatureHumidityDevices();
 		this.roomTemperatureActuators = smartHomeEntitiesXMLRes.getRoomTemperatureActuators();
@@ -298,13 +315,13 @@ public class SmartHomeSession {
 		String attributes = "SessionId=\"" + getSessionId() + "\"";
 		attributes += " ";
 		attributes += "BasedOnConfigVersion=\"" + currentConfigurationVersion + "\"";
-		String getLogicalDevicesRequest = buildRequest("GetAllLogicalDeviceStatesRequest", attributes);
-		String sResponse = executeRequest(getLogicalDevicesRequest);
-		if (sResponse == null || sResponse.isEmpty()) {
+		final String getLogicalDevicesRequest = buildRequest("GetAllLogicalDeviceStatesRequest", attributes);
+		final String sResponse = executeRequest(getLogicalDevicesRequest);
+		if ((sResponse == null) || sResponse.isEmpty()) {
 			throw new SmartHomeSessionExpiredException("No response!");
 		}
 		Logger.getLogger(SmartHomeSession.class.getName()).log(Level.INFO, sResponse);
-		LogicalDeviceXMLResponse logDevXmlRes = new LogicalDeviceXMLResponse();
+		final LogicalDeviceXMLResponse logDevXmlRes = new LogicalDeviceXMLResponse();
 		logDevXmlRes.refreshLogicalDevices(IOUtils.toInputStream(sResponse), roomTemperatureActuators);
 		logDevXmlRes.refreshLogicalDevices(IOUtils.toInputStream(sResponse), roomTemperatureSensors);
 		logDevXmlRes.refreshLogicalDevices(IOUtils.toInputStream(sResponse), roomHumiditySensors);
@@ -316,7 +333,7 @@ public class SmartHomeSession {
 		return hostName;
 	}
 
-	private void setHostName(String hostName) {
+	private void setHostName(final String hostName) {
 		this.hostName = hostName;
 	}
 
@@ -328,15 +345,15 @@ public class SmartHomeSession {
 		return sessionId;
 	}
 
-	private void setSessionId(String sessionId) {
+	private void setSessionId(final String sessionId) {
 		this.sessionId = sessionId;
 	}
 
-	private String buildRequest(String type, String attributes) {
+	private String buildRequest(final String type, final String attributes) {
 		return buildRequest(type, attributes, null);
 	}
 
-	private String buildRequest(String type, String attributes, String content) {
+	private String buildRequest(final String type, final String attributes, final String content) {
 		String request = MessageFormat.format(BASEREQUEST_STARTTAG, type, version, requestId, attributes);
 		if (content != null) {
 			request += content;
@@ -349,7 +366,7 @@ public class SmartHomeSession {
 		return locations;
 	}
 
-	private void setLocations(ConcurrentHashMap<String, SmartHomeLocation> locations) {
+	private void setLocations(final ConcurrentHashMap<String, SmartHomeLocation> locations) {
 		this.locations = locations;
 	}
 
@@ -357,7 +374,7 @@ public class SmartHomeSession {
 		return temperatureHumidityDevices;
 	}
 
-	public void roomTemperatureActuatorChangeState(String deviceId, String temperature)
+	public void roomTemperatureActuatorChangeState(final String deviceId, final String temperature)
 			throws SmartHomeSessionExpiredException {
 
 		String attributes = "SessionId=\"" + getSessionId() + "\"";
@@ -372,7 +389,7 @@ public class SmartHomeSession {
 		content += "Auto";
 		content += "\" WRAc=\"False\" />";
 		content += "</ActuatorStates>";
-		String temperatureChangeRequest = buildRequest("SetActuatorStatesRequest", attributes, content);
+		final String temperatureChangeRequest = buildRequest("SetActuatorStatesRequest", attributes, content);
 		Logger.getLogger(SmartHomeSession.class.getName()).log(Level.FINE,
 				"ChangingTemperature: " + temperatureChangeRequest);
 		executeRequest(temperatureChangeRequest);
@@ -390,7 +407,7 @@ public class SmartHomeSession {
 			return sessionId;
 		}
 
-		public void setSessionId(String sessionId) {
+		public void setSessionId(final String sessionId) {
 			this.sessionId = sessionId;
 		}
 
@@ -398,7 +415,7 @@ public class SmartHomeSession {
 			return requestId;
 		}
 
-		public void setRequestId(String requestId) {
+		public void setRequestId(final String requestId) {
 			this.requestId = requestId;
 		}
 
@@ -406,7 +423,7 @@ public class SmartHomeSession {
 			return hostName;
 		}
 
-		public void setHostName(String hostName) {
+		public void setHostName(final String hostName) {
 			this.hostName = hostName;
 		}
 
@@ -414,7 +431,7 @@ public class SmartHomeSession {
 			return version;
 		}
 
-		public void setVersion(String version) {
+		public void setVersion(final String version) {
 			this.version = version;
 		}
 
