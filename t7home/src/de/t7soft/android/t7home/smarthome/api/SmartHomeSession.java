@@ -25,11 +25,11 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.HTTP;
 import org.xml.sax.SAXException;
 
-import de.t7soft.android.t7home.smarthome.api.devices.LogicalDevice;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomHumiditySensor;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureActuator;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureSensor;
 import de.t7soft.android.t7home.smarthome.api.devices.TemperatureHumidityDevice;
+import de.t7soft.android.t7home.smarthome.api.devices.WindowDoorSensor;
 import de.t7soft.android.t7home.smarthome.api.exceptions.LoginFailedException;
 import de.t7soft.android.t7home.smarthome.api.exceptions.SHTechnicalException;
 import de.t7soft.android.t7home.smarthome.api.exceptions.SmartHomeSessionExpiredException;
@@ -67,7 +67,7 @@ public class SmartHomeSession {
 	private String currentConfigurationVersion = "";
 
 	private ConcurrentHashMap<String, SmartHomeLocation> locations = null;
-	private ConcurrentHashMap<String, ? extends LogicalDevice> windowDoorSensors = null;
+	private ConcurrentHashMap<String, WindowDoorSensor> windowDoorSensors = null;
 	private ConcurrentHashMap<String, TemperatureHumidityDevice> temperatureHumidityDevices = null;
 	private ConcurrentHashMap<String, RoomTemperatureActuator> roomTemperatureActuators;
 	private ConcurrentHashMap<String, RoomTemperatureSensor> roomTemperatureSensors;
@@ -372,6 +372,10 @@ public class SmartHomeSession {
 
 	public ConcurrentHashMap<String, TemperatureHumidityDevice> getTemperatureHumidityDevices() {
 		return temperatureHumidityDevices;
+	}
+
+	public ConcurrentHashMap<String, WindowDoorSensor> getWindowDoorSensors() {
+		return this.windowDoorSensors;
 	}
 
 	public void roomTemperatureActuatorChangeState(final String deviceId, final String temperature)

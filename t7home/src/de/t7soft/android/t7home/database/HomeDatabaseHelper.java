@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "home.db";
-	private static final int DATABASE_VERSION = 4;
+	private static final int DATABASE_VERSION = 5;
 
 	// common cols
 	public static final String LOCATION_ID_COL_NAME = "locationId";
@@ -44,23 +44,28 @@ public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper
 	public static final String ROOM_HUMIDITYSENSOR_ID_COL_NAME = "roomHumiditySensorId";
 	public static final String ROOM_TEMPERATURESENSOR_ID_COL_NAME = "roomTemperatureSensorId";
 
-	public HomeDatabaseHelper(Context context) {
+	// WindowDoorSensor
+	public static final String WINDOW_DOOR_SENSOR_TABLE_NAME = "WindowDoorSensors";
+	public static final String IS_OPEN_COL_NAME = "isOpen";
+
+	public HomeDatabaseHelper(final Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 
 	@Override
-	public void onCreate(SQLiteDatabase db) {
+	public void onCreate(final SQLiteDatabase db) {
 
 		createLocationsTable(db);
 		createTemperatureHumidityDeviceTable(db);
 		createRoomTemperatureActuatorTable(db);
 		createRoomTemperatureSensorTable(db);
 		createRoomHumiditySensorTable(db);
+		createWindowDoorSensorTable(db);
 
 	}
 
-	private void createLocationsTable(SQLiteDatabase db) {
-		StringBuffer sqlBuffer = new StringBuffer();
+	private void createLocationsTable(final SQLiteDatabase db) {
+		final StringBuffer sqlBuffer = new StringBuffer();
 		sqlBuffer.append("CREATE TABLE IF NOT EXISTS ");
 		sqlBuffer.append(LOCATIONS_TABLE_NAME);
 		sqlBuffer.append("(");
@@ -78,9 +83,9 @@ public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper
 		db.execSQL(sqlBuffer.toString());
 	}
 
-	private void createLogicalDeviceTabDef(SQLiteDatabase db, String tableName, String additionalCols) {
+	private void createLogicalDeviceTabDef(final SQLiteDatabase db, final String tableName, final String additionalCols) {
 
-		StringBuffer sqlBuffer = new StringBuffer();
+		final StringBuffer sqlBuffer = new StringBuffer();
 		sqlBuffer.append("CREATE TABLE IF NOT EXISTS ");
 		sqlBuffer.append(tableName);
 		sqlBuffer.append("(");
@@ -97,7 +102,7 @@ public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper
 		sqlBuffer.append(", ");
 		sqlBuffer.append(LOCATION_ID_COL_NAME);
 		sqlBuffer.append(" TEXT");
-		if (additionalCols != null && !additionalCols.isEmpty()) {
+		if ((additionalCols != null) && !additionalCols.isEmpty()) {
 			sqlBuffer.append(", ");
 			sqlBuffer.append(additionalCols);
 		}
@@ -106,23 +111,23 @@ public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper
 
 	}
 
-	private void createRoomTemperatureSensorTable(SQLiteDatabase db) {
-		StringBuffer sqlBuffer = new StringBuffer();
+	private void createRoomTemperatureSensorTable(final SQLiteDatabase db) {
+		final StringBuffer sqlBuffer = new StringBuffer();
 		sqlBuffer.append(TEMPERATURE_COL_NAME);
 		sqlBuffer.append(" DOUBLE");
 		createLogicalDeviceTabDef(db, ROOM_TEMPERATURE_SENSOR_TABLE_NAME, sqlBuffer.toString());
 	}
 
-	private void createRoomHumiditySensorTable(SQLiteDatabase db) {
-		StringBuffer sqlBuffer = new StringBuffer();
+	private void createRoomHumiditySensorTable(final SQLiteDatabase db) {
+		final StringBuffer sqlBuffer = new StringBuffer();
 		sqlBuffer.append(HUMIDITY_COL_NAME);
 		sqlBuffer.append(" DOUBLE");
 		createLogicalDeviceTabDef(db, ROOM_HUMIDITY_SENSOR_TABLE_NAME, sqlBuffer.toString());
 	}
 
-	private void createRoomTemperatureActuatorTable(SQLiteDatabase db) {
+	private void createRoomTemperatureActuatorTable(final SQLiteDatabase db) {
 
-		StringBuffer sqlBuffer = new StringBuffer();
+		final StringBuffer sqlBuffer = new StringBuffer();
 		sqlBuffer.append(POINT_TEMPERATURE);
 		sqlBuffer.append(" DOUBLE");
 		sqlBuffer.append(", ");
@@ -147,8 +152,17 @@ public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper
 
 	};
 
-	private void createTemperatureHumidityDeviceTable(SQLiteDatabase db) {
-		StringBuffer sqlBuffer = new StringBuffer();
+	private void createWindowDoorSensorTable(final SQLiteDatabase db) {
+
+		final StringBuffer sqlBuffer = new StringBuffer();
+		sqlBuffer.append(IS_OPEN_COL_NAME);
+		sqlBuffer.append(" INTEGER");
+		createLogicalDeviceTabDef(db, WINDOW_DOOR_SENSOR_TABLE_NAME, sqlBuffer.toString());
+
+	};
+
+	private void createTemperatureHumidityDeviceTable(final SQLiteDatabase db) {
+		final StringBuffer sqlBuffer = new StringBuffer();
 		sqlBuffer.append("CREATE TABLE IF NOT EXISTS ");
 		sqlBuffer.append(TEMPERATURE_HUMIDITY_DEVICE_TABLE_NAME);
 		sqlBuffer.append("(");
@@ -170,7 +184,7 @@ public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper
 	}
 
 	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+	public void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
 
 		if (oldVersion < DATABASE_VERSION) {
 			db.execSQL("DROP TABLE IF EXISTS " + LOCATIONS_TABLE_NAME);

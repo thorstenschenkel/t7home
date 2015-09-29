@@ -13,6 +13,7 @@ import de.t7soft.android.t7home.database.HomeDatabaseAdapter;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeLocation;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeSession;
 import de.t7soft.android.t7home.smarthome.api.devices.TemperatureHumidityDevice;
+import de.t7soft.android.t7home.smarthome.api.devices.WindowDoorSensor;
 import de.t7soft.android.t7home.smarthome.api.exceptions.SHTechnicalException;
 import de.t7soft.android.t7home.smarthome.api.exceptions.SmartHomeSessionExpiredException;
 
@@ -27,11 +28,11 @@ public abstract class AbstractRefreshTask extends AsyncTask<String, Integer, Int
 	private final HomeDatabaseAdapter dbAdapter;
 	private final int titleId;
 
-	public AbstractRefreshTask(Context context, HomeDatabaseAdapter dbAdapter) {
+	public AbstractRefreshTask(final Context context, final HomeDatabaseAdapter dbAdapter) {
 		this(context, dbAdapter, -1);
 	}
 
-	public AbstractRefreshTask(Context context, HomeDatabaseAdapter dbAdapter, int titleId) {
+	public AbstractRefreshTask(final Context context, final HomeDatabaseAdapter dbAdapter, final int titleId) {
 		this.context = context;
 		this.dbAdapter = dbAdapter;
 		this.titleId = titleId;
@@ -39,25 +40,36 @@ public abstract class AbstractRefreshTask extends AsyncTask<String, Integer, Int
 		alertDialogBuilder = new AlertDialog.Builder(context);
 	}
 
-	private void storeLocations(SmartHomeSession session) {
-		ConcurrentHashMap<String, SmartHomeLocation> locationsMap = session.getLocations();
+	private void storeLocations(final SmartHomeSession session) {
+		final ConcurrentHashMap<String, SmartHomeLocation> locationsMap = session.getLocations();
 		if (locationsMap == null) {
 			return;
 		}
-		Enumeration<SmartHomeLocation> locations = locationsMap.elements();
+		final Enumeration<SmartHomeLocation> locations = locationsMap.elements();
 		while (locations.hasMoreElements()) {
 			dbAdapter.insertLocation(locations.nextElement());
 		}
 	}
 
-	private void storeTemperatureHumidityDevices(SmartHomeSession session) {
-		ConcurrentHashMap<String, TemperatureHumidityDevice> devicesMap = session.getTemperatureHumidityDevices();
+	private void storeTemperatureHumidityDevices(final SmartHomeSession session) {
+		final ConcurrentHashMap<String, TemperatureHumidityDevice> devicesMap = session.getTemperatureHumidityDevices();
 		if (devicesMap == null) {
 			return;
 		}
-		Enumeration<TemperatureHumidityDevice> devices = devicesMap.elements();
+		final Enumeration<TemperatureHumidityDevice> devices = devicesMap.elements();
 		while (devices.hasMoreElements()) {
 			dbAdapter.insertTemperatureHumidityDevice(devices.nextElement());
+		}
+	}
+
+	private void storeWindowDoorSensors(final SmartHomeSession session) {
+		final ConcurrentHashMap<String, WindowDoorSensor> devicesMap = session.getWindowDoorSensors();
+		if (devicesMap == null) {
+			return;
+		}
+		final Enumeration<WindowDoorSensor> devices = devicesMap.elements();
+		while (devices.hasMoreElements()) {
+			dbAdapter.insertWindowDoorSensor(devices.nextElement());
 		}
 	}
 
@@ -75,15 +87,15 @@ public abstract class AbstractRefreshTask extends AsyncTask<String, Integer, Int
 	}
 
 	@Override
-	protected void onProgressUpdate(Integer... resIds) {
+	protected void onProgressUpdate(final Integer... resIds) {
 		context.getString(R.string.refresh_in_progress);
 		progressDialog.setMessage(context.getString(R.string.refresh_in_progress));
 	}
 
 	@Override
-	protected Integer doInBackground(String... params) {
-		String sessionId = params[0];
-		SmartHomeSession session = new SmartHomeSession(sessionId);
+	protected Integer doInBackground(final String... params) {
+		final String sessionId = params[0];
+		final SmartHomeSession session = new SmartHomeSession(sessionId);
 		try {
 			publishProgress(R.string.refresh_configuration);
 			session.refreshConfiguration();
@@ -93,16 +105,17 @@ public abstract class AbstractRefreshTask extends AsyncTask<String, Integer, Int
 			dbAdapter.deleteAll();
 			storeLocations(session);
 			storeTemperatureHumidityDevices(session);
-		} catch (SHTechnicalException e) {
+			storeWindowDoorSensors(session);
+		} catch (final SHTechnicalException e) {
 			return REFRESH_ERROR;
-		} catch (SmartHomeSessionExpiredException e) {
+		} catch (final SmartHomeSessionExpiredException e) {
 			return REFRESH_ERROR;
 		}
 		return REFRESH_OK;
 	}
 
 	@Override
-	protected void onPostExecute(Integer resultCode) {
+	protected void onPostExecute(final Integer resultCode) {
 
 		if (progressDialog.isShowing()) {
 			progressDialog.dismiss();
@@ -115,7 +128,7 @@ public abstract class AbstractRefreshTask extends AsyncTask<String, Integer, Int
 			alertDialogBuilder.setCancelable(true);
 			alertDialogBuilder.setPositiveButton(R.string.ok_button, new DialogInterface.OnClickListener() {
 				@Override
-				public void onClick(DialogInterface dialog, int id) {
+				public void onClick(final DialogInterface dialog, final int id) {
 					dialog.cancel();
 				}
 			});
