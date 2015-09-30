@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/row_header_background"
+        android:paddingLeft="@dimen/subtitle_paddingX" >
+
+        <ImageView
+            android:id="@+id/imagedummyListHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/dummy"
+            android:src="@android:drawable/btn_star" />
+
+        <TextView
+            android:id="@+id/textViewdummyRowHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/room_row_paddingY"
+            android:paddingLeft="@dimen/room_row_paddingX"
+            android:paddingRight="@dimen/room_row_paddingX"
+            android:paddingTop="@dimen/room_row_paddingY"
+            android:text="@string/dummy"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/row_header_text" />
+    </LinearLayout>
+
+
+        <TextView
+            android:id="@+id/textViewDummyLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/dummy"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+</LinearLayout>

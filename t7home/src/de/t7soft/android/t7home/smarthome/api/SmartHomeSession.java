@@ -38,7 +38,8 @@ import de.t7soft.android.t7home.smarthome.util.InputStream2String;
 import de.t7soft.android.t7home.smarthome.util.XMLUtil;
 
 /**
- * https://code.google.com/p/smarthome-java-library/source/browse/SmarthomeJavaLibrary/src/main/java/de/itarchitecture/ smarthome/api/SmartHomeSession.java
+ * https://code.google.com/p/smarthome-java-library/source/browse/SmarthomeJavaLibrary/src/main/java/de/itarchitecture/
+ * smarthome/api/SmartHomeSession.java
  * 
  * http://www.ollie.in/rwe-smarthome-api/
  */
@@ -85,6 +86,7 @@ public class SmartHomeSession {
 			final SessionData sessionData = SESSION_DATA.get(sessionId);
 			requestId = sessionData.getRequestId();
 			version = sessionData.getVersion();
+			currentConfigurationVersion = sessionData.getCurrentConfigurationVersion();
 			setHostName(sessionData.getHostName());
 		}
 	}
@@ -212,8 +214,7 @@ public class SmartHomeSession {
 	 * @throws SmartHomeSessionExpiredException
 	 *             the smart home session expired exception
 	 */
-	private String executeRequest(final String loginRequest, final boolean login)
-			throws SmartHomeSessionExpiredException {
+	private String executeRequest(final String loginRequest, final boolean login) throws SmartHomeSessionExpiredException {
 
 		if ((!login) && ("".equals(this.sessionId))) {
 			throw new SmartHomeSessionExpiredException();
@@ -283,8 +284,11 @@ public class SmartHomeSession {
 		}
 		Logger.getLogger(SmartHomeSession.class.getName()).log(Level.INFO, sResponse);
 		try {
-			currentConfigurationVersion = XMLUtil
-					.XPathValueFromString(sResponse, "/BaseResponse/@ConfigurationVersion");
+			currentConfigurationVersion = XMLUtil.XPathValueFromString(sResponse, "/BaseResponse/@ConfigurationVersion");
+			if (SESSION_DATA.containsKey(sessionId)) {
+				final SessionData sessionData = SESSION_DATA.get(sessionId);
+				sessionData.setCurrentConfigurationVersion(currentConfigurationVersion);
+			}
 			refreshConfigurationFromInputStream(IOUtils.toInputStream(sResponse, "UTF8"));
 		} catch (final ParserConfigurationException ex) {
 			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
@@ -406,6 +410,7 @@ public class SmartHomeSession {
 		private String requestId;
 		private String hostName;
 		private String version;
+		private String currentConfigurationVersion;
 
 		public String getSessionId() {
 			return sessionId;
@@ -437,6 +442,14 @@ public class SmartHomeSession {
 
 		public void setVersion(final String version) {
 			this.version = version;
+		}
+
+		public String getCurrentConfigurationVersion() {
+			return currentConfigurationVersion;
+		}
+
+		public void setCurrentConfigurationVersion(String currentConfigurationVersion) {
+			this.currentConfigurationVersion = currentConfigurationVersion;
 		}
 
 	}

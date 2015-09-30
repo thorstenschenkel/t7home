@@ -24,7 +24,7 @@ public class RoomActuatorChangeListener implements ActuatorChangeListener {
 
 		final SmartHomeSession session = new SmartHomeSession(sessionId);
 		try {
-			if (deviceType.equals(LogicalDevice.Type_RoomTemperatureActuator)) {
+			if (deviceType.equals(LogicalDevice.Type_RoomTemperatureActuatorState)) {
 				session.roomTemperatureActuatorChangeState(deviceId, newValue);
 				session.refreshLogicalDeviceState();
 				// TODO update in database (only temperatrue !?! )

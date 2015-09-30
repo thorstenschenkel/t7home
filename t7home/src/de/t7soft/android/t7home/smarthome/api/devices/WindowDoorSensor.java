@@ -1,6 +1,7 @@
 package de.t7soft.android.t7home.smarthome.api.devices;
 
 public class WindowDoorSensor extends LogicalDevice {
+
 	private boolean isOpen = false;
 	private String state = "";
 
@@ -20,11 +21,9 @@ public class WindowDoorSensor extends LogicalDevice {
 		return state;
 	}
 
-	/**
-     * 
-     */
 	public WindowDoorSensor() {
 		super();
 		this.setType(LogicalDevice.Type_WindowDoorSensor);
 	}
+
 }

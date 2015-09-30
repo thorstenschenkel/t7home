@@ -16,8 +16,10 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Switch;
 import android.widget.TextView;
 import de.t7soft.android.t7home.R;
+import de.t7soft.android.t7home.smarthome.api.devices.LogicalDevice;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureActuator;
 import de.t7soft.android.t7home.smarthome.api.devices.TemperatureHumidityDevice;
+import de.t7soft.android.t7home.smarthome.api.devices.WindowDoorSensor;
 
 /*
  * setOnSeekBarChangeListener
@@ -27,6 +29,7 @@ public class RoomListAdapter extends BaseAdapter {
 
 	private static final int TYPE_UNKOWN = -1;
 	private static final int TYPE_TEMPERATURE_HUMIDITY_DEVICE = 0;
+	private static final int TYPE_WINDOW_DOOR_SENSOR = 1;
 	private static final int TYPE_MAX_COUNT = 1;
 	private static final Format TEMPERATURE_FORMAT = new DecimalFormat("#.#");
 	private static final Format HUMIDITY_FORMAT = new DecimalFormat("#.#");
@@ -36,8 +39,7 @@ public class RoomListAdapter extends BaseAdapter {
 	private final ActuatorChangeListener changeListener;
 	private final LayoutInflater inflater;
 
-	public RoomListAdapter(final Context context, final List<Object> listItems,
-			final ActuatorChangeListener changeListener) {
+	public RoomListAdapter(final Context context, final List<Object> listItems, final ActuatorChangeListener changeListener) {
 		this.context = context;
 		this.listItems = listItems;
 		this.changeListener = changeListener;
@@ -63,6 +65,8 @@ public class RoomListAdapter extends BaseAdapter {
 	public int getItemViewType(final int position) {
 		if (getItem(position) instanceof TemperatureHumidityDevice) {
 			return TYPE_TEMPERATURE_HUMIDITY_DEVICE;
+		} else if (getItem(position) instanceof WindowDoorSensor) {
+			return TYPE_WINDOW_DOOR_SENSOR;
 		} else {
 			return TYPE_UNKOWN;
 		}
@@ -82,6 +86,12 @@ public class RoomListAdapter extends BaseAdapter {
 				case TYPE_TEMPERATURE_HUMIDITY_DEVICE:
 					rowView = inflater.inflate(R.layout.temperature_humidity_device_row, null);
 					break;
+				case TYPE_WINDOW_DOOR_SENSOR:
+					// TODO
+					// break;
+				default:
+					rowView = inflater.inflate(R.layout.dummy_device_row, null);
+					break;
 			}
 		}
 		if (rowView != null) {
@@ -90,6 +100,20 @@ public class RoomListAdapter extends BaseAdapter {
 					final TemperatureHumidityDevice temperatureHumidityDevice = (TemperatureHumidityDevice) listItems
 							.get(position);
 					updateTemperatureHumidityDeviceRow(rowView, temperatureHumidityDevice);
+					break;
+				case TYPE_WINDOW_DOOR_SENSOR:
+					// TODO
+					// break;
+				default:
+					// nothing to do
+					TextView textViewDummyLabel = (TextView) rowView.findViewById(R.id.textViewDummyLabel);
+					Object listItem = listItems.get(position);
+					if (listItem instanceof LogicalDevice) {
+						String deviceType = ((LogicalDevice) listItem).getType();
+						if (deviceType != null && !deviceType.isEmpty()) {
+							textViewDummyLabel.setText(deviceType);
+						}
+					}
 					break;
 			}
 		}
