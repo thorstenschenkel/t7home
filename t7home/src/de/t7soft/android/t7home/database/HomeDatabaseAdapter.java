@@ -262,8 +262,8 @@ public class HomeDatabaseAdapter {
 		final List<TemperatureHumidityDevice> devices = new ArrayList<TemperatureHumidityDevice>();
 
 		final String selection = createLocationSelection(location);
-		final Cursor cursor = db.query(HomeDatabaseHelper.TEMPERATURE_HUMIDITY_DEVICE_TABLE_NAME, null, selection,
-				null, null, null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.TEMPERATURE_HUMIDITY_DEVICE_TABLE_NAME, null, selection, null,
+				null, null, null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
@@ -326,8 +326,7 @@ public class HomeDatabaseAdapter {
 		SmartHomeLocation location = null;
 
 		final String selection = createLocationSelection(id);
-		final Cursor cursor = db
-				.query(HomeDatabaseHelper.LOCATIONS_TABLE_NAME, null, selection, null, null, null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.LOCATIONS_TABLE_NAME, null, selection, null, null, null, null);
 
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
@@ -364,8 +363,8 @@ public class HomeDatabaseAdapter {
 		final List<WindowDoorSensor> sensors = new ArrayList<WindowDoorSensor>();
 
 		final String selection = createLocationSelection(location);
-		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_SENSOR_TABLE_NAME, null, selection, null,
-				null, null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.WINDOW_DOOR_SENSOR_TABLE_NAME, null, selection, null, null, null,
+				null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
@@ -386,8 +385,8 @@ public class HomeDatabaseAdapter {
 		RoomTemperatureSensor sensor = null;
 
 		final String selection = createRoomTemperatureSensorSelection(id);
-		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_SENSOR_TABLE_NAME, null, selection, null,
-				null, null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_SENSOR_TABLE_NAME, null, selection, null, null,
+				null, null);
 
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
@@ -405,8 +404,8 @@ public class HomeDatabaseAdapter {
 		RoomTemperatureActuator sensor = null;
 
 		final String selection = createRoomTemperatureSensorActuator(id);
-		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_ACTUATOR_TABLE_NAME, null, selection, null,
-				null, null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_ACTUATOR_TABLE_NAME, null, selection, null, null,
+				null, null);
 
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
