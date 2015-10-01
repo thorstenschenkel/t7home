@@ -2,9 +2,12 @@ package de.t7soft.android.t7home.smarthome.api;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -15,6 +18,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import android.util.Log;
+import de.t7soft.android.t7home.smarthome.api.devices.DaySensor;
 import de.t7soft.android.t7home.smarthome.api.devices.LogicalDevice;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomHumiditySensor;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureActuator;
@@ -23,6 +28,9 @@ import de.t7soft.android.t7home.smarthome.api.devices.TemperatureHumidityDevice;
 import de.t7soft.android.t7home.smarthome.api.devices.WindowDoorSensor;
 
 public class SmartHomeEntitiesXMLResponse extends XMLResponse {
+
+	private static final String LOGTAG = SmartHomeEntitiesXMLResponse.class.getSimpleName();
+
 	public ConcurrentHashMap<String, SmartHomeLocation> getLocations() {
 		return locations;
 	}
@@ -33,6 +41,7 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 	private ConcurrentHashMap<String, TemperatureHumidityDevice> temperatureHumidityDevices = null;
 	private ConcurrentHashMap<String, RoomTemperatureActuator> roomTemperatureActuators = null;
 	private ConcurrentHashMap<String, WindowDoorSensor> windowDoorSensors = null;
+	private ConcurrentHashMap<String, DaySensor> daySensors = null;
 	private ConcurrentHashMap<String, String> mapRoomsToTemperatureActuators = null;
 	private ConcurrentHashMap<String, String> mapRoomsToTemperatureSensors = null;
 	private ConcurrentHashMap<String, String> mapRoomsToHumiditySensors = null;
@@ -66,6 +75,7 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 			roomTemperatureSensors = new ConcurrentHashMap<String, RoomTemperatureSensor>();
 			temperatureHumidityDevices = new ConcurrentHashMap<String, TemperatureHumidityDevice>();
 			windowDoorSensors = new ConcurrentHashMap<String, WindowDoorSensor>();
+			daySensors = new ConcurrentHashMap<String, DaySensor>();
 			mapRoomsToTemperatureActuators = new ConcurrentHashMap<String, String>();
 			mapRoomsToHumiditySensors = new ConcurrentHashMap<String, String>();
 			mapRoomsToTemperatureSensors = new ConcurrentHashMap<String, String>();
@@ -75,8 +85,7 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 					final LogicalDevice logDev = getLogicalDevice(logDevEl);
 					if (logDev != null) {
 						if (!logDev.getDeviceName().equals("")) {
-							Logger.getLogger(SmartHomeEntitiesXMLResponse.class.getName()).log(Level.FINEST,
-									logDev.getDeviceName());
+							Log.v(LOGTAG, logDev.getDeviceName());
 						}
 						logDev.setLocation(locations.get(logDev.getLocationId()));
 					}
@@ -84,11 +93,11 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 			}
 
 		} catch (final SAXException ex) {
-			Logger.getLogger(LogicalDeviceXMLResponse.class.getName()).log(Level.SEVERE, null, ex);
+			Log.e(LOGTAG, "", ex);
 		} catch (final IOException ex) {
-			Logger.getLogger(LogicalDeviceXMLResponse.class.getName()).log(Level.SEVERE, null, ex);
+			Log.e(LOGTAG, "", ex);
 		} catch (final ParserConfigurationException ex) {
-			Logger.getLogger(LogicalDeviceXMLResponse.class.getName()).log(Level.SEVERE, null, ex);
+			Log.e(LOGTAG, "", ex);
 		}
 	}
 
@@ -197,19 +206,52 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 			windowDoorSensor.setLocationId(getTextValueFromAttribute(devEl, "LCID"));
 			windowDoorSensors.put(windowDoorSensor.getDeviceId(), windowDoorSensor);
 			logicalDevice = windowDoorSensor;
+		} else if (LogicalDevice.Type_GenericSensor.equals(sType)) {
+			return getGenericSensor(devEl);
 		} else {
 			logicalDevice = new LogicalDevice();
 			logicalDevice.setLogicalDeviceType(LogicalDevice.Type_Generic);
 
 			if ((!sType.contains("Sensor")) && (!sType.contains("Actuator"))) {
-				Logger.getLogger(SmartHomeEntitiesXMLResponse.class.getName()).log(Level.INFO,
-						"-2-----------new/unknown logical device: " + sType);
+				final String msg = "-2-----------new/unknown logical device: " + sType;
+				Log.i(LOGTAG, msg);
 			}
 			logicalDevice.setLogicalDeviceId(getTextValueFromElements(devEl, "Id"));
 		}
 
 		return logicalDevice;
 
+	}
+
+	private LogicalDevice getGenericSensor(final Element devEl) {
+		final NodeList nodes = devEl.getElementsByTagName("Ppt");
+
+		final Map<String, String> cache = new HashMap<>();
+		for (int i = 0; i < nodes.getLength(); i++) {
+			final String name = getTextValueFromAttribute((Element) nodes.item(i), "Name");
+			final String value = getTextValueFromAttribute((Element) nodes.item(i), "Value");
+			cache.put(name, value);
+		}
+		if (cache.containsKey("NextSunrise")) {
+			final DaySensor daySensor = new DaySensor();
+			daySensor.setType(LogicalDevice.Type_DaySensor);
+			final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSZ", Locale.ENGLISH);
+			try {
+				daySensor.setNextSunrise(df.parse(cache.get("NextSunrise").replace("000+", "GMT+")));
+				daySensor.setNextSunset(df.parse(cache.get("NextSunset").replace("000+", "GMT+")));
+				daySensor.setNextTimeEvent(df.parse(cache.get("NextTimeEvent").replace("000+", "GMT+")));
+			} catch (final Exception localException) {
+				Log.e(LOGTAG, "error parsing date for DaySensor");
+			}
+			cache.clear();
+			return daySensor;
+		}
+
+		return null;
+	}
+
+	public ConcurrentHashMap<String, DaySensor> getDaySensors() {
+		return daySensors;
 	}
 
 	public ConcurrentHashMap<String, WindowDoorSensor> getWindowDoorSensors() {

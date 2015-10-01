@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "home.db";
-	private static final int DATABASE_VERSION = 5;
+	private static final int DATABASE_VERSION = 6;
 
 	// common cols
 	public static final String LOCATION_ID_COL_NAME = "locationId";
@@ -48,6 +48,12 @@ public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper
 	public static final String WINDOW_DOOR_SENSOR_TABLE_NAME = "WindowDoorSensors";
 	public static final String IS_OPEN_COL_NAME = "isOpen";
 
+	// DaySensor
+	public static final String DAY_SENSOR_TABLE_NAME = "DaySensors";
+	public static final String NEXT_SUNSET_COL_NAME = "nextSunset";
+	public static final String NEXT_SUNRISE_COL_NAME = "nextSunrise";
+	public static final String NEXT_TIME_EVENT_COL_NAME = "NextTimeEvent";
+
 	public HomeDatabaseHelper(final Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
@@ -61,6 +67,7 @@ public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper
 		createRoomTemperatureSensorTable(db);
 		createRoomHumiditySensorTable(db);
 		createWindowDoorSensorTable(db);
+		createDaySensorTable(db);
 
 	}
 
@@ -158,6 +165,21 @@ public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper
 		sqlBuffer.append(IS_OPEN_COL_NAME);
 		sqlBuffer.append(" INTEGER");
 		createLogicalDeviceTabDef(db, WINDOW_DOOR_SENSOR_TABLE_NAME, sqlBuffer.toString());
+
+	};
+
+	private void createDaySensorTable(final SQLiteDatabase db) {
+
+		final StringBuffer sqlBuffer = new StringBuffer();
+		sqlBuffer.append(NEXT_SUNSET_COL_NAME);
+		sqlBuffer.append(" STRING");
+		sqlBuffer.append(", ");
+		sqlBuffer.append(NEXT_SUNRISE_COL_NAME);
+		sqlBuffer.append(" STRING");
+		sqlBuffer.append(", ");
+		sqlBuffer.append(NEXT_TIME_EVENT_COL_NAME);
+		sqlBuffer.append(" STRING");
+		createLogicalDeviceTabDef(db, DAY_SENSOR_TABLE_NAME, sqlBuffer.toString());
 
 	};
 

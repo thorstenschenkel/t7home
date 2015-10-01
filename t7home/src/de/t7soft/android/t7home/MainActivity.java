@@ -29,14 +29,12 @@ public class MainActivity extends Activity {
 
 	public static final String SESSION_ID_KEY = "sessionId";
 
-	private static final String LOG_TAG = MainActivity.class.getSimpleName();
-
 	private LogonData logonData;
 	private LogonTask logonTask;
 	private HomeDatabaseAdapter dbAdapter;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(final Bundle savedInstanceState) {
 
 		if (logonTask != null) {
 			logonTask.cancel(true);
@@ -46,14 +44,14 @@ public class MainActivity extends Activity {
 		}
 		super.onCreate(savedInstanceState);
 
-		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+		final StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 		StrictMode.setThreadPolicy(policy);
 
 		setContentView(R.layout.activity_main);
 
 		// http://www.easyinfogeek.com/2015/02/android-example-ip-address-input-control.html
-		EditText ipAddress = (EditText) findViewById(R.id.editTextIpAddress);
-		InputFilter[] filters = new InputFilter[1];
+		final EditText ipAddress = (EditText) findViewById(R.id.editTextIpAddress);
+		final InputFilter[] filters = new InputFilter[1];
 		filters[0] = new IpAddressInputFilter();
 		ipAddress.setFilters(filters);
 
@@ -82,7 +80,7 @@ public class MainActivity extends Activity {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(final Menu menu) {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
@@ -91,7 +89,7 @@ public class MainActivity extends Activity {
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.about_item:
-				AboutDlg aboutDlg = new AboutDlg(this);
+				final AboutDlg aboutDlg = new AboutDlg(this);
 				aboutDlg.show();
 				return true;
 			default:
@@ -101,16 +99,16 @@ public class MainActivity extends Activity {
 
 	private void initView() {
 
-		SharedPreferences sharedPref = getSharedPreferences(getString(R.string.preference_file_key_logon),
+		final SharedPreferences sharedPref = getSharedPreferences(getString(R.string.preference_file_key_logon),
 				Context.MODE_PRIVATE);
-		boolean keepInMind = sharedPref.getBoolean(getString(R.string.preference_key_logon_keep_in_mind), false);
+		final boolean keepInMind = sharedPref.getBoolean(getString(R.string.preference_key_logon_keep_in_mind), false);
 		final CheckBox checkBoxKeepInMind = (CheckBox) findViewById(R.id.checkBoxKeepInMind);
 		checkBoxKeepInMind.setChecked(keepInMind);
 
 		if (keepInMind) {
-			String username = sharedPref.getString(getString(R.string.preference_key_logon_username), "");
-			String password = sharedPref.getString(getString(R.string.preference_key_logon_password), "");
-			String ipAddress = sharedPref.getString(getString(R.string.preference_key_logon_ip_address), "");
+			final String username = sharedPref.getString(getString(R.string.preference_key_logon_username), "");
+			final String password = sharedPref.getString(getString(R.string.preference_key_logon_password), "");
+			final String ipAddress = sharedPref.getString(getString(R.string.preference_key_logon_ip_address), "");
 			logonData = new LogonData(username, password, ipAddress);
 			final EditText editTextUsername = (EditText) findViewById(R.id.editTextUsername);
 			editTextUsername.setText(logonData.getUsername());
@@ -124,7 +122,7 @@ public class MainActivity extends Activity {
 
 	}
 
-	public void onLogon(View view) {
+	public void onLogon(final View view) {
 
 		// Store Logon preferences
 
@@ -142,19 +140,19 @@ public class MainActivity extends Activity {
 	private void storeLogonPreferences() {
 
 		final EditText editTextUsername = (EditText) findViewById(R.id.editTextUsername);
-		String username = editTextUsername.getText().toString();
+		final String username = editTextUsername.getText().toString();
 		final EditText editTextPassword = (EditText) findViewById(R.id.editTextPassword);
-		String password = editTextPassword.getText().toString();
+		final String password = editTextPassword.getText().toString();
 		final EditText editTextIpAddress = (EditText) findViewById(R.id.editTextIpAddress);
-		String ipAddress = editTextIpAddress.getText().toString();
+		final String ipAddress = editTextIpAddress.getText().toString();
 		logonData = new LogonData(username, password, ipAddress);
 
-		SharedPreferences sharedPref = getSharedPreferences(getString(R.string.preference_file_key_logon),
+		final SharedPreferences sharedPref = getSharedPreferences(getString(R.string.preference_file_key_logon),
 				Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = sharedPref.edit();
+		final SharedPreferences.Editor editor = sharedPref.edit();
 
 		final CheckBox checkBoxKeepInMind = (CheckBox) findViewById(R.id.checkBoxKeepInMind);
-		boolean keepInMind = checkBoxKeepInMind.isChecked();
+		final boolean keepInMind = checkBoxKeepInMind.isChecked();
 		editor.putBoolean(getString(R.string.preference_key_logon_keep_in_mind), keepInMind);
 		if (keepInMind) {
 			editor.putString(getString(R.string.preference_key_logon_username), logonData.getUsername());
@@ -169,20 +167,20 @@ public class MainActivity extends Activity {
 		editor.commit();
 	}
 
-	private void goRoomsList(SmartHomeSession session) {
-		Intent intent = new Intent(this, RoomsListActivity.class);
+	private void goRoomsList(final SmartHomeSession session) {
+		final Intent intent = new Intent(this, RoomsListActivity.class);
 		intent.putExtra(SESSION_ID_KEY, session.getSessionId());
 		MainActivity.this.startActivity(intent);
 	}
 
 	private class LogonTask extends AbstractLogonTask {
 
-		public LogonTask(Context context) {
+		public LogonTask(final Context context) {
 			super(context, R.string.logon_subtitle);
 		}
 
 		@Override
-		protected void onPostExecute(LogonResult result) {
+		protected void onPostExecute(final LogonResult result) {
 			super.onPostExecute(result);
 			if (result.getResultCode() == LogonResult.LOGON_OK) {
 				dbAdapter.deleteAll();

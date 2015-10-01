@@ -509,8 +509,13 @@ public class HomeDatabaseAdapter {
 		return (ret > 0);
 	}
 
-	public boolean deleteWindowDoorSensors() {
+	public boolean deleteAllWindowDoorSensors() {
 		final int ret = database.delete(HomeDatabaseHelper.WINDOW_DOOR_SENSOR_TABLE_NAME, null, null);
+		return (ret > 0);
+	}
+
+	public boolean deleteAllDaySensors() {
+		final int ret = database.delete(HomeDatabaseHelper.DAY_SENSOR_TABLE_NAME, null, null);
 		return (ret > 0);
 	}
 
@@ -520,7 +525,8 @@ public class HomeDatabaseAdapter {
 		deleteAllTemperatureSensors();
 		deleteAllTemperatureActuators();
 		deleteAllTemperatureHumidityDevices();
-		deleteWindowDoorSensors();
+		deleteAllWindowDoorSensors();
+		deleteAllDaySensors();
 	}
 
 }
