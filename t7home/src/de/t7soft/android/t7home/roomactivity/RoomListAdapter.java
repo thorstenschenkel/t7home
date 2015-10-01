@@ -39,7 +39,8 @@ public class RoomListAdapter extends BaseAdapter {
 	private final ActuatorChangeListener changeListener;
 	private final LayoutInflater inflater;
 
-	public RoomListAdapter(final Context context, final List<Object> listItems, final ActuatorChangeListener changeListener) {
+	public RoomListAdapter(final Context context, final List<Object> listItems,
+			final ActuatorChangeListener changeListener) {
 		this.context = context;
 		this.listItems = listItems;
 		this.changeListener = changeListener;
@@ -87,8 +88,8 @@ public class RoomListAdapter extends BaseAdapter {
 					rowView = inflater.inflate(R.layout.temperature_humidity_device_row, null);
 					break;
 				case TYPE_WINDOW_DOOR_SENSOR:
-					// TODO
-					// break;
+					rowView = inflater.inflate(R.layout.window_door_sensor_row, null);
+					break;
 				default:
 					rowView = inflater.inflate(R.layout.dummy_device_row, null);
 					break;
@@ -102,15 +103,16 @@ public class RoomListAdapter extends BaseAdapter {
 					updateTemperatureHumidityDeviceRow(rowView, temperatureHumidityDevice);
 					break;
 				case TYPE_WINDOW_DOOR_SENSOR:
-					// TODO
-					// break;
+					final WindowDoorSensor windowDoorSensor = (WindowDoorSensor) listItems.get(position);
+					updateWindowDoorSensorRow(rowView, windowDoorSensor);
+					break;
 				default:
 					// nothing to do
-					TextView textViewDummyLabel = (TextView) rowView.findViewById(R.id.textViewDummyLabel);
-					Object listItem = listItems.get(position);
+					final TextView textViewDummyLabel = (TextView) rowView.findViewById(R.id.textViewDummyLabel);
+					final Object listItem = listItems.get(position);
 					if (listItem instanceof LogicalDevice) {
-						String deviceType = ((LogicalDevice) listItem).getType();
-						if (deviceType != null && !deviceType.isEmpty()) {
+						final String deviceType = ((LogicalDevice) listItem).getType();
+						if ((deviceType != null) && !deviceType.isEmpty()) {
 							textViewDummyLabel.setText(deviceType);
 						}
 					}
@@ -118,6 +120,18 @@ public class RoomListAdapter extends BaseAdapter {
 			}
 		}
 		return rowView;
+	}
+
+	private void updateWindowDoorSensorRow(final View rowView, final WindowDoorSensor sensor) {
+
+		final TextView textView = (TextView) rowView.findViewById(R.id.textViewDeviceName);
+		final String value = sensor.getLogicalDeviceName();
+		textView.setText(value);
+
+		final Switch lockedSwitch = (Switch) rowView.findViewById(R.id.switchOpen);
+		final Boolean isOpen = sensor.isOpen();
+		lockedSwitch.setChecked(isOpen);
+
 	}
 
 	private void updateTemperatureHumidityDeviceRow(final View rowView,

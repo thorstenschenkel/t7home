@@ -31,7 +31,6 @@
 
     <!-- logout -->
     <string name="logout_subtitle">Abmeldung</string>
-    <string name="heater">Heizung</string>
 
     <!-- rooms list -->
     <string name="rooms_subtitle">Räume</string>
@@ -43,7 +42,7 @@
     <string name="refresh_store">Konfiguration und Zustände werden gespeichert...</string>
     <string name="refresh_error">Aktualisierung ist fehlgeschlagen!</string>
 
-    <!-- room list -->
+    <!-- room -->
     <string name="room_subtitle">Raum</string>
     <string name="room_temperature_value">Raumtemperatur</string>
     <string name="dummy_temperature_value">\?? °C</string>
@@ -55,5 +54,9 @@
     <string name="room_modus">Modus: {0}</string>    
     <string name="on">an</string>    
     <string name="off">aus</string>    
+    <string name="heater">Heizung</string>
+    <string name="window_door">Fenster / Tür</string>
+    <string name="open">auf</string>    
+    <string name="closed">zu</string>    
     
 </resources>
