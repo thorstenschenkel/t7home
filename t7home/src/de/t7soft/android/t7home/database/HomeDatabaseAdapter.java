@@ -193,6 +193,7 @@ public class HomeDatabaseAdapter {
 		final ContentValues values = new ContentValues();
 
 		values.put(HomeDatabaseHelper.LOCATION_ID_COL_NAME, sensor.getLocationId());
+		values.put(HomeDatabaseHelper.DEVICE_NAME_COL_NAME, sensor.getDeviceName());
 		values.put(HomeDatabaseHelper.LOGICAL_DEVICE_ID_COL_NAME, sensor.getLogicalDeviceId());
 		values.put(HomeDatabaseHelper.LOGICAL_DEVICE_NAME_COL_NAME, sensor.getLogicalDeviceName());
 		values.put(HomeDatabaseHelper.LOGICAL_DEVICE_TYPE_COL_NAME, sensor.getLogicalDeviceType());
@@ -423,6 +424,7 @@ public class HomeDatabaseAdapter {
 		final WindowDoorSensor sensor = new WindowDoorSensor();
 
 		sensor.setLocationId(getString(cursor, HomeDatabaseHelper.LOCATION_ID_COL_NAME));
+		sensor.setDeviceName(getString(cursor, HomeDatabaseHelper.DEVICE_NAME_COL_NAME));
 		sensor.setLogicalDeviceId(getString(cursor, HomeDatabaseHelper.LOGICAL_DEVICE_ID_COL_NAME));
 		sensor.setLogicalDeviceName(getString(cursor, HomeDatabaseHelper.LOGICAL_DEVICE_NAME_COL_NAME));
 		sensor.setLogicalDeviceType(getString(cursor, HomeDatabaseHelper.LOGICAL_DEVICE_TYPE_COL_NAME));

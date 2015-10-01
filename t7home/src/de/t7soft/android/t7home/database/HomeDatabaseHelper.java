@@ -6,10 +6,11 @@ import android.database.sqlite.SQLiteDatabase;
 public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "home.db";
-	private static final int DATABASE_VERSION = 6;
+	private static final int DATABASE_VERSION = 9;
 
 	// common cols
 	public static final String LOCATION_ID_COL_NAME = "locationId";
+	public static final String DEVICE_NAME_COL_NAME = "deviceName";
 	public static final String LOGICAL_DEVICE_ID_COL_NAME = "logicalDeviceId";
 	public static final String LOGICAL_DEVICE_TYPE_COL_NAME = "logicalDeviceType";
 	public static final String LOGICAL_DEVICE_NAME_COL_NAME = "logicalDeviceName";
@@ -97,6 +98,9 @@ public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper
 		sqlBuffer.append(tableName);
 		sqlBuffer.append("(");
 		sqlBuffer.append("_id INTEGER PRIMARY KEY AUTOINCREMENT");
+		sqlBuffer.append(", ");
+		sqlBuffer.append(DEVICE_NAME_COL_NAME);
+		sqlBuffer.append(" TEXT");
 		sqlBuffer.append(", ");
 		sqlBuffer.append(LOGICAL_DEVICE_ID_COL_NAME);
 		sqlBuffer.append(" TEXT");
@@ -210,6 +214,12 @@ public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper
 
 		if (oldVersion < DATABASE_VERSION) {
 			db.execSQL("DROP TABLE IF EXISTS " + LOCATIONS_TABLE_NAME);
+			db.execSQL("DROP TABLE IF EXISTS " + ROOM_HUMIDITY_SENSOR_TABLE_NAME);
+			db.execSQL("DROP TABLE IF EXISTS " + ROOM_TEMPERATURE_SENSOR_TABLE_NAME);
+			db.execSQL("DROP TABLE IF EXISTS " + TEMPERATURE_HUMIDITY_DEVICE_TABLE_NAME);
+			db.execSQL("DROP TABLE IF EXISTS " + ROOM_TEMPERATURE_ACTUATOR_TABLE_NAME);
+			db.execSQL("DROP TABLE IF EXISTS " + WINDOW_DOOR_SENSOR_TABLE_NAME);
+			db.execSQL("DROP TABLE IF EXISTS " + DAY_SENSOR_TABLE_NAME);
 		}
 		onCreate(db);
 

@@ -39,8 +39,7 @@ public class RoomListAdapter extends BaseAdapter {
 	private final ActuatorChangeListener changeListener;
 	private final LayoutInflater inflater;
 
-	public RoomListAdapter(final Context context, final List<Object> listItems,
-			final ActuatorChangeListener changeListener) {
+	public RoomListAdapter(final Context context, final List<Object> listItems, final ActuatorChangeListener changeListener) {
 		this.context = context;
 		this.listItems = listItems;
 		this.changeListener = changeListener;
@@ -125,7 +124,7 @@ public class RoomListAdapter extends BaseAdapter {
 	private void updateWindowDoorSensorRow(final View rowView, final WindowDoorSensor sensor) {
 
 		final TextView textView = (TextView) rowView.findViewById(R.id.textViewDeviceName);
-		final String value = sensor.getLogicalDeviceName();
+		final String value = sensor.getDeviceName();
 		textView.setText(value);
 
 		final Switch lockedSwitch = (Switch) rowView.findViewById(R.id.switchOpen);
