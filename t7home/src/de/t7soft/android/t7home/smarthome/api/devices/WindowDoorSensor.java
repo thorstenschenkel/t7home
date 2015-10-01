@@ -1,5 +1,9 @@
 package de.t7soft.android.t7home.smarthome.api.devices;
 
+/**
+ * TODO GetEntitiesResponse -> <Installation>Window</Installation>
+ * 
+ */
 public class WindowDoorSensor extends LogicalDevice {
 
 	private boolean isOpen = false;
