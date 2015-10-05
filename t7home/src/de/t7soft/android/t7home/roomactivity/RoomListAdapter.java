@@ -2,6 +2,9 @@ package de.t7soft.android.t7home.roomactivity;
 
 import java.text.DecimalFormat;
 import java.text.Format;
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import android.content.Context;
@@ -16,6 +19,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Switch;
 import android.widget.TextView;
 import de.t7soft.android.t7home.R;
+import de.t7soft.android.t7home.smarthome.api.devices.DaySensor;
 import de.t7soft.android.t7home.smarthome.api.devices.LogicalDevice;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureActuator;
 import de.t7soft.android.t7home.smarthome.api.devices.TemperatureHumidityDevice;
@@ -30,16 +34,19 @@ public class RoomListAdapter extends BaseAdapter {
 	private static final int TYPE_UNKOWN = -1;
 	private static final int TYPE_TEMPERATURE_HUMIDITY_DEVICE = 0;
 	private static final int TYPE_WINDOW_DOOR_SENSOR = 1;
+	private static final int TYPE_DAY_SENSOR = 2;
 	private static final int TYPE_MAX_COUNT = 1;
 	private static final Format TEMPERATURE_FORMAT = new DecimalFormat("#.#");
 	private static final Format HUMIDITY_FORMAT = new DecimalFormat("#.#");
+	private static final Format TIME_FORMAT = new SimpleDateFormat("HH:mm");
 
 	private final Context context;
 	private final List<Object> listItems;
 	private final ActuatorChangeListener changeListener;
 	private final LayoutInflater inflater;
 
-	public RoomListAdapter(final Context context, final List<Object> listItems, final ActuatorChangeListener changeListener) {
+	public RoomListAdapter(final Context context, final List<Object> listItems,
+			final ActuatorChangeListener changeListener) {
 		this.context = context;
 		this.listItems = listItems;
 		this.changeListener = changeListener;
@@ -67,6 +74,8 @@ public class RoomListAdapter extends BaseAdapter {
 			return TYPE_TEMPERATURE_HUMIDITY_DEVICE;
 		} else if (getItem(position) instanceof WindowDoorSensor) {
 			return TYPE_WINDOW_DOOR_SENSOR;
+		} else if (getItem(position) instanceof DaySensor) {
+			return TYPE_DAY_SENSOR;
 		} else {
 			return TYPE_UNKOWN;
 		}
@@ -89,6 +98,9 @@ public class RoomListAdapter extends BaseAdapter {
 				case TYPE_WINDOW_DOOR_SENSOR:
 					rowView = inflater.inflate(R.layout.window_door_sensor_row, null);
 					break;
+				case TYPE_DAY_SENSOR:
+					rowView = inflater.inflate(R.layout.day_sensor_row, null);
+					break;
 				default:
 					rowView = inflater.inflate(R.layout.dummy_device_row, null);
 					break;
@@ -104,6 +116,10 @@ public class RoomListAdapter extends BaseAdapter {
 				case TYPE_WINDOW_DOOR_SENSOR:
 					final WindowDoorSensor windowDoorSensor = (WindowDoorSensor) listItems.get(position);
 					updateWindowDoorSensorRow(rowView, windowDoorSensor);
+					break;
+				case TYPE_DAY_SENSOR:
+					final DaySensor daySensor = (DaySensor) listItems.get(position);
+					updateDaySensorRow(rowView, daySensor);
 					break;
 				default:
 					// nothing to do
@@ -130,6 +146,22 @@ public class RoomListAdapter extends BaseAdapter {
 		final Switch lockedSwitch = (Switch) rowView.findViewById(R.id.switchOpen);
 		final Boolean isOpen = sensor.isOpen();
 		lockedSwitch.setChecked(isOpen);
+
+	}
+
+	private void updateDaySensorRow(final View rowView, final DaySensor sensor) {
+
+		TextView textView = (TextView) rowView.findViewById(R.id.textViewSunriseValue);
+		Date dateValue = sensor.getNextSunrise();
+		String value = TIME_FORMAT.format(dateValue);
+		value = MessageFormat.format(context.getString(R.string.time_value), value);
+		textView.setText(value);
+
+		textView = (TextView) rowView.findViewById(R.id.textViewSunsetValue);
+		dateValue = sensor.getNextSunset();
+		value = TIME_FORMAT.format(dateValue);
+		value = MessageFormat.format(context.getString(R.string.time_value), value);
+		textView.setText(value);
 
 	}
 

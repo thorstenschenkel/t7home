@@ -25,6 +25,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.HTTP;
 import org.xml.sax.SAXException;
 
+import de.t7soft.android.t7home.smarthome.api.devices.DaySensor;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomHumiditySensor;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureActuator;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureSensor;
@@ -38,8 +39,7 @@ import de.t7soft.android.t7home.smarthome.util.InputStream2String;
 import de.t7soft.android.t7home.smarthome.util.XMLUtil;
 
 /**
- * https://code.google.com/p/smarthome-java-library/source/browse/SmarthomeJavaLibrary/src/main/java/de/itarchitecture/
- * smarthome/api/SmartHomeSession.java
+ * https://code.google.com/p/smarthome-java-library/source/browse/SmarthomeJavaLibrary/src/main/java/de/itarchitecture/ smarthome/api/SmartHomeSession.java
  * 
  * http://www.ollie.in/rwe-smarthome-api/
  */
@@ -73,6 +73,7 @@ public class SmartHomeSession {
 	private ConcurrentHashMap<String, RoomTemperatureActuator> roomTemperatureActuators;
 	private ConcurrentHashMap<String, RoomTemperatureSensor> roomTemperatureSensors;
 	private ConcurrentHashMap<String, RoomHumiditySensor> roomHumiditySensors;
+	private ConcurrentHashMap<String, DaySensor> daySensors = null;
 
 	private final HttpComponentsHelper httpHelper = new HttpComponentsHelper();
 
@@ -214,7 +215,8 @@ public class SmartHomeSession {
 	 * @throws SmartHomeSessionExpiredException
 	 *             the smart home session expired exception
 	 */
-	private String executeRequest(final String loginRequest, final boolean login) throws SmartHomeSessionExpiredException {
+	private String executeRequest(final String loginRequest, final boolean login)
+			throws SmartHomeSessionExpiredException {
 
 		if ((!login) && ("".equals(this.sessionId))) {
 			throw new SmartHomeSessionExpiredException();
@@ -284,7 +286,8 @@ public class SmartHomeSession {
 		}
 		Logger.getLogger(SmartHomeSession.class.getName()).log(Level.INFO, sResponse);
 		try {
-			currentConfigurationVersion = XMLUtil.XPathValueFromString(sResponse, "/BaseResponse/@ConfigurationVersion");
+			currentConfigurationVersion = XMLUtil
+					.XPathValueFromString(sResponse, "/BaseResponse/@ConfigurationVersion");
 			if (SESSION_DATA.containsKey(sessionId)) {
 				final SessionData sessionData = SESSION_DATA.get(sessionId);
 				sessionData.setCurrentConfigurationVersion(currentConfigurationVersion);
@@ -313,6 +316,7 @@ public class SmartHomeSession {
 		this.roomTemperatureSensors = smartHomeEntitiesXMLRes.getRoomTemperatureSensors();
 		this.roomHumiditySensors = smartHomeEntitiesXMLRes.getRoomHumiditySensors();
 		this.windowDoorSensors = smartHomeEntitiesXMLRes.getWindowDoorSensors();
+		this.daySensors = smartHomeEntitiesXMLRes.getDaySensors();
 	}
 
 	public String refreshLogicalDeviceState() throws SmartHomeSessionExpiredException {
@@ -382,6 +386,10 @@ public class SmartHomeSession {
 		return this.windowDoorSensors;
 	}
 
+	public ConcurrentHashMap<String, DaySensor> getDaySensors() {
+		return this.daySensors;
+	}
+
 	public void roomTemperatureActuatorChangeState(final String deviceId, final String temperature)
 			throws SmartHomeSessionExpiredException {
 
@@ -448,7 +456,7 @@ public class SmartHomeSession {
 			return currentConfigurationVersion;
 		}
 
-		public void setCurrentConfigurationVersion(String currentConfigurationVersion) {
+		public void setCurrentConfigurationVersion(final String currentConfigurationVersion) {
 			this.currentConfigurationVersion = currentConfigurationVersion;
 		}
 

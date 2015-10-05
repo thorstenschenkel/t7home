@@ -1,5 +1,8 @@
 package de.t7soft.android.t7home.database;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +11,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeLocation;
+import de.t7soft.android.t7home.smarthome.api.devices.DaySensor;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomHumiditySensor;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureActuator;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureSensor;
@@ -16,6 +21,9 @@ import de.t7soft.android.t7home.smarthome.api.devices.TemperatureHumidityDevice;
 import de.t7soft.android.t7home.smarthome.api.devices.WindowDoorSensor;
 
 public class HomeDatabaseAdapter {
+
+	private static final String LOGTAG = HomeDatabaseAdapter.class.getSimpleName();
+	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
 	private HomeDatabaseHelper dbHelper;
 	private final Context context;
@@ -156,8 +164,17 @@ public class HomeDatabaseAdapter {
 		return value;
 	}
 
-	public long insertWindowDoorSensor(final WindowDoorSensor device) {
-		return insertWindowDoorSensor(database, device);
+	public long insertDaySensor(final DaySensor sensor) {
+		return insertDaySensor(database, sensor);
+	}
+
+	private static long insertDaySensor(final SQLiteDatabase db, final DaySensor sensor) {
+		final ContentValues initialValues = createContentValues(sensor);
+		return db.insert(HomeDatabaseHelper.DAY_SENSOR_TABLE_NAME, null, initialValues);
+	}
+
+	public long insertWindowDoorSensor(final WindowDoorSensor sensor) {
+		return insertWindowDoorSensor(database, sensor);
 	}
 
 	private static long insertWindowDoorSensor(final SQLiteDatabase db, final WindowDoorSensor sensor) {
@@ -187,6 +204,22 @@ public class HomeDatabaseAdapter {
 		values.put(HomeDatabaseHelper.TEMPERATURE_ACTUATOR_ID_COL_NAME, device.getTemperatureActuator().getDeviceId());
 		values.put(HomeDatabaseHelper.ROOMHUMIDTY_SENSOR_ID_COL_NAME, device.getRoomHumiditySensor().getDeviceId());
 		return values;
+	}
+
+	private static ContentValues createContentValues(final DaySensor sensor) {
+		final ContentValues values = new ContentValues();
+
+		values.put(HomeDatabaseHelper.LOCATION_ID_COL_NAME, sensor.getLocationId());
+		values.put(HomeDatabaseHelper.DEVICE_NAME_COL_NAME, sensor.getDeviceName());
+		values.put(HomeDatabaseHelper.LOGICAL_DEVICE_ID_COL_NAME, sensor.getLogicalDeviceId());
+		values.put(HomeDatabaseHelper.LOGICAL_DEVICE_NAME_COL_NAME, sensor.getLogicalDeviceName());
+		values.put(HomeDatabaseHelper.LOGICAL_DEVICE_TYPE_COL_NAME, sensor.getLogicalDeviceType());
+
+		values.put(HomeDatabaseHelper.NEXT_SUNRISE_COL_NAME, DATE_FORMAT.format(sensor.getNextSunrise()));
+		values.put(HomeDatabaseHelper.NEXT_SUNSET_COL_NAME, DATE_FORMAT.format(sensor.getNextSunset()));
+		values.put(HomeDatabaseHelper.NEXT_TIME_EVENT_COL_NAME, DATE_FORMAT.format(sensor.getNextTimeEvent()));
+		return values;
+
 	}
 
 	private static ContentValues createContentValues(final WindowDoorSensor sensor) {
@@ -246,6 +279,7 @@ public class HomeDatabaseAdapter {
 		final List<Object> devices = new ArrayList<Object>();
 		devices.addAll(getTemperatureHumidityDevices(database, location));
 		devices.addAll(getWindowDoorSensors(database, location));
+		devices.addAll(getDaySensors(database, location));
 		return devices;
 	}
 
@@ -257,14 +291,18 @@ public class HomeDatabaseAdapter {
 		return getWindowDoorSensors(database, location);
 	}
 
+	public List<DaySensor> getDaySensors(final SmartHomeLocation location) {
+		return getDaySensors(database, location);
+	}
+
 	private List<TemperatureHumidityDevice> getTemperatureHumidityDevices(final SQLiteDatabase db,
 			final SmartHomeLocation location) {
 
 		final List<TemperatureHumidityDevice> devices = new ArrayList<TemperatureHumidityDevice>();
 
 		final String selection = createLocationSelection(location);
-		final Cursor cursor = db.query(HomeDatabaseHelper.TEMPERATURE_HUMIDITY_DEVICE_TABLE_NAME, null, selection, null,
-				null, null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.TEMPERATURE_HUMIDITY_DEVICE_TABLE_NAME, null, selection,
+				null, null, null, null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
@@ -327,7 +365,8 @@ public class HomeDatabaseAdapter {
 		SmartHomeLocation location = null;
 
 		final String selection = createLocationSelection(id);
-		final Cursor cursor = db.query(HomeDatabaseHelper.LOCATIONS_TABLE_NAME, null, selection, null, null, null, null);
+		final Cursor cursor = db
+				.query(HomeDatabaseHelper.LOCATIONS_TABLE_NAME, null, selection, null, null, null, null);
 
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
@@ -364,8 +403,8 @@ public class HomeDatabaseAdapter {
 		final List<WindowDoorSensor> sensors = new ArrayList<WindowDoorSensor>();
 
 		final String selection = createLocationSelection(location);
-		final Cursor cursor = db.query(HomeDatabaseHelper.WINDOW_DOOR_SENSOR_TABLE_NAME, null, selection, null, null, null,
-				null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.WINDOW_DOOR_SENSOR_TABLE_NAME, null, selection, null, null,
+				null, null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
@@ -381,13 +420,35 @@ public class HomeDatabaseAdapter {
 
 	}
 
+	private List<DaySensor> getDaySensors(final SQLiteDatabase db, final SmartHomeLocation location) {
+
+		final List<DaySensor> sensors = new ArrayList<DaySensor>();
+
+		final String selection = createLocationSelection(location);
+		final Cursor cursor = db.query(HomeDatabaseHelper.DAY_SENSOR_TABLE_NAME, null, selection, null, null, null,
+				null);
+
+		if (cursor != null) {
+			cursor.moveToFirst();
+			while (!cursor.isAfterLast()) {
+				final DaySensor sensor = createDaySensor(cursor);
+				sensors.add(sensor);
+				cursor.moveToNext();
+			}
+			cursor.close();
+		}
+
+		return sensors;
+
+	}
+
 	private RoomTemperatureSensor getRoomTemperatureSensor(final SQLiteDatabase db, final String id) {
 
 		RoomTemperatureSensor sensor = null;
 
 		final String selection = createRoomTemperatureSensorSelection(id);
-		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_SENSOR_TABLE_NAME, null, selection, null, null,
-				null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_SENSOR_TABLE_NAME, null, selection, null,
+				null, null, null);
 
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
@@ -405,8 +466,8 @@ public class HomeDatabaseAdapter {
 		RoomTemperatureActuator sensor = null;
 
 		final String selection = createRoomTemperatureSensorActuator(id);
-		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_ACTUATOR_TABLE_NAME, null, selection, null, null,
-				null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_ACTUATOR_TABLE_NAME, null, selection, null,
+				null, null, null);
 
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
@@ -430,6 +491,36 @@ public class HomeDatabaseAdapter {
 		sensor.setLogicalDeviceType(getString(cursor, HomeDatabaseHelper.LOGICAL_DEVICE_TYPE_COL_NAME));
 
 		sensor.setOpen(getBoolean(cursor, HomeDatabaseHelper.IS_OPEN_COL_NAME));
+		sensor.setLocation(getLocation(sensor.getLocationId()));
+		return sensor;
+
+	};
+
+	private DaySensor createDaySensor(final Cursor cursor) {
+
+		final DaySensor sensor = new DaySensor();
+
+		sensor.setLocationId(getString(cursor, HomeDatabaseHelper.LOCATION_ID_COL_NAME));
+		sensor.setDeviceName(getString(cursor, HomeDatabaseHelper.DEVICE_NAME_COL_NAME));
+		sensor.setLogicalDeviceId(getString(cursor, HomeDatabaseHelper.LOGICAL_DEVICE_ID_COL_NAME));
+		sensor.setLogicalDeviceName(getString(cursor, HomeDatabaseHelper.LOGICAL_DEVICE_NAME_COL_NAME));
+		sensor.setLogicalDeviceType(getString(cursor, HomeDatabaseHelper.LOGICAL_DEVICE_TYPE_COL_NAME));
+
+		try {
+			sensor.setNextSunrise(DATE_FORMAT.parse(getString(cursor, HomeDatabaseHelper.NEXT_SUNRISE_COL_NAME)));
+		} catch (final ParseException e) {
+			Log.e(LOGTAG, "Can't parse date of next sunrise", e);
+		}
+		try {
+			sensor.setNextSunset(DATE_FORMAT.parse(getString(cursor, HomeDatabaseHelper.NEXT_SUNRISE_COL_NAME)));
+		} catch (final ParseException e) {
+			Log.e(LOGTAG, "Can't parse date of next sunset", e);
+		}
+		try {
+			sensor.setNextTimeEvent(DATE_FORMAT.parse(getString(cursor, HomeDatabaseHelper.NEXT_TIME_EVENT_COL_NAME)));
+		} catch (final ParseException e) {
+			Log.e(LOGTAG, "Can't parse date of next time event", e);
+		}
 		sensor.setLocation(getLocation(sensor.getLocationId()));
 		return sensor;
 

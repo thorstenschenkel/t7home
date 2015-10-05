@@ -10,6 +10,11 @@ public class DaySensor extends LogicalDevice {
 	private Date nextSunrise;
 	private Date nextTimeEvent;
 
+	public DaySensor() {
+		super();
+		this.setType(LogicalDevice.Type_DaySensor);
+	}
+
 	public String getLatitude() {
 		return latitude;
 	}
