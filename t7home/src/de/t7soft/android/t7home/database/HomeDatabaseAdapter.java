@@ -14,6 +14,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeLocation;
 import de.t7soft.android.t7home.smarthome.api.devices.DaySensor;
+import de.t7soft.android.t7home.smarthome.api.devices.RollerShutterActuator;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomHumiditySensor;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureActuator;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureSensor;
@@ -129,6 +130,10 @@ public class HomeDatabaseAdapter {
 		return value;
 	}
 
+	private static int getInt(final Cursor cursor, final String columnName) {
+		return getInt(cursor, cursor.getColumnIndex(columnName));
+	}
+
 	private static double getDouble(final Cursor cursor, final String columnName) {
 		return getDouble(cursor, cursor.getColumnIndex(columnName));
 	}
@@ -164,6 +169,19 @@ public class HomeDatabaseAdapter {
 		return value;
 	}
 
+	private static int getInt(final Cursor cursor, final int columnIndex) {
+		int value = Integer.MIN_VALUE;
+		if (columnIndex < 0) {
+			return value;
+		}
+		try {
+			value = cursor.getInt(columnIndex);
+		} catch (final Exception e) {
+			value = Integer.MIN_VALUE;
+		}
+		return value;
+	}
+
 	public long insertDaySensor(final DaySensor sensor) {
 		return insertDaySensor(database, sensor);
 	}
@@ -180,6 +198,15 @@ public class HomeDatabaseAdapter {
 	private static long insertWindowDoorSensor(final SQLiteDatabase db, final WindowDoorSensor sensor) {
 		final ContentValues initialValues = createContentValues(sensor);
 		return db.insert(HomeDatabaseHelper.WINDOW_DOOR_SENSOR_TABLE_NAME, null, initialValues);
+	}
+
+	public long insertRollerShutterActuator(final RollerShutterActuator actuator) {
+		return insertRollerShutterActuator(database, actuator);
+	}
+
+	private static long insertRollerShutterActuator(final SQLiteDatabase db, final RollerShutterActuator actuator) {
+		final ContentValues initialValues = createContentValues(actuator);
+		return db.insert(HomeDatabaseHelper.ROLLER_SHUTTER_TABLE_NAME, null, initialValues);
 	}
 
 	public long insertTemperatureHumidityDevice(final TemperatureHumidityDevice device) {
@@ -235,6 +262,27 @@ public class HomeDatabaseAdapter {
 		return values;
 	}
 
+	private static ContentValues createContentValues(final RollerShutterActuator sensor) {
+		final ContentValues values = new ContentValues();
+
+		values.put(HomeDatabaseHelper.LOCATION_ID_COL_NAME, sensor.getLocationId());
+		values.put(HomeDatabaseHelper.DEVICE_NAME_COL_NAME, sensor.getDeviceName());
+		values.put(HomeDatabaseHelper.LOGICAL_DEVICE_ID_COL_NAME, sensor.getLogicalDeviceId());
+		values.put(HomeDatabaseHelper.LOGICAL_DEVICE_NAME_COL_NAME, sensor.getLogicalDeviceName());
+		values.put(HomeDatabaseHelper.LOGICAL_DEVICE_TYPE_COL_NAME, sensor.getLogicalDeviceType());
+
+		values.put(HomeDatabaseHelper.IS_CALIBRATING_COL_NAME, sensor.isCalibrating());
+		values.put(HomeDatabaseHelper.OFF_LVL_COL_NAME, sensor.getOffLvl());
+		values.put(HomeDatabaseHelper.ON_LVL_COL_NAME, sensor.getOnLvl());
+		values.put(HomeDatabaseHelper.SCBH_COL_NAME, sensor.getSCBh());
+		values.put(HomeDatabaseHelper.SH_DT_COL_NAME, sensor.getShDT());
+		values.put(HomeDatabaseHelper.SHUTTER_LEVEL_COL_NAME, sensor.getShutterLevel());
+		values.put(HomeDatabaseHelper.TM_FD_COL_NAME, sensor.getTmFD());
+		values.put(HomeDatabaseHelper.TM_FU_COL_NAME, sensor.getTmFU());
+
+		return values;
+	}
+
 	private static ContentValues createContentValues(final RoomHumiditySensor sensor) {
 		final ContentValues values = new ContentValues();
 
@@ -280,6 +328,7 @@ public class HomeDatabaseAdapter {
 		devices.addAll(getTemperatureHumidityDevices(database, location));
 		devices.addAll(getWindowDoorSensors(database, location));
 		devices.addAll(getDaySensors(database, location));
+		devices.addAll(getRollerShutterActuator(database, location));
 		return devices;
 	}
 
@@ -289,6 +338,10 @@ public class HomeDatabaseAdapter {
 
 	public List<WindowDoorSensor> getWindowDoorSensors(final SmartHomeLocation location) {
 		return getWindowDoorSensors(database, location);
+	}
+
+	public List<RollerShutterActuator> getRollerShutterActuator(final SmartHomeLocation location) {
+		return getRollerShutterActuator(database, location);
 	}
 
 	public List<DaySensor> getDaySensors(final SmartHomeLocation location) {
@@ -420,6 +473,29 @@ public class HomeDatabaseAdapter {
 
 	}
 
+	private List<RollerShutterActuator> getRollerShutterActuator(final SQLiteDatabase db,
+			final SmartHomeLocation location) {
+
+		final List<RollerShutterActuator> actuators = new ArrayList<RollerShutterActuator>();
+
+		final String selection = createLocationSelection(location);
+		final Cursor cursor = db.query(HomeDatabaseHelper.ROLLER_SHUTTER_TABLE_NAME, null, selection, null, null, null,
+				null);
+
+		if (cursor != null) {
+			cursor.moveToFirst();
+			while (!cursor.isAfterLast()) {
+				final RollerShutterActuator actuator = createRollerShutterActuator(cursor);
+				actuators.add(actuator);
+				cursor.moveToNext();
+			}
+			cursor.close();
+		}
+
+		return actuators;
+
+	}
+
 	private List<DaySensor> getDaySensors(final SQLiteDatabase db, final SmartHomeLocation location) {
 
 		final List<DaySensor> sensors = new ArrayList<DaySensor>();
@@ -493,6 +569,30 @@ public class HomeDatabaseAdapter {
 		sensor.setOpen(getBoolean(cursor, HomeDatabaseHelper.IS_OPEN_COL_NAME));
 		sensor.setLocation(getLocation(sensor.getLocationId()));
 		return sensor;
+
+	};
+
+	private RollerShutterActuator createRollerShutterActuator(final Cursor cursor) {
+
+		final RollerShutterActuator actuator = new RollerShutterActuator();
+
+		actuator.setLocationId(getString(cursor, HomeDatabaseHelper.LOCATION_ID_COL_NAME));
+		actuator.setDeviceName(getString(cursor, HomeDatabaseHelper.DEVICE_NAME_COL_NAME));
+		actuator.setLogicalDeviceId(getString(cursor, HomeDatabaseHelper.LOGICAL_DEVICE_ID_COL_NAME));
+		actuator.setLogicalDeviceName(getString(cursor, HomeDatabaseHelper.LOGICAL_DEVICE_NAME_COL_NAME));
+		actuator.setLogicalDeviceType(getString(cursor, HomeDatabaseHelper.LOGICAL_DEVICE_TYPE_COL_NAME));
+
+		actuator.setCalibrating(getBoolean(cursor, HomeDatabaseHelper.IS_CALIBRATING_COL_NAME));
+		actuator.setOffLvl(getInt(cursor, HomeDatabaseHelper.OFF_LVL_COL_NAME));
+		actuator.setOnLvl(getInt(cursor, HomeDatabaseHelper.ON_LVL_COL_NAME));
+		actuator.setSCBh(getString(cursor, HomeDatabaseHelper.SCBH_COL_NAME));
+		actuator.setShDT(getString(cursor, HomeDatabaseHelper.SH_DT_COL_NAME));
+		actuator.setShutterLevel(getInt(cursor, HomeDatabaseHelper.SHUTTER_LEVEL_COL_NAME));
+		actuator.setTmFD(getString(cursor, HomeDatabaseHelper.TM_FD_COL_NAME));
+		actuator.setTmFU(getString(cursor, HomeDatabaseHelper.TM_FU_COL_NAME));
+
+		actuator.setLocation(getLocation(actuator.getLocationId()));
+		return actuator;
 
 	};
 
@@ -606,6 +706,11 @@ public class HomeDatabaseAdapter {
 		return (ret > 0);
 	}
 
+	public boolean deleteAllRollerShutterActuator() {
+		final int ret = database.delete(HomeDatabaseHelper.ROLLER_SHUTTER_TABLE_NAME, null, null);
+		return (ret > 0);
+	}
+
 	public boolean deleteAllDaySensors() {
 		final int ret = database.delete(HomeDatabaseHelper.DAY_SENSOR_TABLE_NAME, null, null);
 		return (ret > 0);
@@ -619,6 +724,7 @@ public class HomeDatabaseAdapter {
 		deleteAllTemperatureHumidityDevices();
 		deleteAllWindowDoorSensors();
 		deleteAllDaySensors();
+		deleteAllRollerShutterActuator();
 	}
 
 }

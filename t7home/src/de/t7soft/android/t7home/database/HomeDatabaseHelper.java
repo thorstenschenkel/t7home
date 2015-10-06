@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "home.db";
-	private static final int DATABASE_VERSION = 9;
+	private static final int DATABASE_VERSION = 10;
 
 	// common cols
 	public static final String LOCATION_ID_COL_NAME = "locationId";
@@ -55,6 +55,17 @@ public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper
 	public static final String NEXT_SUNRISE_COL_NAME = "nextSunrise";
 	public static final String NEXT_TIME_EVENT_COL_NAME = "NextTimeEvent";
 
+	// RollerShutterActuator
+	public static final String ROLLER_SHUTTER_TABLE_NAME = "RollerShutterActuator";
+	public static final String ON_LVL_COL_NAME = "OnLvl";
+	public static final String OFF_LVL_COL_NAME = "OffLvl";
+	public static final String SH_DT_COL_NAME = "ShDT";
+	public static final String SCBH_COL_NAME = "SCBh";
+	public static final String TM_FU_COL_NAME = "TmFU";
+	public static final String TM_FD_COL_NAME = "TmFD";
+	public static final String IS_CALIBRATING_COL_NAME = "IsCalibrating";
+	public static final String SHUTTER_LEVEL_COL_NAME = "shutterLevel";
+
 	public HomeDatabaseHelper(final Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
@@ -69,6 +80,7 @@ public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper
 		createRoomHumiditySensorTable(db);
 		createWindowDoorSensorTable(db);
 		createDaySensorTable(db);
+		createRollerShutterTable(db);
 
 	}
 
@@ -172,6 +184,36 @@ public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper
 
 	};
 
+	private void createRollerShutterTable(final SQLiteDatabase db) {
+
+		final StringBuffer sqlBuffer = new StringBuffer();
+		sqlBuffer.append(ON_LVL_COL_NAME);
+		sqlBuffer.append(" INTEGER");
+		sqlBuffer.append(", ");
+		sqlBuffer.append(OFF_LVL_COL_NAME);
+		sqlBuffer.append(" INTEGER");
+		sqlBuffer.append(", ");
+		sqlBuffer.append(SH_DT_COL_NAME);
+		sqlBuffer.append(" STRING");
+		sqlBuffer.append(", ");
+		sqlBuffer.append(SCBH_COL_NAME);
+		sqlBuffer.append(" STRING");
+		sqlBuffer.append(", ");
+		sqlBuffer.append(TM_FU_COL_NAME);
+		sqlBuffer.append(" STRING");
+		sqlBuffer.append(", ");
+		sqlBuffer.append(TM_FD_COL_NAME);
+		sqlBuffer.append(" STRING");
+		sqlBuffer.append(", ");
+		sqlBuffer.append(IS_CALIBRATING_COL_NAME);
+		sqlBuffer.append(" INTEGER");
+		sqlBuffer.append(", ");
+		sqlBuffer.append(SHUTTER_LEVEL_COL_NAME);
+		sqlBuffer.append(" INTEGER");
+		createLogicalDeviceTabDef(db, ROLLER_SHUTTER_TABLE_NAME, sqlBuffer.toString());
+
+	};
+
 	private void createDaySensorTable(final SQLiteDatabase db) {
 
 		final StringBuffer sqlBuffer = new StringBuffer();
@@ -220,6 +262,7 @@ public class HomeDatabaseHelper extends android.database.sqlite.SQLiteOpenHelper
 			db.execSQL("DROP TABLE IF EXISTS " + ROOM_TEMPERATURE_ACTUATOR_TABLE_NAME);
 			db.execSQL("DROP TABLE IF EXISTS " + WINDOW_DOOR_SENSOR_TABLE_NAME);
 			db.execSQL("DROP TABLE IF EXISTS " + DAY_SENSOR_TABLE_NAME);
+			db.execSQL("DROP TABLE IF EXISTS " + ROLLER_SHUTTER_TABLE_NAME);
 		}
 		onCreate(db);
 
