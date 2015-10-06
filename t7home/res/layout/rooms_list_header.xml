@@ -21,11 +21,11 @@
             android:id="@+id/textViewRoomsListHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/subtitle_paddingX"
-            android:paddingRight="@dimen/subtitle_paddingX"
             android:text="@string/rooms_subtitle"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/subtitle_text" />
     </LinearLayout>
+<!--             android:paddingLeft="@dimen/subtitle_paddingX" -->
+<!--             android:paddingRight="@dimen/subtitle_paddingX" -->
     
 </RelativeLayout>
