@@ -12,6 +12,8 @@ import de.t7soft.android.t7home.R;
 import de.t7soft.android.t7home.database.HomeDatabaseAdapter;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeLocation;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeSession;
+import de.t7soft.android.t7home.smarthome.api.devices.DaySensor;
+import de.t7soft.android.t7home.smarthome.api.devices.RollerShutterActuator;
 import de.t7soft.android.t7home.smarthome.api.devices.TemperatureHumidityDevice;
 import de.t7soft.android.t7home.smarthome.api.devices.WindowDoorSensor;
 import de.t7soft.android.t7home.smarthome.api.exceptions.SHTechnicalException;
@@ -73,6 +75,28 @@ public abstract class AbstractRefreshTask extends AsyncTask<String, Integer, Int
 		}
 	}
 
+	private void storeRollerShutterActuator(final SmartHomeSession session) {
+		final ConcurrentHashMap<String, RollerShutterActuator> devicesMap = session.getRollerShutterActuators();
+		if (devicesMap == null) {
+			return;
+		}
+		final Enumeration<RollerShutterActuator> devices = devicesMap.elements();
+		while (devices.hasMoreElements()) {
+			dbAdapter.insertRollerShutterActuator(devices.nextElement());
+		}
+	}
+
+	private void storeDaySensors(final SmartHomeSession session) {
+		final ConcurrentHashMap<String, DaySensor> devicesMap = session.getDaySensors();
+		if (devicesMap == null) {
+			return;
+		}
+		final Enumeration<DaySensor> devices = devicesMap.elements();
+		while (devices.hasMoreElements()) {
+			dbAdapter.insertDaySensor(devices.nextElement());
+		}
+	}
+
 	@Override
 	protected void onPreExecute() {
 		// https://www.google.com/design/spec/components/progress-activity.html#
@@ -106,6 +130,8 @@ public abstract class AbstractRefreshTask extends AsyncTask<String, Integer, Int
 			storeLocations(session);
 			storeTemperatureHumidityDevices(session);
 			storeWindowDoorSensors(session);
+			storeDaySensors(session);
+			storeRollerShutterActuator(session);
 		} catch (final SHTechnicalException e) {
 			return REFRESH_ERROR;
 		} catch (final SmartHomeSessionExpiredException e) {

@@ -58,5 +58,10 @@
     <string name="window_door">Fenster / Tür</string>
     <string name="open">auf</string>    
     <string name="closed">zu</string>    
+    <string name="sun">Sonne</string>    
+    <string name="sunrise">Sonnenaufgang</string>    
+    <string name="sunset">Sonnenuntergang</string>   
+    <string name="dummy_time_value">\??:\?? Uhr</string> 
+    <string name="time_value">{0} Uhr</string> 
     
 </resources>

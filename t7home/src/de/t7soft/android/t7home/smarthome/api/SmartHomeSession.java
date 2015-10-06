@@ -25,6 +25,9 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.HTTP;
 import org.xml.sax.SAXException;
 
+import android.util.Log;
+import de.t7soft.android.t7home.smarthome.api.devices.DaySensor;
+import de.t7soft.android.t7home.smarthome.api.devices.RollerShutterActuator;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomHumiditySensor;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureActuator;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureSensor;
@@ -38,14 +41,14 @@ import de.t7soft.android.t7home.smarthome.util.InputStream2String;
 import de.t7soft.android.t7home.smarthome.util.XMLUtil;
 
 /**
- * https://code.google.com/p/smarthome-java-library/source/browse/SmarthomeJavaLibrary/src/main/java/de/itarchitecture/
- * smarthome/api/SmartHomeSession.java
+ * https://code.google.com/p/smarthome-java-library/source/browse/SmarthomeJavaLibrary/src/main/java/de/itarchitecture/ smarthome/api/SmartHomeSession.java
  * 
  * http://www.ollie.in/rwe-smarthome-api/
  */
 public class SmartHomeSession {
 
-	private static final Logger LOGGER = Logger.getLogger(SmartHomeSession.class.getName());
+	private static final String LOGTAG = SmartHomeSession.class.getSimpleName();
+
 	private static final boolean FAKE = false;
 
 	private static final String FIRMWARE_VERSION = "1.70";
@@ -73,6 +76,8 @@ public class SmartHomeSession {
 	private ConcurrentHashMap<String, RoomTemperatureActuator> roomTemperatureActuators;
 	private ConcurrentHashMap<String, RoomTemperatureSensor> roomTemperatureSensors;
 	private ConcurrentHashMap<String, RoomHumiditySensor> roomHumiditySensors;
+	private ConcurrentHashMap<String, RollerShutterActuator> rollerShutterActuators = null;
+	private ConcurrentHashMap<String, DaySensor> daySensors = null;
 
 	private final HttpComponentsHelper httpHelper = new HttpComponentsHelper();
 
@@ -214,7 +219,8 @@ public class SmartHomeSession {
 	 * @throws SmartHomeSessionExpiredException
 	 *             the smart home session expired exception
 	 */
-	private String executeRequest(final String loginRequest, final boolean login) throws SmartHomeSessionExpiredException {
+	private String executeRequest(final String loginRequest, final boolean login)
+			throws SmartHomeSessionExpiredException {
 
 		if ((!login) && ("".equals(this.sessionId))) {
 			throw new SmartHomeSessionExpiredException();
@@ -233,7 +239,7 @@ public class SmartHomeSession {
 			final HttpResponse response = httpclient.execute(httpPost);
 
 			if (response.getStatusLine().getStatusCode() == 401) {
-				LOGGER.log(Level.WARNING, "401 Unauthorized returned - Session expired!");
+				Log.w(LOGTAG, "401 Unauthorized returned - Session expired!");
 				this.sessionId = "";
 				throw new SmartHomeSessionExpiredException(sReturn);
 			}
@@ -244,12 +250,12 @@ public class SmartHomeSession {
 			if (sReturn.contains("IllegalSessionId")) {
 				throw new SmartHomeSessionExpiredException(sReturn);
 			}
-			LOGGER.log(Level.FINE, "XMLResponse:{0}", sReturn);
+			Log.v(LOGTAG, "XMLResponse: " + sReturn);
 			// EntityUtils.consume(entity1);
 		} catch (final ClientProtocolException ex) {
-			LOGGER.log(Level.SEVERE, null, ex);
+			Log.e(LOGTAG, "", ex);
 		} catch (final IOException ex) {
-			LOGGER.log(Level.SEVERE, null, ex);
+			Log.e(LOGTAG, "", ex);
 		} finally {
 			// httpPost.releaseConnection();
 		}
@@ -284,7 +290,8 @@ public class SmartHomeSession {
 		}
 		Logger.getLogger(SmartHomeSession.class.getName()).log(Level.INFO, sResponse);
 		try {
-			currentConfigurationVersion = XMLUtil.XPathValueFromString(sResponse, "/BaseResponse/@ConfigurationVersion");
+			currentConfigurationVersion = XMLUtil
+					.XPathValueFromString(sResponse, "/BaseResponse/@ConfigurationVersion");
 			if (SESSION_DATA.containsKey(sessionId)) {
 				final SessionData sessionData = SESSION_DATA.get(sessionId);
 				sessionData.setCurrentConfigurationVersion(currentConfigurationVersion);
@@ -308,11 +315,13 @@ public class SmartHomeSession {
 	public void refreshConfigurationFromInputStream(final InputStream is) {
 		final SmartHomeEntitiesXMLResponse smartHomeEntitiesXMLRes = new SmartHomeEntitiesXMLResponse(is);
 		this.setLocations(smartHomeEntitiesXMLRes.getLocations());
+		this.rollerShutterActuators = smartHomeEntitiesXMLRes.getRollerShutterActuators();
 		this.temperatureHumidityDevices = smartHomeEntitiesXMLRes.getTemperatureHumidityDevices();
 		this.roomTemperatureActuators = smartHomeEntitiesXMLRes.getRoomTemperatureActuators();
 		this.roomTemperatureSensors = smartHomeEntitiesXMLRes.getRoomTemperatureSensors();
 		this.roomHumiditySensors = smartHomeEntitiesXMLRes.getRoomHumiditySensors();
 		this.windowDoorSensors = smartHomeEntitiesXMLRes.getWindowDoorSensors();
+		this.daySensors = smartHomeEntitiesXMLRes.getDaySensors();
 	}
 
 	public String refreshLogicalDeviceState() throws SmartHomeSessionExpiredException {
@@ -326,6 +335,7 @@ public class SmartHomeSession {
 		}
 		Logger.getLogger(SmartHomeSession.class.getName()).log(Level.INFO, sResponse);
 		final LogicalDeviceXMLResponse logDevXmlRes = new LogicalDeviceXMLResponse();
+		logDevXmlRes.refreshLogicalDevices(IOUtils.toInputStream(sResponse), rollerShutterActuators);
 		logDevXmlRes.refreshLogicalDevices(IOUtils.toInputStream(sResponse), roomTemperatureActuators);
 		logDevXmlRes.refreshLogicalDevices(IOUtils.toInputStream(sResponse), roomTemperatureSensors);
 		logDevXmlRes.refreshLogicalDevices(IOUtils.toInputStream(sResponse), roomHumiditySensors);
@@ -380,6 +390,14 @@ public class SmartHomeSession {
 
 	public ConcurrentHashMap<String, WindowDoorSensor> getWindowDoorSensors() {
 		return this.windowDoorSensors;
+	}
+
+	public ConcurrentHashMap<String, DaySensor> getDaySensors() {
+		return this.daySensors;
+	}
+
+	public ConcurrentHashMap<String, RollerShutterActuator> getRollerShutterActuators() {
+		return this.rollerShutterActuators;
 	}
 
 	public void roomTemperatureActuatorChangeState(final String deviceId, final String temperature)
@@ -448,7 +466,7 @@ public class SmartHomeSession {
 			return currentConfigurationVersion;
 		}
 
-		public void setCurrentConfigurationVersion(String currentConfigurationVersion) {
+		public void setCurrentConfigurationVersion(final String currentConfigurationVersion) {
 			this.currentConfigurationVersion = currentConfigurationVersion;
 		}
 

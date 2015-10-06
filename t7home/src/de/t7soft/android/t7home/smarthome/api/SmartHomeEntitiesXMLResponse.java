@@ -21,6 +21,7 @@ import org.xml.sax.SAXException;
 import android.util.Log;
 import de.t7soft.android.t7home.smarthome.api.devices.DaySensor;
 import de.t7soft.android.t7home.smarthome.api.devices.LogicalDevice;
+import de.t7soft.android.t7home.smarthome.api.devices.RollerShutterActuator;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomHumiditySensor;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureActuator;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureSensor;
@@ -39,6 +40,7 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 	private ConcurrentHashMap<String, RoomHumiditySensor> roomHumiditySensors = null;
 	private ConcurrentHashMap<String, RoomTemperatureSensor> roomTemperatureSensors = null;
 	private ConcurrentHashMap<String, TemperatureHumidityDevice> temperatureHumidityDevices = null;
+	private ConcurrentHashMap<String, RollerShutterActuator> rollerShutterActuators = null;
 	private ConcurrentHashMap<String, RoomTemperatureActuator> roomTemperatureActuators = null;
 	private ConcurrentHashMap<String, WindowDoorSensor> windowDoorSensors = null;
 	private ConcurrentHashMap<String, DaySensor> daySensors = null;
@@ -70,6 +72,7 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 			}
 			// LogicalDevices
 			final NodeList nlLogicalDevices = docEle.getElementsByTagName("LD");
+			rollerShutterActuators = new ConcurrentHashMap<String, RollerShutterActuator>();
 			roomTemperatureActuators = new ConcurrentHashMap<String, RoomTemperatureActuator>();
 			roomHumiditySensors = new ConcurrentHashMap<String, RoomHumiditySensor>();
 			roomTemperatureSensors = new ConcurrentHashMap<String, RoomTemperatureSensor>();
@@ -138,7 +141,8 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 			logicalDevice = roomHumiditySensor;
 			roomHumiditySensors.put(roomHumiditySensor.getDeviceId(), roomHumiditySensor);
 			mapRoomsToHumiditySensors.put(roomHumiditySensor.getLocationId(), roomHumiditySensor.getDeviceId());
-			TemperatureHumidityDevice tempHumDev = getTemperatureHumidityDevices().get(roomHumiditySensor.getLocationId());
+			TemperatureHumidityDevice tempHumDev = getTemperatureHumidityDevices().get(
+					roomHumiditySensor.getLocationId());
 			logicalDevice.setLocation(locations.get(logicalDevice.getLocationId()));
 			if (null == tempHumDev) {
 				tempHumDev = new TemperatureHumidityDevice();
@@ -169,7 +173,8 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 			mapRoomsToTemperatureActuators.put(roomTemperatureActuator.getLocationId(),
 					roomTemperatureActuator.getDeviceId());
 			roomTemperatureActuators.put(roomTemperatureActuator.getDeviceId(), roomTemperatureActuator);
-			TemperatureHumidityDevice tempHumDev = temperatureHumidityDevices.get(roomTemperatureActuator.getLocationId());
+			TemperatureHumidityDevice tempHumDev = temperatureHumidityDevices.get(roomTemperatureActuator
+					.getLocationId());
 			logicalDevice.setLocation(locations.get(logicalDevice.getLocationId()));
 			if (null == tempHumDev) {
 				tempHumDev = new TemperatureHumidityDevice();
@@ -185,9 +190,11 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 			// NodeList underlyingDevNodes = devEl
 			// .getElementsByTagName("UDvIds");
 			roomTemperatureSensors.put(roomTemperatureSensor.getDeviceId(), roomTemperatureSensor);
-			mapRoomsToTemperatureSensors.put(roomTemperatureSensor.getLocationId(), roomTemperatureSensor.getDeviceId());
+			mapRoomsToTemperatureSensors
+					.put(roomTemperatureSensor.getLocationId(), roomTemperatureSensor.getDeviceId());
 			logicalDevice = roomTemperatureSensor;
-			TemperatureHumidityDevice tempHumDev = temperatureHumidityDevices.get(roomTemperatureSensor.getLocationId());
+			TemperatureHumidityDevice tempHumDev = temperatureHumidityDevices
+					.get(roomTemperatureSensor.getLocationId());
 			logicalDevice.setLocation(locations.get(logicalDevice.getLocationId()));
 			if (null == tempHumDev) {
 				tempHumDev = new TemperatureHumidityDevice();
@@ -202,6 +209,21 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 			windowDoorSensor.setLocationId(getTextValueFromAttribute(devEl, "LCID"));
 			windowDoorSensors.put(windowDoorSensor.getDeviceId(), windowDoorSensor);
 			logicalDevice = windowDoorSensor;
+		} else if ("RollerShutterActuator".equals(sType)) {
+			final RollerShutterActuator rollerShutterActuator = new RollerShutterActuator();
+			rollerShutterActuator.setLogicalDeviceType(LogicalDevice.Type_RollerShutterActuator);
+			rollerShutterActuator.setLogicalDeviceId(getTextValueFromElements(devEl, "Id"));
+			rollerShutterActuator.setDeviceName(getTextValueFromAttribute(devEl, "Name"));
+			rollerShutterActuator.setLocationId(getTextValueFromAttribute(devEl, "LCID"));
+			rollerShutterActuator.setOnLvl(getIntValueFromElements(devEl, "OnLvl"));
+			rollerShutterActuator.setOffLvl(getIntValueFromElements(devEl, "OffLvl"));
+			rollerShutterActuator.setShDT(getTextValueFromElements(devEl, "ShDT"));
+			rollerShutterActuator.setSCBh(getTextValueFromElements(devEl, "SCBh"));
+			rollerShutterActuator.setTmFU(getTextValueFromElements(devEl, "TmFU"));
+			rollerShutterActuator.setTmFD(getTextValueFromElements(devEl, "TmFD"));
+			rollerShutterActuator.setCalibrating(getBooleanValueFromElements(devEl, "IsCalibrating"));
+			this.rollerShutterActuators.put(rollerShutterActuator.getDeviceId(), rollerShutterActuator);
+			logicalDevice = rollerShutterActuator;
 		} else if (LogicalDevice.Type_GenericSensor.equals(sType)) {
 			return getGenericSensor(devEl);
 		} else {
@@ -268,6 +290,10 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 
 	public ConcurrentHashMap<String, RoomHumiditySensor> getRoomHumiditySensors() {
 		return roomHumiditySensors;
+	}
+
+	public ConcurrentHashMap<String, RollerShutterActuator> getRollerShutterActuators() {
+		return rollerShutterActuators;
 	}
 
 }

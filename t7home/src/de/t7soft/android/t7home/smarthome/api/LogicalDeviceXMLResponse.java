@@ -15,6 +15,7 @@ import org.xml.sax.SAXException;
 
 import android.util.Log;
 import de.t7soft.android.t7home.smarthome.api.devices.LogicalDevice;
+import de.t7soft.android.t7home.smarthome.api.devices.RollerShutterActuator;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomHumiditySensor;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureActuator;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureSensor;
@@ -73,6 +74,10 @@ public class LogicalDeviceXMLResponse extends XMLResponse {
 			roomHumiditySensor.setLogicalDeviceType(LogicalDevice.Type_RoomHumiditySensor);
 			roomHumiditySensor.setHumidity(getDoubleValueFromAttribute(devEl, "Humidity"));
 			logicalDevice = roomHumiditySensor;
+		} else if (LogicalDevice.Type_RollerShutterActuator.equals(sType)) {
+			final RollerShutterActuator rollerShutterActuator = (RollerShutterActuator) logicalDevice;
+			rollerShutterActuator.setShutterLevel(getIntValueFromElements(devEl, "ShutterLevel"));
+			logicalDevice = rollerShutterActuator;
 		} else if (LogicalDevice.Type_RoomTemperatureActuatorState.equals(sType)) {
 			final RoomTemperatureActuator roomTemperatureActuator = (RoomTemperatureActuator) logicalDevice;
 			roomTemperatureActuator.setLogicalDeviceType(LogicalDevice.Type_RoomTemperatureActuator);
