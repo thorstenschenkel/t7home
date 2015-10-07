@@ -14,6 +14,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeLocation;
 import de.t7soft.android.t7home.smarthome.api.devices.DaySensor;
+import de.t7soft.android.t7home.smarthome.api.devices.LogicalDevice;
 import de.t7soft.android.t7home.smarthome.api.devices.RollerShutterActuator;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomHumiditySensor;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureActuator;
@@ -41,6 +42,13 @@ public class HomeDatabaseAdapter {
 
 	public void close() {
 		dbHelper.close();
+	}
+
+	public boolean canWrite() {
+		if (database != null) {
+			return database.isOpen() && !database.isReadOnly() && !database.isDbLockedByCurrentThread();
+		}
+		return false;
 	}
 
 	public long insertLocation(final SmartHomeLocation location) {
@@ -207,6 +215,30 @@ public class HomeDatabaseAdapter {
 	private static long insertRollerShutterActuator(final SQLiteDatabase db, final RollerShutterActuator actuator) {
 		final ContentValues initialValues = createContentValues(actuator);
 		return db.insert(HomeDatabaseHelper.ROLLER_SHUTTER_TABLE_NAME, null, initialValues);
+	}
+
+	public long updateRollerShutterActuator(final LogicalDevice device, final int rollerShutterLevel) {
+		return updateRollerShutterActuator(database, device, rollerShutterLevel);
+	}
+
+	private static long updateRollerShutterActuator(final SQLiteDatabase db, final LogicalDevice device,
+			final int rollerShutterLevel) {
+		final String selection = createLogicalDeviceSelection(device);
+		final ContentValues values = new ContentValues();
+		values.put(HomeDatabaseHelper.SHUTTER_LEVEL_COL_NAME, rollerShutterLevel);
+		return db.update(HomeDatabaseHelper.ROLLER_SHUTTER_TABLE_NAME, values, selection, null);
+	}
+
+	public long updateRoomTemperatureActuator(final LogicalDevice device, final double temperature) {
+		return updateRoomTemperatureActuator(database, device, temperature);
+	}
+
+	private static long updateRoomTemperatureActuator(final SQLiteDatabase db, final LogicalDevice device,
+			final double temperature) {
+		final String selection = createLogicalDeviceSelection(device);
+		final ContentValues values = new ContentValues();
+		values.put(HomeDatabaseHelper.POINT_TEMPERATURE, temperature);
+		return db.update(HomeDatabaseHelper.ROOM_TEMPERATURE_ACTUATOR_TABLE_NAME, values, selection, null);
 	}
 
 	public long insertTemperatureHumidityDevice(final TemperatureHumidityDevice device) {
@@ -397,15 +429,11 @@ public class HomeDatabaseAdapter {
 		return HomeDatabaseHelper.LOCATION_ID_COL_NAME + "=" + "\"" + id + "\"";
 	}
 
-	private static String createRoomTemperatureSensorSelection(final String id) {
-		return HomeDatabaseHelper.LOGICAL_DEVICE_ID_COL_NAME + "=" + "\"" + id + "\"";
+	private static String createLogicalDeviceSelection(final LogicalDevice device) {
+		return createLogicalDeviceSelection(device.getDeviceId());
 	}
 
-	private static String createRoomHumiditySensorSelection(final String id) {
-		return HomeDatabaseHelper.LOGICAL_DEVICE_ID_COL_NAME + "=" + "\"" + id + "\"";
-	}
-
-	private static String createRoomTemperatureSensorActuator(final String id) {
+	private static String createLogicalDeviceSelection(final String id) {
 		return HomeDatabaseHelper.LOGICAL_DEVICE_ID_COL_NAME + "=" + "\"" + id + "\"";
 	}
 
@@ -436,7 +464,7 @@ public class HomeDatabaseAdapter {
 
 		RoomHumiditySensor sensor = null;
 
-		final String selection = createRoomHumiditySensorSelection(id);
+		final String selection = createLogicalDeviceSelection(id);
 		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_HUMIDITY_SENSOR_TABLE_NAME, null, selection, null, null,
 				null, null);
 
@@ -522,7 +550,7 @@ public class HomeDatabaseAdapter {
 
 		RoomTemperatureSensor sensor = null;
 
-		final String selection = createRoomTemperatureSensorSelection(id);
+		final String selection = createLogicalDeviceSelection(id);
 		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_SENSOR_TABLE_NAME, null, selection, null,
 				null, null, null);
 
@@ -541,7 +569,7 @@ public class HomeDatabaseAdapter {
 
 		RoomTemperatureActuator sensor = null;
 
-		final String selection = createRoomTemperatureSensorActuator(id);
+		final String selection = createLogicalDeviceSelection(id);
 		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_ACTUATOR_TABLE_NAME, null, selection, null,
 				null, null, null);
 

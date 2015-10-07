@@ -59,7 +59,8 @@ public class RoomActivity extends ListActivity {
 		textViewRoomListHeader = (TextView) header.findViewById(R.id.textViewRoomListHeader);
 		listView.addHeaderView(header);
 
-		listAdapter = new RoomListAdapter(this, devices, new RoomActuatorChangeListener(this, sessionId));
+		final RoomActuatorChangeListener changeListener = new RoomActuatorChangeListener(this, sessionId, dbAdapter);
+		listAdapter = new RoomListAdapter(this, devices, changeListener);
 		setListAdapter(listAdapter);
 
 		super.onCreate(savedInstanceState);

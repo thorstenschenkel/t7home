@@ -291,17 +291,13 @@ public class RoomListAdapter extends BaseAdapter {
 		double newTemperatue = progress / 10.0;
 		newTemperatue += minTemperature;
 		final RoomTemperatureActuator temperatureActuator = temperatureHumidityDevice.getTemperatureActuator();
-		final String deviceId = temperatureActuator.getDeviceId();
-		final String deviceType = temperatureActuator.getType();
 		final String value = TEMPERATURE_FORMAT.format(newTemperatue);
-		changeListener.changed(deviceId, deviceType, value);
+		changeListener.changed(temperatureActuator, value);
 	}
 
 	private void fireChanged(final RollerShutterActuator rollerShutter, final int level) {
-		final String deviceId = rollerShutter.getDeviceId();
-		final String deviceType = rollerShutter.getType();
 		final String value = Integer.toString(level);
-		changeListener.changed(deviceId, deviceType, value);
+		changeListener.changed(rollerShutter, value);
 	}
 
 }
