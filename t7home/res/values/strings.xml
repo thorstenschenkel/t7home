@@ -63,5 +63,10 @@
     <string name="sunset">Sonnenuntergang</string>   
     <string name="dummy_time_value">\??:\?? Uhr</string> 
     <string name="time_value">{0} Uhr</string> 
+    <string name="dummy_shutter_value">\?? %</string>
+    <string name="shutter">Rollladen</string>
+    <string name="percent_0_value">0 %</string>
+    <string name="percent_100_value">100 %</string>
+    <string name="shutter_set_error">Rollladen kann nicht eingestellt werden!</string>
     
 </resources>

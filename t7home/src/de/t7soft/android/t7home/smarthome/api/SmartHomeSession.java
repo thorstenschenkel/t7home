@@ -406,6 +406,7 @@ public class SmartHomeSession {
 		String attributes = "SessionId=\"" + getSessionId() + "\"";
 		attributes += " ";
 		attributes += "BasedOnConfigVersion=\"" + currentConfigurationVersion + "\"";
+
 		String content = "<ActuatorStates>";
 		content += "<LogicalDeviceState xsi:type=\"RoomTemperatureActuatorState\" LID=\"";
 		content += deviceId;
@@ -415,10 +416,36 @@ public class SmartHomeSession {
 		content += "Auto";
 		content += "\" WRAc=\"False\" />";
 		content += "</ActuatorStates>";
+
 		final String temperatureChangeRequest = buildRequest("SetActuatorStatesRequest", attributes, content);
 		Logger.getLogger(SmartHomeSession.class.getName()).log(Level.FINE,
 				"ChangingTemperature: " + temperatureChangeRequest);
 		executeRequest(temperatureChangeRequest);
+
+	}
+
+	public void switchRollerShutter(final String deviceId, final String newValue)
+			throws SmartHomeSessionExpiredException {
+
+		String attributes = "SessionId=\"" + getSessionId() + "\"";
+		attributes += " ";
+		attributes += "BasedOnConfigVersion=\"" + currentConfigurationVersion + "\"";
+
+		String content = "<ActuatorStates>";
+		content += "<LogicalDeviceState xsi:type=\"RollerShutterActuatorState\" LID=\"";
+		content += deviceId;
+		content += "\">";
+		content += "<ShutterLevel>";
+		content += newValue;
+		content += "</ShutterLevel>";
+		content += "</LogicalDeviceState>";
+		content += "</ActuatorStates>";
+
+		final String switchOnRequest = buildRequest("SetActuatorStatesRequest", attributes, content);
+		Logger.getLogger(SmartHomeSession.class.getName()).log(Level.FINE,
+				"ChangingRollerShutterLevel: " + switchOnRequest);
+
+		executeRequest(switchOnRequest);
 
 	}
 

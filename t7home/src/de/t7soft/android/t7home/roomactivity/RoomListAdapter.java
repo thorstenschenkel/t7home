@@ -21,6 +21,7 @@ import android.widget.TextView;
 import de.t7soft.android.t7home.R;
 import de.t7soft.android.t7home.smarthome.api.devices.DaySensor;
 import de.t7soft.android.t7home.smarthome.api.devices.LogicalDevice;
+import de.t7soft.android.t7home.smarthome.api.devices.RollerShutterActuator;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureActuator;
 import de.t7soft.android.t7home.smarthome.api.devices.TemperatureHumidityDevice;
 import de.t7soft.android.t7home.smarthome.api.devices.WindowDoorSensor;
@@ -35,7 +36,8 @@ public class RoomListAdapter extends BaseAdapter {
 	private static final int TYPE_TEMPERATURE_HUMIDITY_DEVICE = 0;
 	private static final int TYPE_WINDOW_DOOR_SENSOR = 1;
 	private static final int TYPE_DAY_SENSOR = 2;
-	private static final int TYPE_MAX_COUNT = 1;
+	private static final int TYPE_ROLLER_SHUTTER = 3;
+	private static final int TYPE_MAX_COUNT = 4;
 	private static final Format TEMPERATURE_FORMAT = new DecimalFormat("#.#");
 	private static final Format HUMIDITY_FORMAT = new DecimalFormat("#.#");
 	private static final Format TIME_FORMAT = new SimpleDateFormat("HH:mm");
@@ -76,6 +78,8 @@ public class RoomListAdapter extends BaseAdapter {
 			return TYPE_WINDOW_DOOR_SENSOR;
 		} else if (getItem(position) instanceof DaySensor) {
 			return TYPE_DAY_SENSOR;
+		} else if (getItem(position) instanceof RollerShutterActuator) {
+			return TYPE_ROLLER_SHUTTER;
 		} else {
 			return TYPE_UNKOWN;
 		}
@@ -101,6 +105,9 @@ public class RoomListAdapter extends BaseAdapter {
 				case TYPE_DAY_SENSOR:
 					rowView = inflater.inflate(R.layout.day_sensor_row, null);
 					break;
+				case TYPE_ROLLER_SHUTTER:
+					rowView = inflater.inflate(R.layout.roller_shutter_row, null);
+					break;
 				default:
 					rowView = inflater.inflate(R.layout.dummy_device_row, null);
 					break;
@@ -111,15 +118,19 @@ public class RoomListAdapter extends BaseAdapter {
 				case TYPE_TEMPERATURE_HUMIDITY_DEVICE:
 					final TemperatureHumidityDevice temperatureHumidityDevice = (TemperatureHumidityDevice) listItems
 							.get(position);
-					updateTemperatureHumidityDeviceRow(rowView, temperatureHumidityDevice);
+					updateRow(rowView, temperatureHumidityDevice);
 					break;
 				case TYPE_WINDOW_DOOR_SENSOR:
 					final WindowDoorSensor windowDoorSensor = (WindowDoorSensor) listItems.get(position);
-					updateWindowDoorSensorRow(rowView, windowDoorSensor);
+					updateRow(rowView, windowDoorSensor);
 					break;
 				case TYPE_DAY_SENSOR:
 					final DaySensor daySensor = (DaySensor) listItems.get(position);
-					updateDaySensorRow(rowView, daySensor);
+					updateRow(rowView, daySensor);
+					break;
+				case TYPE_ROLLER_SHUTTER:
+					final RollerShutterActuator rollerShutter = (RollerShutterActuator) listItems.get(position);
+					updateRow(rowView, rollerShutter);
 					break;
 				default:
 					// nothing to do
@@ -137,7 +148,7 @@ public class RoomListAdapter extends BaseAdapter {
 		return rowView;
 	}
 
-	private void updateWindowDoorSensorRow(final View rowView, final WindowDoorSensor sensor) {
+	private void updateRow(final View rowView, final WindowDoorSensor sensor) {
 
 		final TextView textView = (TextView) rowView.findViewById(R.id.textViewDeviceName);
 		final String value = sensor.getDeviceName();
@@ -149,7 +160,7 @@ public class RoomListAdapter extends BaseAdapter {
 
 	}
 
-	private void updateDaySensorRow(final View rowView, final DaySensor sensor) {
+	private void updateRow(final View rowView, final DaySensor sensor) {
 
 		TextView textView = (TextView) rowView.findViewById(R.id.textViewSunriseValue);
 		Date dateValue = sensor.getNextSunrise();
@@ -165,8 +176,48 @@ public class RoomListAdapter extends BaseAdapter {
 
 	}
 
-	private void updateTemperatureHumidityDeviceRow(final View rowView,
-			final TemperatureHumidityDevice temperatureHumidityDevice) {
+	private void updateRow(final View rowView, final RollerShutterActuator rollerShutter) {
+
+		TextView textView = (TextView) rowView.findViewById(R.id.textViewShutterNameLabel);
+		final String name = rollerShutter.getDeviceName();
+		if ((name != null) && (name.length() > 0)) {
+			textView.setText(name);
+		}
+
+		textView = (TextView) rowView.findViewById(R.id.textViewShutterLevelValue);
+		final int intValue = rollerShutter.getShutterLevel();
+		final String value = intValue + " %";
+		textView.setText(value);
+
+		final SeekBar shutterLevelSeekBar = (SeekBar) rowView.findViewById(R.id.seekBarShutterLevel);
+		// shutterLevelSeekBar.setEnabled(!isLocked);
+		shutterLevelSeekBar.setMax(0);
+		shutterLevelSeekBar.setMax(100);
+		shutterLevelSeekBar.setProgress(rollerShutter.getShutterLevel());
+
+		shutterLevelSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+
+			@Override
+			public void onStopTrackingTouch(final SeekBar seekBar) {
+				// nothing to do
+			}
+
+			@Override
+			public void onStartTrackingTouch(final SeekBar seekBar) {
+				// nothing to do
+			}
+
+			@Override
+			public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
+				if (fromUser) {
+					fireChanged(rollerShutter, progress);
+				}
+			}
+		});
+
+	}
+
+	private void updateRow(final View rowView, final TemperatureHumidityDevice temperatureHumidityDevice) {
 
 		TextView textView = (TextView) rowView.findViewById(R.id.textViewRoomTemperatureValue);
 		double doubleValue = temperatureHumidityDevice.getTemperatureSensor().getTemperature();
@@ -175,7 +226,7 @@ public class RoomListAdapter extends BaseAdapter {
 
 		textView = (TextView) rowView.findViewById(R.id.textViewRoomHumidityValue);
 		doubleValue = temperatureHumidityDevice.getRoomHumiditySensor().getHumidity();
-		value = HUMIDITY_FORMAT.format(doubleValue) + "%";
+		value = HUMIDITY_FORMAT.format(doubleValue) + " %";
 		textView.setText(value);
 
 		final Switch lockedSwitch = (Switch) rowView.findViewById(R.id.switchLocked);
@@ -243,6 +294,13 @@ public class RoomListAdapter extends BaseAdapter {
 		final String deviceId = temperatureActuator.getDeviceId();
 		final String deviceType = temperatureActuator.getType();
 		final String value = TEMPERATURE_FORMAT.format(newTemperatue);
+		changeListener.changed(deviceId, deviceType, value);
+	}
+
+	private void fireChanged(final RollerShutterActuator rollerShutter, final int level) {
+		final String deviceId = rollerShutter.getDeviceId();
+		final String deviceType = rollerShutter.getType();
+		final String value = Integer.toString(level);
 		changeListener.changed(deviceId, deviceType, value);
 	}
 

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/row_header_background"
+        android:paddingLeft="@dimen/subtitle_paddingX" >
+
+        <ImageView
+            android:id="@+id/imageViewRoomListHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/heater"
+            android:src="@drawable/ic_s_blue_rollershutter" />
+
+        <TextView
+            android:id="@+id/textViewRoomRowHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/room_row_paddingY"
+            android:paddingLeft="@dimen/room_row_paddingX"
+            android:paddingRight="@dimen/room_row_paddingX"
+            android:paddingTop="@dimen/room_row_paddingY"
+            android:text="@string/shutter"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/row_header_text" />
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/room_row_value_paddingY"
+        android:paddingLeft="@dimen/room_row_paddingX"
+        android:paddingRight="@dimen/room_row_paddingX"
+        android:paddingTop="@dimen/room_row_value_paddingY" >
+
+        <TextView
+            android:id="@+id/textViewShutterNameLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/shutter"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/textViewShutterLevelValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dummy_shutter_value"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </LinearLayout>
+
+    <SeekBar
+        android:id="@+id/seekBarShutterLevel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/room_row_value_paddingY"
+        android:paddingLeft="@dimen/room_row_paddingX"
+        android:paddingRight="@dimen/room_row_paddingX"
+        android:paddingTop="@dimen/room_row_value_paddingY" >
+
+        <TextView
+            android:id="@+id/textViewShutterMinLevel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/percent_0_value"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/textViewShutterMaxLevel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/percent_100_value"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </LinearLayout>
+
+</LinearLayout>

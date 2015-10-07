@@ -1,21 +1,18 @@
 package de.t7soft.android.t7home.roomactivity;
 
 import android.content.Context;
-import android.util.Log;
 import android.widget.Toast;
 import de.t7soft.android.t7home.R;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeSession;
 import de.t7soft.android.t7home.smarthome.api.devices.LogicalDevice;
 import de.t7soft.android.t7home.smarthome.api.exceptions.SmartHomeSessionExpiredException;
 
-public class RoomActuatorChangeListener implements ActuatorChangeListener {
-
-	private static final String LOGTAG = RoomActuatorChangeListener.class.getSimpleName();
+public class RollerShutterActuatorChangeListener implements ActuatorChangeListener {
 
 	private final Context context;
 	private final String sessionId;
 
-	public RoomActuatorChangeListener(final Context context, final String sessionId) {
+	public RollerShutterActuatorChangeListener(final Context context, final String sessionId) {
 		this.context = context;
 		this.sessionId = sessionId;
 	}
@@ -27,17 +24,10 @@ public class RoomActuatorChangeListener implements ActuatorChangeListener {
 
 		final SmartHomeSession session = new SmartHomeSession(sessionId);
 		try {
-			if (deviceType.equals(LogicalDevice.Type_RoomTemperatureActuatorState)) {
-				session.roomTemperatureActuatorChangeState(deviceId, newValue);
-				session.refreshLogicalDeviceState();
-				// TODO update in database (only temperatrue !?! )
-			} else if (deviceType.equals(LogicalDevice.Type_RollerShutterActuator)) {
+			if (deviceType.equals(LogicalDevice.Type_RollerShutterActuator)) {
 				session.switchRollerShutter(deviceId, newValue);
 				session.refreshLogicalDeviceState();
-				// TODO update in database (only level !?! )
-			} else {
-				Log.w(LOGTAG, "Unkown device type: " + deviceType);
-				return;
+				// TODO update in database (only temperatrue !?! )
 			}
 		} catch (final SmartHomeSessionExpiredException e) {
 			e.printStackTrace();
@@ -52,8 +42,6 @@ public class RoomActuatorChangeListener implements ActuatorChangeListener {
 	private static int getErrorMessage(final String deviceType) {
 		if (deviceType.equals(LogicalDevice.Type_RoomTemperatureActuator)) {
 			return R.string.temperature_set_error;
-		} else if (deviceType.equals(LogicalDevice.Type_RollerShutterActuator)) {
-			return R.string.shutter_set_error;
 		}
 		return -1;
 	}
