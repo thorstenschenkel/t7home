@@ -2,10 +2,7 @@ package de.t7soft.android.t7home.smarthome.api;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -37,13 +34,13 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 	}
 
 	private ConcurrentHashMap<String, SmartHomeLocation> locations = null;
+	private ConcurrentHashMap<String, LogicalDevice> baseSensors = null;
 	private ConcurrentHashMap<String, RoomHumiditySensor> roomHumiditySensors = null;
 	private ConcurrentHashMap<String, RoomTemperatureSensor> roomTemperatureSensors = null;
 	private ConcurrentHashMap<String, TemperatureHumidityDevice> temperatureHumidityDevices = null;
 	private ConcurrentHashMap<String, RollerShutterActuator> rollerShutterActuators = null;
 	private ConcurrentHashMap<String, RoomTemperatureActuator> roomTemperatureActuators = null;
 	private ConcurrentHashMap<String, WindowDoorSensor> windowDoorSensors = null;
-	private ConcurrentHashMap<String, DaySensor> daySensors = null;
 	private ConcurrentHashMap<String, String> mapRoomsToTemperatureActuators = null;
 	private ConcurrentHashMap<String, String> mapRoomsToTemperatureSensors = null;
 	private ConcurrentHashMap<String, String> mapRoomsToHumiditySensors = null;
@@ -78,7 +75,7 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 			roomTemperatureSensors = new ConcurrentHashMap<String, RoomTemperatureSensor>();
 			temperatureHumidityDevices = new ConcurrentHashMap<String, TemperatureHumidityDevice>();
 			windowDoorSensors = new ConcurrentHashMap<String, WindowDoorSensor>();
-			daySensors = new ConcurrentHashMap<String, DaySensor>();
+			baseSensors = new ConcurrentHashMap<String, LogicalDevice>();
 			mapRoomsToTemperatureActuators = new ConcurrentHashMap<String, String>();
 			mapRoomsToHumiditySensors = new ConcurrentHashMap<String, String>();
 			mapRoomsToTemperatureSensors = new ConcurrentHashMap<String, String>();
@@ -225,7 +222,27 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 			this.rollerShutterActuators.put(rollerShutterActuator.getDeviceId(), rollerShutterActuator);
 			logicalDevice = rollerShutterActuator;
 		} else if (LogicalDevice.Type_GenericSensor.equals(sType)) {
-			return getGenericSensor(devEl);
+			final NodeList nodes = devEl.getElementsByTagName("Ppt");
+			if (nodes.getLength() != 1) {
+				final Map<String, String> cache = new HashMap<String, String>();
+				for (int i = 0; i < nodes.getLength(); i++) {
+					final String name = getTextValueFromAttribute((Element) nodes.item(i), "Name");
+					final String value = getTextValueFromAttribute((Element) nodes.item(i), "Value");
+					cache.put(name, value);
+				}
+				if (cache.containsKey("Latitude")) {
+					final DaySensor daySensor = new DaySensor();
+					daySensor.setLogicalDeviceType("DaySensor");
+					daySensor.setLogicalDeviceId(getTextValueFromElements(devEl, "Id"));
+					daySensor.setDeviceName(getTextValueFromAttribute(devEl, "Name"));
+					daySensor.setLocationId(getTextValueFromAttribute(devEl, "LCID"));
+					daySensor.setLatitude(cache.get("Latitude"));
+					daySensor.setLongitude(cache.get("Longitude"));
+					this.baseSensors.put(daySensor.getDeviceId(), daySensor);
+				}
+				cache.clear();
+				return logicalDevice;
+			}
 		} else {
 			logicalDevice = new LogicalDevice();
 			logicalDevice.setLogicalDeviceType(LogicalDevice.Type_Generic);
@@ -241,35 +258,8 @@ public class SmartHomeEntitiesXMLResponse extends XMLResponse {
 
 	}
 
-	private LogicalDevice getGenericSensor(final Element devEl) {
-		final NodeList nodes = devEl.getElementsByTagName("Ppt");
-
-		final Map<String, String> cache = new HashMap<String, String>();
-		for (int i = 0; i < nodes.getLength(); i++) {
-			final String name = getTextValueFromAttribute((Element) nodes.item(i), "Name");
-			final String value = getTextValueFromAttribute((Element) nodes.item(i), "Value");
-			cache.put(name, value);
-		}
-		if (cache.containsKey("NextSunrise")) {
-			final DaySensor daySensor = new DaySensor();
-			daySensor.setType(LogicalDevice.Type_DaySensor);
-			final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSZ", Locale.ENGLISH);
-			try {
-				daySensor.setNextSunrise(df.parse(cache.get("NextSunrise").replace("000+", "GMT+")));
-				daySensor.setNextSunset(df.parse(cache.get("NextSunset").replace("000+", "GMT+")));
-				daySensor.setNextTimeEvent(df.parse(cache.get("NextTimeEvent").replace("000+", "GMT+")));
-			} catch (final Exception localException) {
-				Log.e(LOGTAG, "error parsing date for DaySensor");
-			}
-			cache.clear();
-			return daySensor;
-		}
-
-		return null;
-	}
-
-	public ConcurrentHashMap<String, DaySensor> getDaySensors() {
-		return daySensors;
+	public ConcurrentHashMap<String, ? extends LogicalDevice> getBaseSensors() {
+		return baseSensors;
 	}
 
 	public ConcurrentHashMap<String, WindowDoorSensor> getWindowDoorSensors() {

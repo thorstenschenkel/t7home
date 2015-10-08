@@ -2,7 +2,14 @@ package de.t7soft.android.t7home.smarthome.api;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -14,6 +21,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import android.util.Log;
+import de.t7soft.android.t7home.smarthome.api.devices.DaySensor;
 import de.t7soft.android.t7home.smarthome.api.devices.LogicalDevice;
 import de.t7soft.android.t7home.smarthome.api.devices.RollerShutterActuator;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomHumiditySensor;
@@ -95,9 +103,39 @@ public class LogicalDeviceXMLResponse extends XMLResponse {
 			windowDoorSensor.setLogicalDeviceType(LogicalDevice.Type_WindowDoorSensor);
 			windowDoorSensor.setOpen(getBooleanValueFromElements(devEl, "IsOpen"));
 			logicalDevice = windowDoorSensor;
+		} else if ("GenericDeviceState".equals(sType)) {
+			logicalDevice = refreshGenericDevice(devEl, logicalDevice);
 		} else {
 			final String msg = "-1-----------new/unknown sensor/actuator state: " + sType;
 			Log.i(LOGTAG, msg);
+		}
+
+		return logicalDevice;
+	}
+
+	private LogicalDevice refreshGenericDevice(final Element devEl, final LogicalDevice logicalDevice) {
+		final NodeList nodes = devEl.getElementsByTagName("Ppt");
+
+		final Map<String, String> cache = new HashMap<String, String>();
+		for (int i = 0; i < nodes.getLength(); i++) {
+			final String name = getTextValueFromAttribute((Element) nodes.item(i), "Name");
+			final String value = getTextValueFromAttribute((Element) nodes.item(i), "Value");
+			cache.put(name, value);
+		}
+		if (cache.containsKey("NextSunrise")) {
+			final DaySensor daySensor = new DaySensor();
+			daySensor.setType(LogicalDevice.Type_DaySensor);
+			final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSZ", Locale.ENGLISH);
+			try {
+				daySensor.setNextSunrise(df.parse(cache.get("NextSunrise").replace("000+", "GMT+")));
+				daySensor.setNextSunset(df.parse(cache.get("NextSunset").replace("000+", "GMT+")));
+				daySensor.setNextTimeEvent(df.parse(cache.get("NextTimeEvent").replace("000+", "GMT+")));
+			} catch (final Exception localException) {
+				Logger.getLogger(LogicalDeviceXMLResponse.class.getName()).log(Level.SEVERE,
+						"error parsing date for DaySensor");
+			}
+			cache.clear();
+			return daySensor;
 		}
 
 		return logicalDevice;

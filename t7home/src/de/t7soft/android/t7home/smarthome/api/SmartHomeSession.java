@@ -6,6 +6,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -27,6 +29,7 @@ import org.xml.sax.SAXException;
 
 import android.util.Log;
 import de.t7soft.android.t7home.smarthome.api.devices.DaySensor;
+import de.t7soft.android.t7home.smarthome.api.devices.LogicalDevice;
 import de.t7soft.android.t7home.smarthome.api.devices.RollerShutterActuator;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomHumiditySensor;
 import de.t7soft.android.t7home.smarthome.api.devices.RoomTemperatureActuator;
@@ -77,7 +80,7 @@ public class SmartHomeSession {
 	private ConcurrentHashMap<String, RoomTemperatureSensor> roomTemperatureSensors;
 	private ConcurrentHashMap<String, RoomHumiditySensor> roomHumiditySensors;
 	private ConcurrentHashMap<String, RollerShutterActuator> rollerShutterActuators = null;
-	private ConcurrentHashMap<String, DaySensor> daySensors = null;
+	private ConcurrentHashMap<String, ? extends LogicalDevice> baseSensors = null;
 
 	private final HttpComponentsHelper httpHelper = new HttpComponentsHelper();
 
@@ -315,13 +318,13 @@ public class SmartHomeSession {
 	public void refreshConfigurationFromInputStream(final InputStream is) {
 		final SmartHomeEntitiesXMLResponse smartHomeEntitiesXMLRes = new SmartHomeEntitiesXMLResponse(is);
 		this.setLocations(smartHomeEntitiesXMLRes.getLocations());
+		this.baseSensors = smartHomeEntitiesXMLRes.getBaseSensors();
 		this.rollerShutterActuators = smartHomeEntitiesXMLRes.getRollerShutterActuators();
 		this.temperatureHumidityDevices = smartHomeEntitiesXMLRes.getTemperatureHumidityDevices();
 		this.roomTemperatureActuators = smartHomeEntitiesXMLRes.getRoomTemperatureActuators();
 		this.roomTemperatureSensors = smartHomeEntitiesXMLRes.getRoomTemperatureSensors();
 		this.roomHumiditySensors = smartHomeEntitiesXMLRes.getRoomHumiditySensors();
 		this.windowDoorSensors = smartHomeEntitiesXMLRes.getWindowDoorSensors();
-		this.daySensors = smartHomeEntitiesXMLRes.getDaySensors();
 	}
 
 	public String refreshLogicalDeviceState() throws SmartHomeSessionExpiredException {
@@ -340,6 +343,7 @@ public class SmartHomeSession {
 		logDevXmlRes.refreshLogicalDevices(IOUtils.toInputStream(sResponse), roomTemperatureSensors);
 		logDevXmlRes.refreshLogicalDevices(IOUtils.toInputStream(sResponse), roomHumiditySensors);
 		logDevXmlRes.refreshLogicalDevices(IOUtils.toInputStream(sResponse), windowDoorSensors);
+		logDevXmlRes.refreshLogicalDevices(IOUtils.toInputStream(sResponse), baseSensors);
 		return sResponse;
 	}
 
@@ -380,6 +384,10 @@ public class SmartHomeSession {
 		return locations;
 	}
 
+	public ConcurrentHashMap<String, ? extends LogicalDevice> getGenericSensors() {
+		return this.baseSensors;
+	}
+
 	private void setLocations(final ConcurrentHashMap<String, SmartHomeLocation> locations) {
 		this.locations = locations;
 	}
@@ -392,12 +400,21 @@ public class SmartHomeSession {
 		return this.windowDoorSensors;
 	}
 
-	public ConcurrentHashMap<String, DaySensor> getDaySensors() {
-		return this.daySensors;
-	}
-
 	public ConcurrentHashMap<String, RollerShutterActuator> getRollerShutterActuators() {
 		return this.rollerShutterActuators;
+	}
+
+	public DaySensor getDaySensor() {
+
+		// TODO ?
+		final Iterator it = this.baseSensors.entrySet().iterator();
+		while (it.hasNext()) {
+			final Map.Entry pairs = (Map.Entry) it.next();
+			if ((this.baseSensors.get(pairs.getKey()) instanceof DaySensor)) {
+				return (DaySensor) this.baseSensors.get(pairs.getKey());
+			}
+		}
+		return null;
 	}
 
 	public void roomTemperatureActuatorChangeState(final String deviceId, final String temperature)
