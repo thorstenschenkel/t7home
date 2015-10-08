@@ -86,14 +86,10 @@ public abstract class AbstractRefreshTask extends AsyncTask<String, Integer, Int
 		}
 	}
 
-	private void storeDaySensors(final SmartHomeSession session) {
-		final ConcurrentHashMap<String, DaySensor> devicesMap = session.getDaySensors();
-		if (devicesMap == null) {
-			return;
-		}
-		final Enumeration<DaySensor> devices = devicesMap.elements();
-		while (devices.hasMoreElements()) {
-			dbAdapter.insertDaySensor(devices.nextElement());
+	private void storeDaySensor(final SmartHomeSession session) {
+		final DaySensor daySensor = session.getDaySensor();
+		if (daySensor != null) {
+			dbAdapter.insertDaySensor(daySensor);
 		}
 	}
 
@@ -130,7 +126,7 @@ public abstract class AbstractRefreshTask extends AsyncTask<String, Integer, Int
 			storeLocations(session);
 			storeTemperatureHumidityDevices(session);
 			storeWindowDoorSensors(session);
-			storeDaySensors(session);
+			storeDaySensor(session);
 			storeRollerShutterActuator(session);
 		} catch (final SHTechnicalException e) {
 			return REFRESH_ERROR;
