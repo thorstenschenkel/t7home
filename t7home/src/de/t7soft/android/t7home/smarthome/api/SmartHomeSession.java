@@ -44,7 +44,8 @@ import de.t7soft.android.t7home.smarthome.util.InputStream2String;
 import de.t7soft.android.t7home.smarthome.util.XMLUtil;
 
 /**
- * https://code.google.com/p/smarthome-java-library/source/browse/SmarthomeJavaLibrary/src/main/java/de/itarchitecture/ smarthome/api/SmartHomeSession.java
+ * https://code.google.com/p/smarthome-java-library/source/browse/SmarthomeJavaLibrary/src/main/java/de/itarchitecture/
+ * smarthome/api/SmartHomeSession.java
  * 
  * http://www.ollie.in/rwe-smarthome-api/
  */
@@ -99,8 +100,8 @@ public class SmartHomeSession {
 		}
 	}
 
-	public void logon(final String userName, final String passWord, final String hostName) throws SHTechnicalException,
-			LoginFailedException, SmartHomeSessionExpiredException {
+	public void logon(final String userName, final String passWord, final String hostName)
+			throws SHTechnicalException, LoginFailedException, SmartHomeSessionExpiredException {
 		this.userName = userName;
 		this.passWord = passWord;
 		this.hostName = hostName;
@@ -124,13 +125,13 @@ public class SmartHomeSession {
 			}
 			final String sResponse = executeRequest(loginRequest, true);
 			if ((sResponse == null) || "".equals(sResponse)) {
-				throw new LoginFailedException("LoginFailed: Authentication with user:" + userName
-						+ " was not possible. Session ID is empty.");
+				throw new LoginFailedException(
+						"LoginFailed: Authentication with user:" + userName + " was not possible. Session ID is empty.");
 			}
 			setSessionId(XMLUtil.XPathValueFromString(sResponse, "/BaseResponse/@SessionId"));
 			if ((getSessionId() == null) || "".equals(getSessionId())) {
-				throw new LoginFailedException("LoginFailed: Authentication with user:" + userName
-						+ " was not possible. Session ID is empty.");
+				throw new LoginFailedException(
+						"LoginFailed: Authentication with user:" + userName + " was not possible. Session ID is empty.");
 			}
 			final SessionData sessionData = new SessionData();
 			sessionData.setSessionId(getSessionId());
@@ -222,8 +223,7 @@ public class SmartHomeSession {
 	 * @throws SmartHomeSessionExpiredException
 	 *             the smart home session expired exception
 	 */
-	private String executeRequest(final String loginRequest, final boolean login)
-			throws SmartHomeSessionExpiredException {
+	private String executeRequest(final String loginRequest, final boolean login) throws SmartHomeSessionExpiredException {
 
 		if ((!login) && ("".equals(this.sessionId))) {
 			throw new SmartHomeSessionExpiredException();
@@ -293,8 +293,7 @@ public class SmartHomeSession {
 		}
 		Logger.getLogger(SmartHomeSession.class.getName()).log(Level.INFO, sResponse);
 		try {
-			currentConfigurationVersion = XMLUtil
-					.XPathValueFromString(sResponse, "/BaseResponse/@ConfigurationVersion");
+			currentConfigurationVersion = XMLUtil.XPathValueFromString(sResponse, "/BaseResponse/@ConfigurationVersion");
 			if (SESSION_DATA.containsKey(sessionId)) {
 				final SessionData sessionData = SESSION_DATA.get(sessionId);
 				sessionData.setCurrentConfigurationVersion(currentConfigurationVersion);
@@ -441,8 +440,7 @@ public class SmartHomeSession {
 
 	}
 
-	public void switchRollerShutter(final String deviceId, final String newValue)
-			throws SmartHomeSessionExpiredException {
+	public void switchRollerShutter(final String deviceId, final String newValue) throws SmartHomeSessionExpiredException {
 
 		String attributes = "SessionId=\"" + getSessionId() + "\"";
 		attributes += " ";
@@ -459,8 +457,7 @@ public class SmartHomeSession {
 		content += "</ActuatorStates>";
 
 		final String switchOnRequest = buildRequest("SetActuatorStatesRequest", attributes, content);
-		Logger.getLogger(SmartHomeSession.class.getName()).log(Level.FINE,
-				"ChangingRollerShutterLevel: " + switchOnRequest);
+		Logger.getLogger(SmartHomeSession.class.getName()).log(Level.FINE, "ChangingRollerShutterLevel: " + switchOnRequest);
 
 		executeRequest(switchOnRequest);
 
