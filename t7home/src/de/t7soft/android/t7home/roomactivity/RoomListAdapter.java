@@ -164,15 +164,33 @@ public class RoomListAdapter extends BaseAdapter {
 
 		TextView textView = (TextView) rowView.findViewById(R.id.textViewSunriseValue);
 		Date dateValue = sensor.getNextSunrise();
-		String value = TIME_FORMAT.format(dateValue);
-		value = MessageFormat.format(context.getString(R.string.time_value), value);
-		textView.setText(value);
+		String value = null;
+		if (dateValue != null) {
+			try {
+				value = TIME_FORMAT.format(dateValue);
+				value = MessageFormat.format(context.getString(R.string.time_value), value);
+				textView.setText(value);
+			} catch (Exception e) {
+			}
+		}
+		if (value == null) {
+			textView.setVisibility(View.GONE);
+		}
 
 		textView = (TextView) rowView.findViewById(R.id.textViewSunsetValue);
 		dateValue = sensor.getNextSunset();
-		value = TIME_FORMAT.format(dateValue);
-		value = MessageFormat.format(context.getString(R.string.time_value), value);
-		textView.setText(value);
+		value = null;
+		if (dateValue != null) {
+			try {
+				value = TIME_FORMAT.format(dateValue);
+				value = MessageFormat.format(context.getString(R.string.time_value), value);
+				textView.setText(value);
+			} catch (Exception e) {
+			}
+		}
+		if (value == null) {
+			textView.setVisibility(View.GONE);
+		}
 
 	}
 

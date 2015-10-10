@@ -274,9 +274,21 @@ public class HomeDatabaseAdapter {
 		values.put(HomeDatabaseHelper.LOGICAL_DEVICE_NAME_COL_NAME, sensor.getLogicalDeviceName());
 		values.put(HomeDatabaseHelper.LOGICAL_DEVICE_TYPE_COL_NAME, sensor.getLogicalDeviceType());
 
-		values.put(HomeDatabaseHelper.NEXT_SUNRISE_COL_NAME, DATE_FORMAT.format(sensor.getNextSunrise()));
-		values.put(HomeDatabaseHelper.NEXT_SUNSET_COL_NAME, DATE_FORMAT.format(sensor.getNextSunset()));
-		values.put(HomeDatabaseHelper.NEXT_TIME_EVENT_COL_NAME, DATE_FORMAT.format(sensor.getNextTimeEvent()));
+		if (sensor.getNextSunrise() != null) {
+			values.put(HomeDatabaseHelper.NEXT_SUNRISE_COL_NAME, DATE_FORMAT.format(sensor.getNextSunrise()));
+		} else {
+			values.put(HomeDatabaseHelper.NEXT_SUNRISE_COL_NAME, "");
+		}
+		if (sensor.getNextSunset() != null) {
+			values.put(HomeDatabaseHelper.NEXT_SUNSET_COL_NAME, DATE_FORMAT.format(sensor.getNextSunset()));
+		} else {
+			values.put(HomeDatabaseHelper.NEXT_SUNSET_COL_NAME, "");
+		}
+		if (sensor.getNextTimeEvent() != null) {
+			values.put(HomeDatabaseHelper.NEXT_TIME_EVENT_COL_NAME, DATE_FORMAT.format(sensor.getNextTimeEvent()));
+		} else {
+			values.put(HomeDatabaseHelper.NEXT_TIME_EVENT_COL_NAME, "");
+		}
 		return values;
 
 	}
@@ -386,8 +398,8 @@ public class HomeDatabaseAdapter {
 		final List<TemperatureHumidityDevice> devices = new ArrayList<TemperatureHumidityDevice>();
 
 		final String selection = createLocationSelection(location);
-		final Cursor cursor = db.query(HomeDatabaseHelper.TEMPERATURE_HUMIDITY_DEVICE_TABLE_NAME, null, selection,
-				null, null, null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.TEMPERATURE_HUMIDITY_DEVICE_TABLE_NAME, null, selection, null,
+				null, null, null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
@@ -446,8 +458,7 @@ public class HomeDatabaseAdapter {
 		SmartHomeLocation location = null;
 
 		final String selection = createLocationSelection(id);
-		final Cursor cursor = db
-				.query(HomeDatabaseHelper.LOCATIONS_TABLE_NAME, null, selection, null, null, null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.LOCATIONS_TABLE_NAME, null, selection, null, null, null, null);
 
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
@@ -465,8 +476,8 @@ public class HomeDatabaseAdapter {
 		RoomHumiditySensor sensor = null;
 
 		final String selection = createLogicalDeviceSelection(id);
-		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_HUMIDITY_SENSOR_TABLE_NAME, null, selection, null, null,
-				null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_HUMIDITY_SENSOR_TABLE_NAME, null, selection, null, null, null,
+				null);
 
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
@@ -484,8 +495,8 @@ public class HomeDatabaseAdapter {
 		final List<WindowDoorSensor> sensors = new ArrayList<WindowDoorSensor>();
 
 		final String selection = createLocationSelection(location);
-		final Cursor cursor = db.query(HomeDatabaseHelper.WINDOW_DOOR_SENSOR_TABLE_NAME, null, selection, null, null,
-				null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.WINDOW_DOOR_SENSOR_TABLE_NAME, null, selection, null, null, null,
+				null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
@@ -501,8 +512,7 @@ public class HomeDatabaseAdapter {
 
 	}
 
-	private List<RollerShutterActuator> getRollerShutterActuator(final SQLiteDatabase db,
-			final SmartHomeLocation location) {
+	private List<RollerShutterActuator> getRollerShutterActuator(final SQLiteDatabase db, final SmartHomeLocation location) {
 
 		final List<RollerShutterActuator> actuators = new ArrayList<RollerShutterActuator>();
 
@@ -529,8 +539,7 @@ public class HomeDatabaseAdapter {
 		final List<DaySensor> sensors = new ArrayList<DaySensor>();
 
 		final String selection = createLocationSelection(location);
-		final Cursor cursor = db.query(HomeDatabaseHelper.DAY_SENSOR_TABLE_NAME, null, selection, null, null, null,
-				null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.DAY_SENSOR_TABLE_NAME, null, selection, null, null, null, null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
@@ -551,8 +560,8 @@ public class HomeDatabaseAdapter {
 		RoomTemperatureSensor sensor = null;
 
 		final String selection = createLogicalDeviceSelection(id);
-		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_SENSOR_TABLE_NAME, null, selection, null,
-				null, null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_SENSOR_TABLE_NAME, null, selection, null, null,
+				null, null);
 
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
@@ -570,8 +579,8 @@ public class HomeDatabaseAdapter {
 		RoomTemperatureActuator sensor = null;
 
 		final String selection = createLogicalDeviceSelection(id);
-		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_ACTUATOR_TABLE_NAME, null, selection, null,
-				null, null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_ACTUATOR_TABLE_NAME, null, selection, null, null,
+				null, null);
 
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
@@ -640,7 +649,7 @@ public class HomeDatabaseAdapter {
 			Log.e(LOGTAG, "Can't parse date of next sunrise", e);
 		}
 		try {
-			sensor.setNextSunset(DATE_FORMAT.parse(getString(cursor, HomeDatabaseHelper.NEXT_SUNRISE_COL_NAME)));
+			sensor.setNextSunset(DATE_FORMAT.parse(getString(cursor, HomeDatabaseHelper.NEXT_SUNSET_COL_NAME)));
 		} catch (final ParseException e) {
 			Log.e(LOGTAG, "Can't parse date of next sunset", e);
 		}
