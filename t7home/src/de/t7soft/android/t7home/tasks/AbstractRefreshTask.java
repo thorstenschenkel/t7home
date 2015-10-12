@@ -108,8 +108,10 @@ public abstract class AbstractRefreshTask extends AsyncTask<String, Integer, Int
 
 	@Override
 	protected void onProgressUpdate(final Integer... resIds) {
-		context.getString(R.string.refresh_in_progress);
-		progressDialog.setMessage(context.getString(R.string.refresh_in_progress));
+		if (resIds.length > 0) {
+			String msg = context.getString(resIds[0]);
+			progressDialog.setMessage(msg);
+		}
 	}
 
 	@Override

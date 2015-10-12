@@ -82,7 +82,7 @@ public class LogicalDeviceXMLResponse extends XMLResponse {
 			roomHumiditySensor.setLogicalDeviceType(LogicalDevice.Type_RoomHumiditySensor);
 			roomHumiditySensor.setHumidity(getDoubleValueFromAttribute(devEl, "Humidity"));
 			logicalDevice = roomHumiditySensor;
-		} else if (LogicalDevice.Type_RollerShutterActuator.equals(sType)) {
+		} else if (LogicalDevice.Type_RollerShutterActuatorState.equals(sType)) {
 			final RollerShutterActuator rollerShutterActuator = (RollerShutterActuator) logicalDevice;
 			rollerShutterActuator.setShutterLevel(getIntValueFromElements(devEl, "ShutterLevel"));
 			logicalDevice = rollerShutterActuator;
@@ -104,38 +104,30 @@ public class LogicalDeviceXMLResponse extends XMLResponse {
 			windowDoorSensor.setOpen(getBooleanValueFromElements(devEl, "IsOpen"));
 			logicalDevice = windowDoorSensor;
 		} else if ("GenericDeviceState".equals(sType)) {
-			logicalDevice = refreshGenericDevice(devEl, logicalDevice);
+			final NodeList nodes = devEl.getElementsByTagName("Ppt");
+			final Map<String, String> cache = new HashMap<String, String>();
+			for (int i = 0; i < nodes.getLength(); i++) {
+				final String name = getTextValueFromAttribute((Element) nodes.item(i), "Name");
+				final String value = getTextValueFromAttribute((Element) nodes.item(i), "Value");
+				cache.put(name, value);
+			}
+			if (cache.containsKey("NextSunrise")) {
+				final DaySensor daySensor = (DaySensor) logicalDevice;
+				daySensor.setType(LogicalDevice.Type_DaySensor);
+				final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSZ", Locale.ENGLISH);
+				try {
+					daySensor.setNextSunrise(df.parse(cache.get("NextSunrise").replace("000+", "GMT+")));
+					daySensor.setNextSunset(df.parse(cache.get("NextSunset").replace("000+", "GMT+")));
+					daySensor.setNextTimeEvent(df.parse(cache.get("NextTimeEvent").replace("000+", "GMT+")));
+				} catch (final Exception localException) {
+					Logger.getLogger(LogicalDeviceXMLResponse.class.getName()).log(Level.SEVERE,
+							"error parsing date for DaySensor");
+				}
+				cache.clear();
+			}
 		} else {
 			final String msg = "-1-----------new/unknown sensor/actuator state: " + sType;
 			Log.i(LOGTAG, msg);
-		}
-
-		return logicalDevice;
-	}
-
-	private LogicalDevice refreshGenericDevice(final Element devEl, final LogicalDevice logicalDevice) {
-		final NodeList nodes = devEl.getElementsByTagName("Ppt");
-
-		final Map<String, String> cache = new HashMap<String, String>();
-		for (int i = 0; i < nodes.getLength(); i++) {
-			final String name = getTextValueFromAttribute((Element) nodes.item(i), "Name");
-			final String value = getTextValueFromAttribute((Element) nodes.item(i), "Value");
-			cache.put(name, value);
-		}
-		if (cache.containsKey("NextSunrise")) {
-			final DaySensor daySensor = new DaySensor();
-			daySensor.setType(LogicalDevice.Type_DaySensor);
-			final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSZ", Locale.ENGLISH);
-			try {
-				daySensor.setNextSunrise(df.parse(cache.get("NextSunrise").replace("000+", "GMT+")));
-				daySensor.setNextSunset(df.parse(cache.get("NextSunset").replace("000+", "GMT+")));
-				daySensor.setNextTimeEvent(df.parse(cache.get("NextTimeEvent").replace("000+", "GMT+")));
-			} catch (final Exception localException) {
-				Logger.getLogger(LogicalDeviceXMLResponse.class.getName()).log(Level.SEVERE,
-						"error parsing date for DaySensor");
-			}
-			cache.clear();
-			return daySensor;
 		}
 
 		return logicalDevice;
