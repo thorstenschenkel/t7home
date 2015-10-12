@@ -29,13 +29,13 @@ public class HomeDatabaseAdapter {
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
 	private final Context context;
-	private final List<DatabaseUpdateListener> updateListeners;
+	private final List<IDatabaseUpdateListener> updateListeners;
 	private HomeDatabaseHelper dbHelper;
 	private SQLiteDatabase database;
 
 	public HomeDatabaseAdapter(final Context context) {
 		this.context = context;
-		updateListeners = new LinkedList<DatabaseUpdateListener>();
+		updateListeners = new LinkedList<IDatabaseUpdateListener>();
 	}
 
 	public void open() throws SQLException {
@@ -230,7 +230,7 @@ public class HomeDatabaseAdapter {
 		final ContentValues values = new ContentValues();
 		values.put(HomeDatabaseHelper.SHUTTER_LEVEL_COL_NAME, rollerShutterLevel);
 		final long row = db.update(HomeDatabaseHelper.ROLLER_SHUTTER_TABLE_NAME, values, selection, null);
-		fireUpdate(device, Integer.toString(rollerShutterLevel));
+		fireUpdate(device);
 		return row;
 	}
 
@@ -244,7 +244,7 @@ public class HomeDatabaseAdapter {
 		final ContentValues values = new ContentValues();
 		values.put(HomeDatabaseHelper.POINT_TEMPERATURE, temperature);
 		final long row = db.update(HomeDatabaseHelper.ROOM_TEMPERATURE_ACTUATOR_TABLE_NAME, values, selection, null);
-		fireUpdate(device, Double.toString(temperature));
+		fireUpdate(device);
 		return row;
 	}
 
@@ -405,8 +405,8 @@ public class HomeDatabaseAdapter {
 		final List<TemperatureHumidityDevice> devices = new ArrayList<TemperatureHumidityDevice>();
 
 		final String selection = createLocationSelection(location);
-		final Cursor cursor = db.query(HomeDatabaseHelper.TEMPERATURE_HUMIDITY_DEVICE_TABLE_NAME, null, selection, null,
-				null, null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.TEMPERATURE_HUMIDITY_DEVICE_TABLE_NAME, null, selection,
+				null, null, null, null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
@@ -465,7 +465,8 @@ public class HomeDatabaseAdapter {
 		SmartHomeLocation location = null;
 
 		final String selection = createLocationSelection(id);
-		final Cursor cursor = db.query(HomeDatabaseHelper.LOCATIONS_TABLE_NAME, null, selection, null, null, null, null);
+		final Cursor cursor = db
+				.query(HomeDatabaseHelper.LOCATIONS_TABLE_NAME, null, selection, null, null, null, null);
 
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
@@ -483,8 +484,8 @@ public class HomeDatabaseAdapter {
 		RoomHumiditySensor sensor = null;
 
 		final String selection = createLogicalDeviceSelection(id);
-		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_HUMIDITY_SENSOR_TABLE_NAME, null, selection, null, null, null,
-				null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_HUMIDITY_SENSOR_TABLE_NAME, null, selection, null, null,
+				null, null);
 
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
@@ -502,8 +503,8 @@ public class HomeDatabaseAdapter {
 		final List<WindowDoorSensor> sensors = new ArrayList<WindowDoorSensor>();
 
 		final String selection = createLocationSelection(location);
-		final Cursor cursor = db.query(HomeDatabaseHelper.WINDOW_DOOR_SENSOR_TABLE_NAME, null, selection, null, null, null,
-				null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.WINDOW_DOOR_SENSOR_TABLE_NAME, null, selection, null, null,
+				null, null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
@@ -519,7 +520,8 @@ public class HomeDatabaseAdapter {
 
 	}
 
-	private List<RollerShutterActuator> getRollerShutterActuator(final SQLiteDatabase db, final SmartHomeLocation location) {
+	private List<RollerShutterActuator> getRollerShutterActuator(final SQLiteDatabase db,
+			final SmartHomeLocation location) {
 
 		final List<RollerShutterActuator> actuators = new ArrayList<RollerShutterActuator>();
 
@@ -546,7 +548,8 @@ public class HomeDatabaseAdapter {
 		final List<DaySensor> sensors = new ArrayList<DaySensor>();
 
 		final String selection = createLocationSelection(location);
-		final Cursor cursor = db.query(HomeDatabaseHelper.DAY_SENSOR_TABLE_NAME, null, selection, null, null, null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.DAY_SENSOR_TABLE_NAME, null, selection, null, null, null,
+				null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
@@ -567,8 +570,8 @@ public class HomeDatabaseAdapter {
 		RoomTemperatureSensor sensor = null;
 
 		final String selection = createLogicalDeviceSelection(id);
-		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_SENSOR_TABLE_NAME, null, selection, null, null,
-				null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_SENSOR_TABLE_NAME, null, selection, null,
+				null, null, null);
 
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
@@ -586,8 +589,8 @@ public class HomeDatabaseAdapter {
 		RoomTemperatureActuator sensor = null;
 
 		final String selection = createLogicalDeviceSelection(id);
-		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_ACTUATOR_TABLE_NAME, null, selection, null, null,
-				null, null);
+		final Cursor cursor = db.query(HomeDatabaseHelper.ROOM_TEMPERATURE_ACTUATOR_TABLE_NAME, null, selection, null,
+				null, null, null);
 
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
@@ -771,18 +774,18 @@ public class HomeDatabaseAdapter {
 		deleteAllRollerShutterActuator();
 	}
 
-	public boolean addUpdateListener(final DatabaseUpdateListener listner) {
+	public boolean addUpdateListener(final IDatabaseUpdateListener listner) {
 		removeUpdateListener(listner);
 		return updateListeners.add(listner);
 	}
 
-	public boolean removeUpdateListener(final DatabaseUpdateListener listner) {
+	public boolean removeUpdateListener(final IDatabaseUpdateListener listner) {
 		return updateListeners.remove(listner);
 	}
 
-	private void fireUpdate(final LogicalDevice device, final String newValue) {
-		for (final DatabaseUpdateListener listener : updateListeners) {
-			listener.updated(device, newValue);
+	private void fireUpdate(final LogicalDevice device) {
+		for (final IDatabaseUpdateListener listener : updateListeners) {
+			listener.updated(device);
 		}
 	}
 

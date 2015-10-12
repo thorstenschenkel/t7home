@@ -18,8 +18,11 @@ import de.t7soft.android.t7home.AboutDlg;
 import de.t7soft.android.t7home.MainActivity;
 import de.t7soft.android.t7home.R;
 import de.t7soft.android.t7home.database.HomeDatabaseAdapter;
+import de.t7soft.android.t7home.database.IDatabaseUpdateListener;
 import de.t7soft.android.t7home.roomsactivity.RoomsListActivity;
 import de.t7soft.android.t7home.smarthome.api.SmartHomeLocation;
+import de.t7soft.android.t7home.smarthome.api.devices.LogicalDevice;
+import de.t7soft.android.t7home.smarthome.api.devices.TemperatureHumidityDevice;
 import de.t7soft.android.t7home.tasks.AbstractLogoutTask;
 import de.t7soft.android.t7home.tasks.AbstractRefreshTask;
 
@@ -52,6 +55,7 @@ public class RoomActivity extends ListActivity {
 
 		if (dbAdapter == null) {
 			dbAdapter = new HomeDatabaseAdapter(this);
+			dbAdapter.addUpdateListener(new DbUpdateListener());
 		}
 
 		final ListView listView = getListView();
@@ -165,6 +169,44 @@ public class RoomActivity extends ListActivity {
 		protected void onPostExecute(final Integer resultCode) {
 			super.onPostExecute(resultCode);
 			logout();
+		}
+
+	}
+
+	private class DbUpdateListener implements IDatabaseUpdateListener {
+
+		@Override
+		public void updated(final LogicalDevice logicalDevice) {
+
+			boolean update = false;
+			final String logicalDeviceId = logicalDevice.getDeviceId();
+			for (final Object device : devices) {
+				if (device instanceof LogicalDevice) {
+					if (((LogicalDevice) device).getDeviceId().equals(logicalDeviceId)) {
+						update = true;
+						break;
+					}
+				}
+				if (device instanceof TemperatureHumidityDevice) {
+					final TemperatureHumidityDevice thDevice = (TemperatureHumidityDevice) device;
+					if (thDevice.getRoomHumiditySensor().getDeviceId().equals(logicalDeviceId)) {
+						update = true;
+						break;
+					}
+					if (thDevice.getTemperatureSensor().getDeviceId().equals(logicalDeviceId)) {
+						update = true;
+						break;
+					}
+					if (thDevice.getTemperatureActuator().getDeviceId().equals(logicalDeviceId)) {
+						update = true;
+						break;
+					}
+				}
+			}
+			if (update) {
+				updateListAdapter();
+			}
+
 		}
 
 	}
