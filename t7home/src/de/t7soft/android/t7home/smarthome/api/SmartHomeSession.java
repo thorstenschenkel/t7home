@@ -9,8 +9,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -50,8 +48,6 @@ import de.t7soft.android.t7home.smarthome.util.XMLUtil;
 public class SmartHomeSession {
 
 	private static final String LOGTAG = SmartHomeSession.class.getSimpleName();
-
-	private static final boolean FAKE = false;
 
 	private static final String FIRMWARE_VERSION = "1.70";
 	private static final String BASEREQUEST_STARTTAG = "<BaseRequest xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"{0}\" Version=\"{1}\" RequestId=\"{2}\" {3}>";
@@ -117,10 +113,6 @@ public class SmartHomeSession {
 		loginData += " Password=\"" + passWordEncrypted + "\"";
 		final String loginRequest = buildRequest("LoginRequest", loginData);
 		try {
-			if (FAKE) {
-				setSessionId("FAKE_SESSION_ID");
-				return;
-			}
 			final String sResponse = executeRequest(loginRequest, true);
 			if ((sResponse == null) || "".equals(sResponse)) {
 				throw new LoginFailedException("LoginFailed: Authentication with user:" + userName
@@ -140,16 +132,16 @@ public class SmartHomeSession {
 			// "/BaseResponse/@CurrentConfigurationVersion");
 			SESSION_DATA.put(getSessionId(), sessionData);
 		} catch (final ParserConfigurationException ex) {
-			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
+			Log.e(LOGTAG, "Can't parse response", ex);
 			throw new SHTechnicalException("ParserConfigurationException:" + ex.getMessage(), ex);
 		} catch (final SAXException ex) {
-			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
+			Log.e(LOGTAG, "Can't parse response", ex);
 			throw new SHTechnicalException("SAXException:" + ex.getMessage(), ex);
 		} catch (final XPathExpressionException ex) {
-			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
+			Log.e(LOGTAG, "Can't parse response", ex);
 			throw new SHTechnicalException("XPathExpressionException:" + ex.getMessage(), ex);
 		} catch (final IOException ex) {
-			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
+			Log.e(LOGTAG, "Can't parse response", ex);
 			throw new SHTechnicalException("IOException. Communication with host " + hostName
 					+ " was not possiblte or interrupted. " + ex.getMessage(), ex);
 		}
@@ -186,7 +178,7 @@ public class SmartHomeSession {
 			sReturn = new String(Base64.encodeBase64(byteData));
 
 		} catch (final NoSuchAlgorithmException ex) {
-			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
+			Log.e(LOGTAG, "Can't generate hash from password", ex);
 		}
 
 		return sReturn;
@@ -271,26 +263,11 @@ public class SmartHomeSession {
 		final String content = "<EntityType>Configuration</EntityType>";
 		final String getConfigurationRequest = buildRequest("GetEntitiesRequest", attributes, content);
 
-		if (FAKE) {
-			locations = new ConcurrentHashMap<String, SmartHomeLocation>();
-			SmartHomeLocation location = new SmartHomeLocation();
-			location.setLocationId("id1");
-			location.setName("Room One");
-			location.setPosition("Pos ?");
-			locations.put(location.getLocationId(), location);
-			location = new SmartHomeLocation();
-			location.setLocationId("id2");
-			location.setName("Room Two");
-			location.setPosition("Pos ?");
-			locations.put(location.getLocationId(), location);
-			return "";
-		}
-
 		final String sResponse = executeRequest(getConfigurationRequest);
 		if ((sResponse == null) || sResponse.isEmpty()) {
 			throw new SmartHomeSessionExpiredException("No response!");
 		}
-		Logger.getLogger(SmartHomeSession.class.getName()).log(Level.INFO, sResponse);
+		Log.i(LOGTAG, sResponse);
 		try {
 			currentConfigurationVersion = XMLUtil
 					.XPathValueFromString(sResponse, "/BaseResponse/@ConfigurationVersion");
@@ -300,16 +277,17 @@ public class SmartHomeSession {
 			}
 			refreshConfigurationFromInputStream(IOUtils.toInputStream(sResponse, "UTF8"));
 		} catch (final ParserConfigurationException ex) {
-			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
+			Log.e(LOGTAG, "Can't parse response", ex);
 			throw new SHTechnicalException("ParserConfigurationException:" + ex.getMessage(), ex);
 		} catch (final SAXException ex) {
-			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
+			Log.e(LOGTAG, "Can't parse response", ex);
 			throw new SHTechnicalException("SAXException:" + ex.getMessage(), ex);
 		} catch (final XPathExpressionException ex) {
-			Logger.getLogger(SmartHomeSession.class.getName()).log(Level.SEVERE, null, ex);
+			Log.e(LOGTAG, "Can't parse response", ex);
 			throw new SHTechnicalException("XPathExpressionException:" + ex.getMessage(), ex);
-		} catch (final IOException e) {
-			throw new SmartHomeSessionExpiredException(e);
+		} catch (final IOException ex) {
+			Log.e(LOGTAG, "Can't parse response", ex);
+			throw new SmartHomeSessionExpiredException(ex);
 		}
 		return sResponse;
 	}
@@ -335,7 +313,7 @@ public class SmartHomeSession {
 		if ((sResponse == null) || sResponse.isEmpty()) {
 			throw new SmartHomeSessionExpiredException("No response!");
 		}
-		Logger.getLogger(SmartHomeSession.class.getName()).log(Level.INFO, sResponse);
+		Log.i(LOGTAG, sResponse);
 		final LogicalDeviceXMLResponse logDevXmlRes = new LogicalDeviceXMLResponse();
 		logDevXmlRes.refreshLogicalDevices(IOUtils.toInputStream(sResponse), rollerShutterActuators);
 		logDevXmlRes.refreshLogicalDevices(IOUtils.toInputStream(sResponse), roomTemperatureActuators);
@@ -435,8 +413,7 @@ public class SmartHomeSession {
 		content += "</ActuatorStates>";
 
 		final String temperatureChangeRequest = buildRequest("SetActuatorStatesRequest", attributes, content);
-		Logger.getLogger(SmartHomeSession.class.getName()).log(Level.FINE,
-				"ChangingTemperature: " + temperatureChangeRequest);
+		Log.d(LOGTAG, "ChangingTemperature: " + temperatureChangeRequest);
 		executeRequest(temperatureChangeRequest);
 
 	}
@@ -459,12 +436,56 @@ public class SmartHomeSession {
 		content += "</ActuatorStates>";
 
 		final String switchOnRequest = buildRequest("SetActuatorStatesRequest", attributes, content);
-		Logger.getLogger(SmartHomeSession.class.getName()).log(Level.FINE,
-				"ChangingRollerShutterLevel: " + switchOnRequest);
+		Log.d(LOGTAG, "ChangingRollerShutterLevel: " + switchOnRequest);
 
 		executeRequest(switchOnRequest);
 
 	}
+
+	public void subscribeForDeviceStateChanges() throws SmartHomeSessionExpiredException {
+		subscribeForNotification("DeviceStateChanges");
+	}
+
+	private void subscribeForNotification(final String notificationType) throws SmartHomeSessionExpiredException {
+		final String attributes = "SessionId=\"" + getSessionId() + "\"";
+
+		String content = "<Action>";
+		content += "Subscribe";
+		content += "</Action>";
+		content += "<NotificationType>";
+		content += "notificationType";
+		content += "</NotificationType>";
+		final String notificationRequest = buildRequest("NotificationRequest", attributes, content);
+		Log.d(LOGTAG, "REQ: " + notificationRequest);
+		final String sResponse = executeRequest(notificationRequest);
+		Log.d(LOGTAG, "SubscribeForNotification-Response: " + sResponse);
+	}
+
+	// TODO
+	// public List<LogicalDevice> getNotifications() throws LogoutNotificationException, SmartHomeSessionExpiredException,
+	// ConfigurationChangedException {
+	// final String sResponse = executeRequest("upd", "/upd");
+	// if ((sResponse.contains("LogoutNotification")) || (sResponse.contains("ConfigurationChangedNotification"))) {
+	// new NotificationsXMLResponse(IOUtils.toInputStream(sResponse));
+	// }
+	// final LogicalDeviceXMLResponse logDevXmlRes = new LogicalDeviceXMLResponse();
+	// final Map<String, LogicalDevice> allDevices = new ConcurrentHashMap<String, LogicalDevice>();
+	// allDevices.putAll(this.rollerShutterActuators);
+	// allDevices.putAll(this.roomTemperatureActuators);
+	// allDevices.putAll(this.roomTemperatureSensors);
+	// allDevices.putAll(this.roomHumiditySensors);
+	// allDevices.putAll(this.windowDoorSensors);
+	// allDevices.putAll(this.baseSensors);
+	//
+	// final List<LogicalDevice> changedDevices = logDevXmlRes.refreshLogicalDevices(IOUtils.toInputStream(sResponse),
+	// allDevices);
+	// if (changedDevices != null) {
+	// Log.d(LOGTAG, Integer.valueOf(changedDevices.size()) + "{} device(s) changed." );
+	// } else {
+	// Log.d(LOGTAG, "no devices have changed.");
+	// }
+	// return changedDevices;
+	// }
 
 	private class SessionData {
 

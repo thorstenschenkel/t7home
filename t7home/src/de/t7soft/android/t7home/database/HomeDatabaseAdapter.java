@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import android.content.ContentValues;
@@ -27,12 +28,14 @@ public class HomeDatabaseAdapter {
 	private static final String LOGTAG = HomeDatabaseAdapter.class.getSimpleName();
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
-	private HomeDatabaseHelper dbHelper;
 	private final Context context;
+	private final List<DatabaseUpdateListener> updateListeners;
+	private HomeDatabaseHelper dbHelper;
 	private SQLiteDatabase database;
 
 	public HomeDatabaseAdapter(final Context context) {
 		this.context = context;
+		updateListeners = new LinkedList<DatabaseUpdateListener>();
 	}
 
 	public void open() throws SQLException {
@@ -221,24 +224,28 @@ public class HomeDatabaseAdapter {
 		return updateRollerShutterActuator(database, device, rollerShutterLevel);
 	}
 
-	private static long updateRollerShutterActuator(final SQLiteDatabase db, final LogicalDevice device,
+	private long updateRollerShutterActuator(final SQLiteDatabase db, final LogicalDevice device,
 			final int rollerShutterLevel) {
 		final String selection = createLogicalDeviceSelection(device);
 		final ContentValues values = new ContentValues();
 		values.put(HomeDatabaseHelper.SHUTTER_LEVEL_COL_NAME, rollerShutterLevel);
-		return db.update(HomeDatabaseHelper.ROLLER_SHUTTER_TABLE_NAME, values, selection, null);
+		final long row = db.update(HomeDatabaseHelper.ROLLER_SHUTTER_TABLE_NAME, values, selection, null);
+		fireUpdate(device, Integer.toString(rollerShutterLevel));
+		return row;
 	}
 
 	public long updateRoomTemperatureActuator(final LogicalDevice device, final double temperature) {
 		return updateRoomTemperatureActuator(database, device, temperature);
 	}
 
-	private static long updateRoomTemperatureActuator(final SQLiteDatabase db, final LogicalDevice device,
+	private long updateRoomTemperatureActuator(final SQLiteDatabase db, final LogicalDevice device,
 			final double temperature) {
 		final String selection = createLogicalDeviceSelection(device);
 		final ContentValues values = new ContentValues();
 		values.put(HomeDatabaseHelper.POINT_TEMPERATURE, temperature);
-		return db.update(HomeDatabaseHelper.ROOM_TEMPERATURE_ACTUATOR_TABLE_NAME, values, selection, null);
+		final long row = db.update(HomeDatabaseHelper.ROOM_TEMPERATURE_ACTUATOR_TABLE_NAME, values, selection, null);
+		fireUpdate(device, Double.toString(temperature));
+		return row;
 	}
 
 	public long insertTemperatureHumidityDevice(final TemperatureHumidityDevice device) {
@@ -753,6 +760,21 @@ public class HomeDatabaseAdapter {
 		deleteAllWindowDoorSensors();
 		deleteAllDaySensors();
 		deleteAllRollerShutterActuator();
+	}
+
+	public boolean addUpdateListener(final DatabaseUpdateListener listner) {
+		removeUpdateListener(listner);
+		return updateListeners.add(listner);
+	}
+
+	public boolean removeUpdateListener(final DatabaseUpdateListener listner) {
+		return updateListeners.remove(listner);
+	}
+
+	private void fireUpdate(final LogicalDevice device, final String newValue) {
+		for (final DatabaseUpdateListener listener : updateListeners) {
+			listener.updated(device, newValue);
+		}
 	}
 
 }
