@@ -4,10 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.ActionBar;
+import android.app.AlarmManager;
 import android.app.ListActivity;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Messenger;
 import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,6 +22,7 @@ import android.widget.TextView;
 import de.t7soft.android.t7home.AboutDlg;
 import de.t7soft.android.t7home.MainActivity;
 import de.t7soft.android.t7home.R;
+import de.t7soft.android.t7home.background.UpdateService;
 import de.t7soft.android.t7home.database.HomeDatabaseAdapter;
 import de.t7soft.android.t7home.database.IDatabaseUpdateListener;
 import de.t7soft.android.t7home.roomsactivity.RoomsListActivity;
@@ -27,18 +33,12 @@ import de.t7soft.android.t7home.tasks.AbstractLogoutTask;
 import de.t7soft.android.t7home.tasks.AbstractRefreshTask;
 
 /**
- * http://stackoverflow.com/questions/4777272/android-listview-with-different-layout-for-each-row
- * 
- * http://www.fancyicons.com/frei-ikonen/232/mabeinheiten-icon-set/frei-temperatur-icon-png/ http://www.iconsdb.com/green-icons/thermometer-2-icon.html http://www.sjoarafting.de/a/i/temperatur.png http://www.shutterstock
- * .com/pic.mhtml?irgwc=1&utm_medium=Affiliate&language=de&utm_campaign=FindIcons.com&utm_source=38925& id=69743743&tpl=38925-42764
- * 
- * http://www.iconarchive.com/show/android-icons-by-icons8/Measurement-Units-Humidity-icon.html http://findicons.com/icon/557445/humidity http://www.iconarchive.com/show/outline-icons-by-iconsmind/Rain-Drop-icon.html
- * http://www.shutterstock.com/pic.mhtml?language=de&irgwc=1&id=96107042&utm_source=38925&tpl=38925-42764&utm_medium=Affiliate&utm_campaign=FindIcons.com
- * http://www.shutterstock.com/pic.mhtml?utm_campaign=FindIcons.com&irgwc=1&language=de&utm_medium=Affiliate&utm_source=38925&tpl=38925-42764&id=102080212
- * 
- * 
+ * http://navinsandroidtutorial.blogspot.de/2014/04/android-alarm-manager-service-and.html
  */
 public class RoomActivity extends ListActivity {
+
+	// restart service every 2 seconds
+	private static final long REPEAT_TIME = 1000 * 2;
 
 	private HomeDatabaseAdapter dbAdapter;
 	private String locationId;
@@ -46,6 +46,8 @@ public class RoomActivity extends ListActivity {
 	private final List<Object> devices = new ArrayList<Object>();
 	private RoomListAdapter listAdapter;
 	private TextView textViewRoomListHeader;
+	private AlarmManager alarmManager;
+	private PendingIntent pendingIntent;
 
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
@@ -57,6 +59,8 @@ public class RoomActivity extends ListActivity {
 			dbAdapter = new HomeDatabaseAdapter(this);
 			dbAdapter.addUpdateListener(new DbUpdateListener());
 		}
+
+		configUpdate();
 
 		final ListView listView = getListView();
 		final View header = getLayoutInflater().inflate(R.layout.room_list_header, null);
@@ -74,16 +78,28 @@ public class RoomActivity extends ListActivity {
 
 	}
 
+	private void configUpdate() {
+
+		alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+		final Intent updateIntent = new Intent(this, UpdateService.class);
+		final Messenger messenger = new Messenger(new UpdateHandler(dbAdapter));
+		updateIntent.putExtra("MESSENGER", messenger);
+		pendingIntent = PendingIntent.getService(this, 0, updateIntent, 0);
+
+	}
+
 	@Override
 	protected void onResume() {
 		dbAdapter.open();
 		updateListAdapter();
+		alarmManager.setRepeating(AlarmManager.RTC, System.currentTimeMillis(), REPEAT_TIME, pendingIntent);
 		super.onResume();
 	}
 
 	@Override
 	protected void onPause() {
 		dbAdapter.close();
+		alarmManager.cancel(pendingIntent);
 		super.onPause();
 	}
 
@@ -207,6 +223,33 @@ public class RoomActivity extends ListActivity {
 				updateListAdapter();
 			}
 
+		}
+
+	}
+
+	// TODO move to new new file ?
+	private class UpdateHandler extends Handler {
+
+		private final HomeDatabaseAdapter dbAdapter;
+
+		public UpdateHandler(final HomeDatabaseAdapter dbAdapter) {
+			this.dbAdapter = dbAdapter;
+		}
+
+		@Override
+		public void handleMessage(final Message message) {
+			final Object changedDevices = message.obj;
+			if ((message.arg1 == RESULT_OK) && (changedDevices != null)) {
+				if ((dbAdapter != null) && dbAdapter.canWrite()) {
+					for (final LogicalDevice device : (List<LogicalDevice>) changedDevices) {
+						// TODO
+					}
+				} else {
+					// TODO log ?
+				}
+			} else {
+				// TODO log ?
+			}
 		}
 
 	}
