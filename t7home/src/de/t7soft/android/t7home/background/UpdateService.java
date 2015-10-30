@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.util.Log;
@@ -18,6 +19,18 @@ public class UpdateService extends IntentService {
 
 	public UpdateService() {
 		super("UpdateService");
+	}
+
+	@Override
+	public void onStart(Intent intent, int startId) {
+		super.onStart(intent, startId);
+		Log.i(LOGTAG, "onStart");
+	}
+
+	@Override
+	public IBinder onBind(Intent intent) {
+		Log.i(LOGTAG, "onBind");
+		return super.onBind(intent);
 	}
 
 	@Override

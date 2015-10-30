@@ -84,7 +84,7 @@ public class RoomActivity extends ListActivity {
 		final Intent updateIntent = new Intent(this, UpdateService.class);
 		final Messenger messenger = new Messenger(new UpdateHandler(dbAdapter));
 		updateIntent.putExtra("MESSENGER", messenger);
-		pendingIntent = PendingIntent.getService(this, 0, updateIntent, 0);
+		pendingIntent = PendingIntent.getService(this, 0, updateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 	}
 
