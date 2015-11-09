@@ -1,5 +1,9 @@
 package de.t7soft.android.t7home.roomactivity;
 
+import java.text.DecimalFormat;
+import java.text.Format;
+import java.text.ParseException;
+
 import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
@@ -12,6 +16,8 @@ import de.t7soft.android.t7home.smarthome.api.exceptions.SmartHomeSessionExpired
 public class RoomActuatorChangeListener implements ActuatorChangeListener {
 
 	private static final String LOGTAG = RoomActuatorChangeListener.class.getSimpleName();
+
+	private static final Format TEMPERATURE_FORMAT = new DecimalFormat("#.#");
 
 	private final Context context;
 	private final String sessionId;
@@ -32,8 +38,13 @@ public class RoomActuatorChangeListener implements ActuatorChangeListener {
 		if (dbAdapter.canWrite()) {
 			try {
 				if (deviceType.equals(LogicalDevice.Type_RoomTemperatureActuatorState)) {
-					final double temperature = Double.parseDouble(newValue);
-					dbAdapter.updateRoomTemperatureActuator(device, temperature);
+					Object parsedValue = TEMPERATURE_FORMAT.parseObject(newValue);
+					if (parsedValue instanceof Double) {
+						final double temperature = (Double) parsedValue;
+						dbAdapter.updateRoomTemperatureActuator(device, temperature);
+					} else {
+						Log.w(LOGTAG, "Can't update value in data base.");
+					}
 				} else if (deviceType.equals(LogicalDevice.Type_RollerShutterActuator)) {
 					final int level = Integer.parseInt(newValue);
 					dbAdapter.updateRollerShutterActuator(device, level);
@@ -41,6 +52,8 @@ public class RoomActuatorChangeListener implements ActuatorChangeListener {
 					Log.w(LOGTAG, "Unkown device type: " + deviceType);
 					return;
 				}
+			} catch (final ParseException ex) {
+				Log.e(LOGTAG, "Can't update value in data base.", ex);
 			} catch (final NumberFormatException ex) {
 				Log.e(LOGTAG, "Can't update value in data base.", ex);
 			}
@@ -49,8 +62,17 @@ public class RoomActuatorChangeListener implements ActuatorChangeListener {
 		final SmartHomeSession session = new SmartHomeSession(sessionId);
 		try {
 			if (deviceType.equals(LogicalDevice.Type_RoomTemperatureActuatorState)) {
-				session.roomTemperatureActuatorChangeState(deviceId, newValue);
-				// session.refreshLogicalDeviceState();
+				try {
+					Object parsedValue = TEMPERATURE_FORMAT.parseObject(newValue);
+					if (parsedValue instanceof Double) {
+						session.roomTemperatureActuatorChangeState(deviceId, parsedValue.toString());
+						// session.refreshLogicalDeviceState();
+					} else {
+						Log.w(LOGTAG, "Cannot change device state!");
+					}
+				} catch (final ParseException ex) {
+					Log.e(LOGTAG, "Cannot change device state!", ex);
+				}
 			} else if (deviceType.equals(LogicalDevice.Type_RollerShutterActuator)) {
 				session.switchRollerShutter(deviceId, newValue);
 				// session.refreshLogicalDeviceState();
