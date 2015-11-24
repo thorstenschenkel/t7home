@@ -33,7 +33,7 @@ public class RoomsListActivity extends ListActivity {
 	private ArrayAdapter<SmartHomeLocation> listAdapter;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(final Bundle savedInstanceState) {
 
 		// TODO: null after "back"
 		sessionId = getIntent().getExtras().getString(MainActivity.SESSION_ID_KEY);
@@ -42,8 +42,8 @@ public class RoomsListActivity extends ListActivity {
 			dbAdapter = new HomeDatabaseAdapter(this);
 		}
 
-		ListView listView = getListView();
-		View header = getLayoutInflater().inflate(R.layout.rooms_list_header, null);
+		final ListView listView = getListView();
+		final View header = getLayoutInflater().inflate(R.layout.rooms_list_header, null);
 		listView.addHeaderView(header);
 
 		listAdapter = createListAdapter(locations);
@@ -68,7 +68,7 @@ public class RoomsListActivity extends ListActivity {
 	}
 
 	private void refresh() {
-		RefreshTask refreshTask = new RefreshTask(this, dbAdapter);
+		final RefreshTask refreshTask = new RefreshTask(this, dbAdapter);
 		refreshTask.execute(sessionId);
 	}
 
@@ -79,7 +79,7 @@ public class RoomsListActivity extends ListActivity {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(final Menu menu) {
 		getMenuInflater().inflate(R.menu.rooms, menu);
 		return true;
 	}
@@ -91,11 +91,11 @@ public class RoomsListActivity extends ListActivity {
 				refresh();
 				return true;
 			case R.id.logout_item:
-				LogoutTask logoutTask = new LogoutTask(this, dbAdapter);
+				final LogoutTask logoutTask = new LogoutTask(this, dbAdapter);
 				logoutTask.execute(sessionId);
 				return true;
 			case R.id.about_item:
-				AboutDlg aboutDlg = new AboutDlg(this);
+				final AboutDlg aboutDlg = new AboutDlg(this);
 				aboutDlg.show();
 				return true;
 			default:
@@ -104,19 +104,19 @@ public class RoomsListActivity extends ListActivity {
 	}
 
 	private void logout() {
-		Intent intent = new Intent(this, MainActivity.class);
+		final Intent intent = new Intent(this, MainActivity.class);
 		startActivity(intent);
 	}
 
 	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
+	protected void onListItemClick(final ListView l, final View v, final int position, final long id) {
 
-		int itemPosition = position - getListView().getHeaderViewsCount();
-		if (itemPosition >= 0 && itemPosition < getListAdapter().getCount()) {
+		final int itemPosition = position - getListView().getHeaderViewsCount();
+		if ((itemPosition >= 0) && (itemPosition < getListAdapter().getCount())) {
 
-			SmartHomeLocation location = (SmartHomeLocation) getListAdapter().getItem(itemPosition);
+			final SmartHomeLocation location = (SmartHomeLocation) getListAdapter().getItem(itemPosition);
 
-			Intent intent = new Intent(this, RoomActivity.class);
+			final Intent intent = new Intent(this, RoomActivity.class);
 			intent.putExtra(LOCATION_ID, location.getLocationId());
 			intent.putExtra(MainActivity.SESSION_ID_KEY, sessionId);
 			startActivity(intent);
@@ -135,7 +135,7 @@ public class RoomsListActivity extends ListActivity {
 		locations.addAll(dbAdapter.getAllLocations());
 		Collections.sort(locations, new Comparator<SmartHomeLocation>() {
 			@Override
-			public int compare(SmartHomeLocation location1, SmartHomeLocation location2) {
+			public int compare(final SmartHomeLocation location1, final SmartHomeLocation location2) {
 				return location1.getPosition().compareTo(location2.getPosition());
 			}
 		});
@@ -155,26 +155,31 @@ public class RoomsListActivity extends ListActivity {
 
 	private class RefreshTask extends AbstractRefreshTask {
 
-		public RefreshTask(Context context, HomeDatabaseAdapter dbAdapter) {
+		public RefreshTask(final Context context, final HomeDatabaseAdapter dbAdapter) {
 			super(context, dbAdapter, R.string.rooms_subtitle);
 		}
 
 		@Override
-		protected void onPostExecute(Integer resultCode) {
+		protected void onPostExecute(final Integer resultCode) {
 			super.onPostExecute(resultCode);
 			updateListAdapter();
+		}
+
+		@Override
+		public void gotoLogin() {
+			logout();
 		}
 
 	}
 
 	private class LogoutTask extends AbstractLogoutTask {
 
-		public LogoutTask(Context context, HomeDatabaseAdapter dbAdapter) {
+		public LogoutTask(final Context context, final HomeDatabaseAdapter dbAdapter) {
 			super(context, dbAdapter, R.string.logout_subtitle);
 		}
 
 		@Override
-		protected void onPostExecute(Integer resultCode) {
+		protected void onPostExecute(final Integer resultCode) {
 			super.onPostExecute(resultCode);
 			logout();
 		}

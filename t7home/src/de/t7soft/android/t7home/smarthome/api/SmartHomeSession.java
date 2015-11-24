@@ -217,7 +217,7 @@ public class SmartHomeSession {
 			throws SmartHomeSessionExpiredException {
 
 		if ((!login) && ("".equals(this.sessionId))) {
-			throw new SmartHomeSessionExpiredException();
+			throw new SmartHomeSessionExpiredException(SmartHomeSessionExpiredException.ERROR_CODE_NO_SESSION_ID);
 		}
 
 		String sReturn = "";
@@ -235,14 +235,15 @@ public class SmartHomeSession {
 			if (response.getStatusLine().getStatusCode() == 401) {
 				Log.w(LOGTAG, "401 Unauthorized returned - Session expired!");
 				this.sessionId = "";
-				throw new SmartHomeSessionExpiredException(sReturn);
+				throw new SmartHomeSessionExpiredException(SmartHomeSessionExpiredException.ERROR_CODE_UNAUTHORIZED);
 			}
 
 			final HttpEntity entity1 = response.getEntity();
 			final InputStream in = entity1.getContent();
 			sReturn = InputStream2String.copyFromInputStream(in, "UTF-8");
 			if (sReturn.contains("IllegalSessionId")) {
-				throw new SmartHomeSessionExpiredException(sReturn);
+				throw new SmartHomeSessionExpiredException(
+						SmartHomeSessionExpiredException.ERROR_CODE_ILLEGAL_SESSION_ID);
 			}
 			Log.v(LOGTAG, "XMLResponse: " + sReturn);
 			// EntityUtils.consume(entity1);
@@ -265,7 +266,7 @@ public class SmartHomeSession {
 
 		final String sResponse = executeRequest(getConfigurationRequest);
 		if ((sResponse == null) || sResponse.isEmpty()) {
-			throw new SmartHomeSessionExpiredException("No response!");
+			throw new SmartHomeSessionExpiredException(SmartHomeSessionExpiredException.ERROR_CODE_NO_RESPONSE);
 		}
 		Log.i(LOGTAG, sResponse);
 		try {
@@ -287,7 +288,7 @@ public class SmartHomeSession {
 			throw new SHTechnicalException("XPathExpressionException:" + ex.getMessage(), ex);
 		} catch (final IOException ex) {
 			Log.e(LOGTAG, "Can't parse response", ex);
-			throw new SmartHomeSessionExpiredException(ex);
+			throw new SmartHomeSessionExpiredException(SmartHomeSessionExpiredException.ERROR_CODE_PARSE_ERROR);
 		}
 		return sResponse;
 	}
@@ -311,7 +312,7 @@ public class SmartHomeSession {
 		final String getLogicalDevicesRequest = buildRequest("GetAllLogicalDeviceStatesRequest", attributes);
 		final String sResponse = executeRequest(getLogicalDevicesRequest);
 		if ((sResponse == null) || sResponse.isEmpty()) {
-			throw new SmartHomeSessionExpiredException("No response!");
+			throw new SmartHomeSessionExpiredException(SmartHomeSessionExpiredException.ERROR_CODE_NO_RESPONSE);
 		}
 		Log.i(LOGTAG, sResponse);
 		final LogicalDeviceXMLResponse logDevXmlRes = new LogicalDeviceXMLResponse();

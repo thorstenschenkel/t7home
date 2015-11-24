@@ -22,7 +22,8 @@ import de.t7soft.android.t7home.smarthome.api.exceptions.SmartHomeSessionExpired
 public abstract class AbstractRefreshTask extends AsyncTask<String, Integer, Integer> {
 
 	public static final int REFRESH_OK = 0;
-	public static final int REFRESH_ERROR = 1;
+	public static final int TECHNICAL_ERROR = 1;
+	public static final int SESSION_ERROR = 2;
 
 	private final ProgressDialog progressDialog;
 	private final AlertDialog.Builder alertDialogBuilder;
@@ -41,6 +42,8 @@ public abstract class AbstractRefreshTask extends AsyncTask<String, Integer, Int
 		progressDialog = new ProgressDialog(context);
 		alertDialogBuilder = new AlertDialog.Builder(context);
 	}
+
+	public abstract void gotoLogin();
 
 	private void storeLocations(final SmartHomeSession session) {
 		final ConcurrentHashMap<String, SmartHomeLocation> locationsMap = session.getLocations();
@@ -109,7 +112,7 @@ public abstract class AbstractRefreshTask extends AsyncTask<String, Integer, Int
 	@Override
 	protected void onProgressUpdate(final Integer... resIds) {
 		if (resIds.length > 0) {
-			String msg = context.getString(resIds[0]);
+			final String msg = context.getString(resIds[0]);
 			progressDialog.setMessage(msg);
 		}
 	}
@@ -131,9 +134,9 @@ public abstract class AbstractRefreshTask extends AsyncTask<String, Integer, Int
 			storeDaySensor(session);
 			storeRollerShutterActuator(session);
 		} catch (final SHTechnicalException e) {
-			return REFRESH_ERROR;
+			return TECHNICAL_ERROR;
 		} catch (final SmartHomeSessionExpiredException e) {
-			return REFRESH_ERROR;
+			return SESSION_ERROR;
 		}
 		return REFRESH_OK;
 	}
@@ -145,7 +148,7 @@ public abstract class AbstractRefreshTask extends AsyncTask<String, Integer, Int
 			progressDialog.dismiss();
 		}
 
-		if (resultCode == REFRESH_ERROR) {
+		if (resultCode != REFRESH_OK) {
 			if (titleId >= 0) {
 				alertDialogBuilder.setTitle(titleId);
 			}
@@ -154,9 +157,16 @@ public abstract class AbstractRefreshTask extends AsyncTask<String, Integer, Int
 				@Override
 				public void onClick(final DialogInterface dialog, final int id) {
 					dialog.cancel();
+					if (resultCode == SESSION_ERROR) {
+						gotoLogin();
+					}
 				}
 			});
-			alertDialogBuilder.setMessage(R.string.refresh_error);
+			if (resultCode == SESSION_ERROR) {
+				alertDialogBuilder.setMessage(R.string.refresh_error_session);
+			} else {
+				alertDialogBuilder.setMessage(R.string.refresh_error);
+			}
 			alertDialogBuilder.create().show();
 		}
 

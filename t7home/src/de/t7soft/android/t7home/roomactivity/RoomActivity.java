@@ -173,6 +173,11 @@ public class RoomActivity extends ListActivity {
 			updateListAdapter();
 		}
 
+		@Override
+		public void gotoLogin() {
+			logout();
+		}
+
 	}
 
 	private class LogoutTask extends AbstractLogoutTask {

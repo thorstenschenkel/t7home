@@ -41,7 +41,8 @@
     <string name="refresh_states">Zustände werden aktualisiert...</string>
     <string name="refresh_store">Konfiguration und Zustände werden gespeichert...</string>
     <string name="refresh_error">Aktualisierung ist fehlgeschlagen!</string>
-
+    <string name="refresh_error_session">Aktualisierung ist fehlgeschlagen! Die Session ist abgelaufen.\nNeuanmeldung ist erforderlich.</string>
+    
     <!-- room -->
     <string name="room_subtitle">Raum</string>
     <string name="room_temperature_value">Raumtemperatur</string>
